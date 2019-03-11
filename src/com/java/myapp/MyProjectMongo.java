@@ -214,6 +214,8 @@ public class MyProjectMongo extends javax.swing.JFrame {
 	MongoClient mongo = new MongoClient("localhost", 27017);
 
         JOptionPane.showMessageDialog(this, "ติดต่อฐานข้อมูล ** สำเร็จ **");
+        
+        DB db = mongo.getDB((""));
     //} catch (UnknownHostException e) {
 	//e.printStackTrace();
     } catch (Exception e) {
