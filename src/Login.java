@@ -1,3 +1,9 @@
+import com.mongodb.*;
+import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -9,14 +15,53 @@
  * @author Yonshisoru
  */
 public class Login extends javax.swing.JFrame {
-
+MongoClient mongo;
+DB db;
+DBCollection DBC;
+boolean showpwd = false;
     /**
      * Creates new form Login
      */
     public Login() {
         initComponents();
+        this.setLocationRelativeTo(null);
+        getConnect();
     }
-
+public void getConnect(){
+    try{
+        MongoClient mongo = new MongoClient("localhost",27017);
+        db = mongo.getDB("InthaninDB");
+    }catch(Exception e){
+        JOptionPane.showMessageDialog(null,"การเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว\nกำลังปิดโปรแกรม");
+    }
+}
+public void clear(){
+       user_txt.setText("");
+       pwd_txt.setText("");
+}
+public boolean checklogin(String user,String pwd){
+    boolean output = false;
+    try{
+        DBC = db.getCollection("MS_EMPLOYEE");
+        BasicDBObject search = new BasicDBObject();
+        search.put("MS_EMPLOYEE_USERNAME",user);
+        search.put("MS_EMPLOYEE_PWD",pwd);
+        DBCursor c = DBC.find(search);
+        if(c.hasNext()){
+            output = true;
+        }else{
+            output =false;
+        }
+        DBObject dbo = DBC.findOne(search);
+        System.out.println(dbo.get("MS_EMPLOYEE_ID"));
+        /*while(c.hasNext()){
+            System.out.println(c);
+        }*/
+    }catch(Exception e){
+        
+    }
+    return output;
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -26,21 +71,106 @@ public class Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        Main = new javax.swing.JPanel();
+        pwd_label = new javax.swing.JLabel();
+        user_label = new javax.swing.JLabel();
+        user_txt = new javax.swing.JTextField();
+        pwd_txt = new javax.swing.JPasswordField();
+        jLabel4 = new javax.swing.JLabel();
+        exit_btn = new javax.swing.JButton();
+        login_btn = new javax.swing.JButton();
+        clear_btn = new javax.swing.JButton();
+        jCheckBox1 = new javax.swing.JCheckBox();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Inthanin.exe");
+        setBackground(new java.awt.Color(255, 255, 255));
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        Main.setBackground(new java.awt.Color(255, 255, 255));
+        Main.setEnabled(false);
+        Main.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pwd_label.setText("รหัสผ่าน:");
+        Main.add(pwd_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 300, -1, -1));
+
+        user_label.setText("ชื่อผู้ใช้");
+        Main.add(user_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 240, -1, -1));
+        Main.add(user_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 230, 210, 30));
+
+        pwd_txt.setEchoChar('*');
+        Main.add(pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, 210, 30));
+
+        jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\thech\\OneDrive\\Documents\\NetBeansProjects\\Inthanin_Project\\picture\\inthanin_garden-1.png")); // NOI18N
+        Main.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 710, 220));
+
+        exit_btn.setText("ออกจากโปรแกรม");
+        exit_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exit_btnActionPerformed(evt);
+            }
+        });
+        Main.add(exit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 360, 120, 50));
+
+        login_btn.setText("ลงชื่อเข้าใช้");
+        login_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                login_btnActionPerformed(evt);
+            }
+        });
+        Main.add(login_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 360, 120, 50));
+
+        clear_btn.setText("เคลียร์");
+        clear_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clear_btnActionPerformed(evt);
+            }
+        });
+        Main.add(clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 360, 120, 50));
+
+        jCheckBox1.setBackground(new java.awt.Color(255, 255, 255));
+        jCheckBox1.setText("แสดงรหัสผ่าน");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
+        Main.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 290, -1, -1));
+
+        getContentPane().add(Main, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 700, 440));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        showpwd = !showpwd;
+        if(showpwd==true){
+            pwd_txt.setEchoChar((char)0);
+        }else{
+            pwd_txt.setEchoChar('*');
+        }
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_btnActionPerformed
+        clear();
+    }//GEN-LAST:event_clear_btnActionPerformed
+
+    private void exit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exit_btnActionPerformed
+        if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะออกจากโปรแกรมจริงหรือไม่","System",YES_NO_OPTION)==YES_OPTION){
+            System.exit(0);
+        }
+    }//GEN-LAST:event_exit_btnActionPerformed
+
+    private void login_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_login_btnActionPerformed
+        String username = user_txt.getText();
+        String password = pwd_txt.getText();
+        if(checklogin(username,password)){
+            JOptionPane.showMessageDialog(null,"เข้าสู่ระบบสำเร็จ");
+        }else{
+            JOptionPane.showMessageDialog(null,"ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่อีกครั้ง",null,ERROR_MESSAGE);
+        }
+        clear();
+    }//GEN-LAST:event_login_btnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -53,7 +183,7 @@ public class Login extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -78,5 +208,15 @@ public class Login extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel Main;
+    private javax.swing.JButton clear_btn;
+    private javax.swing.JButton exit_btn;
+    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JButton login_btn;
+    private javax.swing.JLabel pwd_label;
+    private javax.swing.JPasswordField pwd_txt;
+    private javax.swing.JLabel user_label;
+    private javax.swing.JTextField user_txt;
     // End of variables declaration//GEN-END:variables
 }

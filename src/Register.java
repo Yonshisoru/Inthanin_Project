@@ -30,6 +30,8 @@ public void getconnect(){
         register_txt = new javax.swing.JButton();
         connect_txt = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -52,13 +54,29 @@ public void getconnect(){
         });
         getContentPane().add(connect_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, 130, 30));
 
-        jButton1.setText("check");
+        jButton1.setText("remove");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 230, -1, -1));
+        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 230, -1, -1));
+
+        jButton2.setText("check");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 230, -1, -1));
+
+        jButton3.setText("show");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 230, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -94,17 +112,30 @@ public void getconnect(){
        DBCollection table = db.getCollection("eiei");
        BasicDBObject doc = new BasicDBObject();
        doc.put("username","adminz");
-       doc.put("password","admin");
-       DBCursor cursor = table.find(doc);
-       if(cursor.hasNext()) {
-	System.out.println("true");
-	}else{
-           System.out.println("false");
-       }
+       table.remove(doc);
+       System.out.println("remove successfully");
        }catch(Exception e){
            System.out.println(e);
        }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try{
+       DB db = mongo.getDB("test");
+       DBCollection table = db.getCollection("eiei");
+       DBCursor cursor = table.find();
+       //Set<String> table = db.getCollectionNames();
+       while (cursor.hasNext()) {
+	System.out.println(cursor.next());
+	}  
+        }catch(Exception e){
+            
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -144,6 +175,8 @@ public void getconnect(){
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton connect_txt;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JTextField pwd_txt;
     private javax.swing.JButton register_txt;
     private javax.swing.JTextField user_txt;
