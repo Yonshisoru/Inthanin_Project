@@ -1,13 +1,28 @@
 import com.mongodb.*;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.Set;
+import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import javax.swing.JFileChooser;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 public class Register extends javax.swing.JFrame {
 MongoClient mongo;
+boolean showpwd = false;
     /**
      * Creates new form Register
      */
     public Register() {
         getconnect();
         initComponents();
+        fillagecomgo();
     }
 public void getconnect(){
     try{
@@ -15,6 +30,37 @@ public void getconnect(){
     }catch(Exception e){
         System.out.println(e);
     }
+}
+public void fillagecomgo(){
+    for(int i =15;i<=70;i++){
+        agecombo.addItem(String.valueOf(i));
+    }
+}
+public void clear(){
+    Calendar calendar = Calendar.getInstance();
+    //Date date =  calendar.getTime();
+    //System.out.println(date); //15/10/2013
+    imageshow_txt.setIcon(null);
+    fname_txt.setText("");
+    lname_txt.setText("");
+    agecombo.setSelectedIndex(0);
+    man_radio.setSelected(false);
+    woman_radio.setSelected(false);
+    birthdate_txt.setSelectedDate(calendar);
+    phone_txt.setText("");
+    id_txt.setText("");
+    home_txt.setText("");
+    locality_txt.setText("");
+    district_txt.setText("");
+    province_txt.setText("");
+    email_txt.setText("");
+    position_combo.setSelectedIndex(0);
+    user_txt.setText("");
+    pwd_txt.setText("");
+    showpwd_check.setSelected(false);
+    showpwd = false;
+    confirm.setSelected(false);
+    prefix.setSelectedIndex(0);
 }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -25,117 +71,351 @@ public void getconnect(){
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        pwd_txt = new javax.swing.JTextField();
+        buttonGroup1 = new javax.swing.ButtonGroup();
+        jLabel1 = new javax.swing.JLabel();
+        district_txt = new javax.swing.JTextField();
+        id_txt = new javax.swing.JTextField();
+        agecombo = new javax.swing.JComboBox<>();
+        man_radio = new javax.swing.JRadioButton();
+        woman_radio = new javax.swing.JRadioButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        birthdate_txt = new datechooser.beans.DateChooserCombo();
+        jLabel4 = new javax.swing.JLabel();
+        prefix = new javax.swing.JComboBox<>();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        fname_txt = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        lname_txt = new javax.swing.JTextField();
+        locality_txt = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        home_txt = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        email_txt = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        post_txt = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        province_txt = new javax.swing.JTextField();
+        jLabel15 = new javax.swing.JLabel();
         user_txt = new javax.swing.JTextField();
-        register_txt = new javax.swing.JButton();
-        connect_txt = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jLabel17 = new javax.swing.JLabel();
+        confirm = new javax.swing.JCheckBox();
+        clear_btn = new javax.swing.JButton();
+        confirm_btn = new javax.swing.JButton();
+        position_combo = new javax.swing.JComboBox<>();
+        jLabel18 = new javax.swing.JLabel();
+        phone_txt = new javax.swing.JTextField();
+        jLabel19 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
+        jLabel20 = new javax.swing.JLabel();
+        showpwd_check = new javax.swing.JCheckBox();
+        pwd_txt = new javax.swing.JPasswordField();
+        jDesktopPane1 = new javax.swing.JDesktopPane();
+        imageshow_txt = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
+        setMinimumSize(new java.awt.Dimension(701, 500));
+        setPreferredSize(new java.awt.Dimension(810, 630));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        getContentPane().add(pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 100, 196, 28));
-        getContentPane().add(user_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(109, 50, 196, 28));
 
-        register_txt.setText("Register");
-        register_txt.addActionListener(new java.awt.event.ActionListener() {
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/inthanin.png"))); // NOI18N
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, -40, -1, -1));
+
+        district_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                register_txtActionPerformed(evt);
+                district_txtActionPerformed(evt);
             }
         });
-        getContentPane().add(register_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 170, 130, 30));
+        getContentPane().add(district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 290, 50, 20));
+        getContentPane().add(id_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 250, 210, 20));
 
-        connect_txt.setText("Connect to DB");
-        connect_txt.addActionListener(new java.awt.event.ActionListener() {
+        agecombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกอายุ" }));
+        getContentPane().add(agecombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 140, 80, 20));
+
+        buttonGroup1.add(man_radio);
+        man_radio.setText("ชาย");
+        getContentPane().add(man_radio, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 140, -1, -1));
+
+        buttonGroup1.add(woman_radio);
+        woman_radio.setText("หญิง");
+        getContentPane().add(woman_radio, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 140, -1, -1));
+
+        jLabel2.setText("วัน/เดือน/ปีเกิด:");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 180, -1, -1));
+
+        jLabel3.setText("อายุ:");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 140, -1, -1));
+
+        birthdate_txt.setFormat(1);
+        birthdate_txt.setWeekStyle(datechooser.view.WeekDaysStyle.FULL);
+        getContentPane().add(birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 180, -1, -1));
+
+        jLabel4.setText("เพศ:");
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 140, -1, -1));
+
+        prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นางสาว" }));
+        getContentPane().add(prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 100, -1, -1));
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 90, -1, -1));
+
+        jLabel6.setText("เลขบัตรประจำตัวประชาชน:");
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 250, -1, -1));
+
+        jLabel7.setText("ชื่อ:");
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 100, -1, -1));
+        getContentPane().add(fname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 100, 110, 20));
+
+        jLabel8.setText("นามสกุล:");
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 100, -1, -1));
+
+        jLabel9.setText("อำเภอ:");
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 290, -1, -1));
+
+        lname_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                connect_txtActionPerformed(evt);
+                lname_txtActionPerformed(evt);
             }
         });
-        getContentPane().add(connect_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, 130, 30));
+        getContentPane().add(lname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 100, 110, 20));
 
-        jButton1.setText("remove");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        locality_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                locality_txtActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 230, -1, -1));
+        getContentPane().add(locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 290, 50, 20));
 
-        jButton2.setText("check");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jLabel10.setText("ตำบล:");
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 290, -1, -1));
+
+        home_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                home_txtActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 230, -1, -1));
+        getContentPane().add(home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 290, 50, 20));
 
-        jButton3.setText("show");
+        jLabel11.setText("บ้านเลขที่:");
+        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 290, -1, -1));
+
+        email_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                email_txtActionPerformed(evt);
+            }
+        });
+        getContentPane().add(email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 370, 140, 20));
+
+        jLabel12.setText("จังหวัด:");
+        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 330, -1, -1));
+
+        jLabel13.setText("ตำแหน่ง:");
+        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 370, -1, -1));
+
+        post_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                post_txtActionPerformed(evt);
+            }
+        });
+        getContentPane().add(post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 330, 50, 20));
+
+        jLabel14.setText("อีเมลล์:");
+        getContentPane().add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 370, -1, -1));
+
+        province_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                province_txtActionPerformed(evt);
+            }
+        });
+        getContentPane().add(province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 330, 140, 20));
+
+        jLabel15.setText("ชื่อผู้ใช้งาน:\n");
+        getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 420, -1, -1));
+
+        user_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                user_txtActionPerformed(evt);
+            }
+        });
+        getContentPane().add(user_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 420, 140, 20));
+
+        jLabel17.setText("รหัสผ่าน:");
+        getContentPane().add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 460, -1, -1));
+
+        confirm.setText("ข้อมูลที่ท่านกรอกมาเป็นความจริงทั้งหมด");
+        confirm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmActionPerformed(evt);
+            }
+        });
+        getContentPane().add(confirm, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 490, -1, -1));
+
+        clear_btn.setText("ล้าง");
+        clear_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clear_btnActionPerformed(evt);
+            }
+        });
+        getContentPane().add(clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 530, 110, 40));
+
+        confirm_btn.setText("ยืนยัน");
+        confirm_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirm_btnActionPerformed(evt);
+            }
+        });
+        getContentPane().add(confirm_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 530, 110, 40));
+
+        position_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกตำแหน่ง", "Employee", "Owner" }));
+        getContentPane().add(position_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 370, -1, -1));
+
+        jLabel18.setText("รหัสไปรษณีย์:");
+        getContentPane().add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 330, -1, -1));
+
+        phone_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                phone_txtActionPerformed(evt);
+            }
+        });
+        getContentPane().add(phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 220, 140, 20));
+
+        jLabel19.setText("เบอร์โทรศัพท์:");
+        getContentPane().add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 220, -1, -1));
+
+        jButton3.setText("Upload");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 230, -1, -1));
+        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 380, -1, -1));
+
+        jLabel20.setText("อัพโหลดรูปภาพ");
+        getContentPane().add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 380, -1, -1));
+
+        showpwd_check.setText("แสดงรหัสผ่าน");
+        showpwd_check.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showpwd_checkActionPerformed(evt);
+            }
+        });
+        getContentPane().add(showpwd_check, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 490, -1, -1));
+
+        pwd_txt.setToolTipText("");
+        pwd_txt.setEchoChar('*');
+        getContentPane().add(pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 460, 140, -1));
+
+        jDesktopPane1.setBackground(new java.awt.Color(255, 255, 255));
+        jDesktopPane1.setMaximumSize(new java.awt.Dimension(310, 260));
+        jDesktopPane1.setMinimumSize(new java.awt.Dimension(310, 260));
+        jDesktopPane1.setPreferredSize(new java.awt.Dimension(310, 260));
+        jDesktopPane1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        imageshow_txt.setForeground(new java.awt.Color(255, 255, 255));
+        imageshow_txt.setMaximumSize(new java.awt.Dimension(310, 260));
+        imageshow_txt.setMinimumSize(new java.awt.Dimension(310, 260));
+        imageshow_txt.setPreferredSize(new java.awt.Dimension(310, 260));
+        jDesktopPane1.add(imageshow_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, -10, 320, 270));
+
+        getContentPane().add(jDesktopPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(21, 101, 310, 260));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void register_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_register_txtActionPerformed
-       String user = user_txt.getText();
-       String pwd = pwd_txt.getText();
-       try{
-       DB db = mongo.getDB("test");
-       DBCollection table = db.getCollection("eiei");
-       DBCursor cursor = table.find();
-       //Set<String> table = db.getCollectionNames();
-       while (cursor.hasNext()) {
-	System.out.println(cursor.next());
-	}
-       BasicDBObject doc = new BasicDBObject();
-       doc.put("username", user);
-       doc.put("password",pwd);
-       table.insert(doc);
-       System.out.println("insert successfully");
-       }catch(Exception e){
-           System.out.println(e);
-       }
-    }//GEN-LAST:event_register_txtActionPerformed
-
-    private void connect_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connect_txtActionPerformed
-        getconnect();
-    }//GEN-LAST:event_connect_txtActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        try{
-       DB db = mongo.getDB("test");
-       DBCollection table = db.getCollection("eiei");
-       BasicDBObject doc = new BasicDBObject();
-       doc.put("username","adminz");
-       table.remove(doc);
-       System.out.println("remove successfully");
-       }catch(Exception e){
-           System.out.println(e);
-       }
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_district_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_district_txtActionPerformed
+
+    private void lname_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lname_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lname_txtActionPerformed
+
+    private void locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_locality_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_locality_txtActionPerformed
+
+    private void home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_home_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_home_txtActionPerformed
+
+    private void email_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_email_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_email_txtActionPerformed
+
+    private void post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_post_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_post_txtActionPerformed
+
+    private void province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_province_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_province_txtActionPerformed
+
+    private void user_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_user_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_user_txtActionPerformed
+
+    private void confirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_confirmActionPerformed
+
+    private void phone_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_phone_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_phone_txtActionPerformed
+
+    private void showpwd_checkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showpwd_checkActionPerformed
+        showpwd = !showpwd;
+        if(showpwd ==true){
+            pwd_txt.setEchoChar((char)0);
+        }else{
+            pwd_txt.setEchoChar('*');
+        }
+    }//GEN-LAST:event_showpwd_checkActionPerformed
+
+    private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
+       if(confirm.isSelected()==false){
+           JOptionPane.showMessageDialog(null,"คุณยังไม่ได้ยืนยันข้อมูล\nกรุณายืนยันด้วยครับ",null,ERROR_MESSAGE);
+       }else{
+           
+       }
+    }//GEN-LAST:event_confirm_btnActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        BufferedImage img = null;
+        JFileChooser chooser = new JFileChooser();
+        chooser.showOpenDialog(null);
+        try {
+            File f=chooser.getSelectedFile();
+            img = ImageIO.read(f);
+            Image dimg = img.getScaledInstance(imageshow_txt.getWidth(), imageshow_txt.getHeight(),
+            Image.SCALE_SMOOTH);
+            ImageIcon imageIcon = new ImageIcon(dimg);
+            imageshow_txt.setIcon(imageIcon);
+            filename = f.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch(Exception e){
+            e.printStackTrace();
+        }
         try{
-       DB db = mongo.getDB("test");
-       DBCollection table = db.getCollection("eiei");
-       DBCursor cursor = table.find();
-       //Set<String> table = db.getCollectionNames();
-       while (cursor.hasNext()) {
-	System.out.println(cursor.next());
-	}  
+            File image = new File(filename);
+            FileInputStream fis = new FileInputStream(image);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            byte[] buf=new byte[1024];
+            for(int readNum; (readNum=fis.read(buf))!=-1;){
+                bos.write(buf,0,readNum);
+            }
+            photo = bos.toByteArray();
         }catch(Exception e){
-            
+            JOptionPane.showMessageDialog(null,e);
         }
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_btnActionPerformed
+        clear();
+    }//GEN-LAST:event_clear_btnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -148,7 +428,7 @@ public void getconnect(){
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -173,12 +453,53 @@ public void getconnect(){
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton connect_txt;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JComboBox<String> agecombo;
+    private datechooser.beans.DateChooserCombo birthdate_txt;
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton clear_btn;
+    private javax.swing.JCheckBox confirm;
+    private javax.swing.JButton confirm_btn;
+    private javax.swing.JTextField district_txt;
+    private javax.swing.JTextField email_txt;
+    private javax.swing.JTextField fname_txt;
+    private javax.swing.JTextField home_txt;
+    private javax.swing.JTextField id_txt;
+    private javax.swing.JLabel imageshow_txt;
     private javax.swing.JButton jButton3;
-    private javax.swing.JTextField pwd_txt;
-    private javax.swing.JButton register_txt;
+    private javax.swing.JDesktopPane jDesktopPane1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JTextField lname_txt;
+    private javax.swing.JTextField locality_txt;
+    private javax.swing.JRadioButton man_radio;
+    private javax.swing.JTextField phone_txt;
+    private javax.swing.JComboBox<String> position_combo;
+    private javax.swing.JTextField post_txt;
+    private javax.swing.JComboBox<String> prefix;
+    private javax.swing.JTextField province_txt;
+    private javax.swing.JPasswordField pwd_txt;
+    private javax.swing.JCheckBox showpwd_check;
     private javax.swing.JTextField user_txt;
+    private javax.swing.JRadioButton woman_radio;
     // End of variables declaration//GEN-END:variables
+byte[] photo=null;
+String filename = null;
 }
+

@@ -3,7 +3,7 @@ import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
-
+import java.awt.Cursor;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -19,6 +19,8 @@ MongoClient mongo;
 DB db;
 DBCollection DBC;
 boolean showpwd = false;
+boolean connected = false;
+Variable v = new Variable();
     /**
      * Creates new form Login
      */
@@ -26,19 +28,38 @@ boolean showpwd = false;
         initComponents();
         this.setLocationRelativeTo(null);
         getConnect();
+        if(connected==false){
+            JOptionPane.showMessageDialog(null,"การเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว\nกำลังปิดโปรแกรม");
+            System.exit(0);
+        }
     }
 public void getConnect(){
     try{
         MongoClient mongo = new MongoClient("localhost",27017);
         db = mongo.getDB("InthaninDB");
+        System.out.println(db);
+        connected = true;
+        if(db==null){
+            connected = false;
+        }
+        System.out.println(mongo.getConnectPoint());
     }catch(Exception e){
         JOptionPane.showMessageDialog(null,"การเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว\nกำลังปิดโปรแกรม");
+        System.exit(0);
     }
 }
 public void clear(){
-       user_txt.setText("");
-       pwd_txt.setText("");
+       user_txt.setText("Username or Email");
+       pwd_txt.setText("Password");
 }
+/*public void getInfo(int id){
+    try{
+        BasicDBObject search = new BasicDBObject();
+        search.put("MS_EMPLOYEE_ID",id);
+    }catch(Exception e){
+        
+    }
+}*/
 public boolean checklogin(String user,String pwd){
     boolean output = false;
     try{
@@ -54,6 +75,12 @@ public boolean checklogin(String user,String pwd){
         }
         DBObject dbo = DBC.findOne(search);
         System.out.println(dbo.get("MS_EMPLOYEE_ID"));
+        dbo.get("MS_EMPLOYEE_ID");
+        if(dbo.get("MS_EMPLOYEE_TYPE").equals("Employee")){
+            v.setstatus(1);
+        }else if(dbo.get("MS_EMPLOYEE_TYPE").equals("Owner")){
+            v.setstatus(0);
+        }
         /*while(c.hasNext()){
             System.out.println(c);
         }*/
@@ -61,6 +88,11 @@ public boolean checklogin(String user,String pwd){
         
     }
     return output;
+}
+public void Mainpanel(){
+    Main m = new Main();
+        m.setVisible(true);
+    this.setVisible(false);
 }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -71,88 +103,106 @@ public boolean checklogin(String user,String pwd){
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        Main = new javax.swing.JPanel();
-        pwd_label = new javax.swing.JLabel();
-        user_label = new javax.swing.JLabel();
         user_txt = new javax.swing.JTextField();
+        user_label = new javax.swing.JLabel();
+        pwd_label = new javax.swing.JLabel();
         pwd_txt = new javax.swing.JPasswordField();
-        jLabel4 = new javax.swing.JLabel();
-        exit_btn = new javax.swing.JButton();
+        jCheckBox2 = new javax.swing.JCheckBox();
         login_btn = new javax.swing.JButton();
         clear_btn = new javax.swing.JButton();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        exit_btn = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Inthanin.exe");
         setBackground(new java.awt.Color(255, 255, 255));
+        setPreferredSize(new java.awt.Dimension(720, 500));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        Main.setBackground(new java.awt.Color(255, 255, 255));
-        Main.setEnabled(false);
-        Main.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        pwd_label.setText("รหัสผ่าน:");
-        Main.add(pwd_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 300, -1, -1));
-
-        user_label.setText("ชื่อผู้ใช้");
-        Main.add(user_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 240, -1, -1));
-        Main.add(user_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 230, 210, 30));
-
-        pwd_txt.setEchoChar('*');
-        Main.add(pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 290, 210, 30));
-
-        jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\thech\\OneDrive\\Documents\\NetBeansProjects\\Inthanin_Project\\picture\\inthanin_garden-1.png")); // NOI18N
-        Main.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 710, 220));
-
-        exit_btn.setText("ออกจากโปรแกรม");
-        exit_btn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exit_btnActionPerformed(evt);
+        user_txt.setText("Username or Email");
+        user_txt.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        user_txt.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                user_txtFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                user_txtFocusLost(evt);
             }
         });
-        Main.add(exit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 360, 120, 50));
+        user_txt.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                user_txtMouseEntered(evt);
+            }
+        });
+        getContentPane().add(user_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 200, 210, 30));
+
+        user_label.setText("ชื่อผู้ใช้");
+        getContentPane().add(user_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 210, -1, -1));
+
+        pwd_label.setText("รหัสผ่าน:");
+        getContentPane().add(pwd_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 270, -1, -1));
+
+        pwd_txt.setText("Password");
+        pwd_txt.setEchoChar((char)0);
+        pwd_txt.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                pwd_txtFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                pwd_txtFocusLost(evt);
+            }
+        });
+        getContentPane().add(pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 260, 210, 30));
+
+        jCheckBox2.setText("แสดงรหัสผ่าน");
+        jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox2ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jCheckBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 260, -1, -1));
 
         login_btn.setText("ลงชื่อเข้าใช้");
+        login_btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        login_btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                login_btnMouseEntered(evt);
+            }
+        });
         login_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 login_btnActionPerformed(evt);
             }
         });
-        Main.add(login_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 360, 120, 50));
+        getContentPane().add(login_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 340, 120, 50));
 
-        clear_btn.setText("เคลียร์");
+        clear_btn.setText("ลงทะเบียน");
+        clear_btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         clear_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 clear_btnActionPerformed(evt);
             }
         });
-        Main.add(clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 360, 120, 50));
+        getContentPane().add(clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 340, 120, 50));
 
-        jCheckBox1.setBackground(new java.awt.Color(255, 255, 255));
-        jCheckBox1.setText("แสดงรหัสผ่าน");
-        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+        exit_btn.setText("ออกจากโปรแกรม");
+        exit_btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exit_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox1ActionPerformed(evt);
+                exit_btnActionPerformed(evt);
             }
         });
-        Main.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 290, -1, -1));
+        getContentPane().add(exit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 340, 120, 50));
 
-        getContentPane().add(Main, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 700, 440));
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/inthanin_garden.png"))); // NOI18N
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, -20, 700, 280));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-        showpwd = !showpwd;
-        if(showpwd==true){
-            pwd_txt.setEchoChar((char)0);
-        }else{
-            pwd_txt.setEchoChar('*');
-        }
-    }//GEN-LAST:event_jCheckBox1ActionPerformed
-
     private void clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_btnActionPerformed
-        clear();
+        Register r = new Register();
+        r.setVisible(true);
     }//GEN-LAST:event_clear_btnActionPerformed
 
     private void exit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exit_btnActionPerformed
@@ -166,11 +216,55 @@ public boolean checklogin(String user,String pwd){
         String password = pwd_txt.getText();
         if(checklogin(username,password)){
             JOptionPane.showMessageDialog(null,"เข้าสู่ระบบสำเร็จ");
+            Mainpanel();
         }else{
             JOptionPane.showMessageDialog(null,"ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่อีกครั้ง",null,ERROR_MESSAGE);
         }
         clear();
     }//GEN-LAST:event_login_btnActionPerformed
+
+    private void user_txtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_user_txtFocusLost
+        if(user_txt.getText().equals("")){
+            user_txt.setText("Username or Email");
+        }
+    }//GEN-LAST:event_user_txtFocusLost
+
+    private void user_txtFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_user_txtFocusGained
+        if(user_txt.getText().equals("Username or Email")){
+            user_txt.setText("");
+        }
+    }//GEN-LAST:event_user_txtFocusGained
+
+    private void pwd_txtFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pwd_txtFocusGained
+        if(pwd_txt.getText().equals("Password")){
+            pwd_txt.setEchoChar('*');
+            pwd_txt.setText("");
+        }
+    }//GEN-LAST:event_pwd_txtFocusGained
+
+    private void pwd_txtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pwd_txtFocusLost
+        if(pwd_txt.getText().equals("")){
+            pwd_txt.setEchoChar((char)0);
+            pwd_txt.setText("Password");
+        }
+    }//GEN-LAST:event_pwd_txtFocusLost
+
+    private void user_txtMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_user_txtMouseEntered
+
+    }//GEN-LAST:event_user_txtMouseEntered
+
+    private void login_btnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_login_btnMouseEntered
+
+    }//GEN-LAST:event_login_btnMouseEntered
+
+    private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
+        showpwd = !showpwd;
+        if(showpwd ==true){
+            pwd_txt.setEchoChar((char)0);
+        }else{
+            pwd_txt.setEchoChar('*');
+        }
+    }//GEN-LAST:event_jCheckBox2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -208,10 +302,9 @@ public boolean checklogin(String user,String pwd){
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel Main;
     private javax.swing.JButton clear_btn;
     private javax.swing.JButton exit_btn;
-    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JButton login_btn;
     private javax.swing.JLabel pwd_label;
