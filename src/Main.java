@@ -1,3 +1,9 @@
+
+import com.mongodb.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -10,6 +16,10 @@
  */
 public class Main extends javax.swing.JFrame {
 Variable v = new Variable();
+MongoClient mongo;
+DB db;
+DBCollection DBC;
+DBObject dbo;
     /**
      * Creates new form Main
      */
@@ -17,7 +27,37 @@ Variable v = new Variable();
         initComponents();
         System.out.println(v.getstatus());
     }
-
+    public void logout(){
+            db = v.getConnect();
+            DBCollection table = db.getCollection("TRAN_LOG");
+            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
+            DBCursor cur = table.find().sort(sortObject);
+            int id = 0;
+            DBCursor find = table.find();
+            System.out.println(find.hasNext());
+            if(find.hasNext()==true){
+            System.out.println("eiei");
+            int n = (int)cur.one().get("TRAN_LOG_ID");
+            id = n+1;
+            }else{
+            id = 1; 
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+            String formattedDate = formatter.format(LocalDate.now());
+            String month = v.month(Integer.parseInt(formattedDate.substring(4,6)));
+            String year = formattedDate.substring(0,4);
+            String date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());
+            BasicDBObject document = new BasicDBObject();
+            //-----------------------------------------------
+            document.put("TRAN_LOG_ID",id);
+            document.put("TRAN_LOG_DATE",month+" "+date+", "+year);
+            document.put("TRAN_LOG_TIME",LocalTime.now().toString().substring(0,8));
+            document.put("TRAN_LOG_TYPE","Logout");
+            document.put("MS_EMPLOYEE_ID",v.getid());
+            //-----------------------------------------------
+            table.insert(document);
+            System.out.println("เพิ่มประวัติการเข้าใช้เรียบร้อยแล้ว");
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -76,6 +116,7 @@ Variable v = new Variable();
         Login g = new Login();
         g.setVisible(true);
         this.setVisible(false);
+        logout();
     }//GEN-LAST:event_formWindowClosing
 
     /**

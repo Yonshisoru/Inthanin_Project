@@ -1,9 +1,15 @@
 import com.mongodb.*;
+import java.awt.Color;
 import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
 import java.awt.Cursor;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import javax.swing.text.Document;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -21,6 +27,7 @@ DBCollection DBC;
 boolean showpwd = false;
 boolean connected = false;
 Variable v = new Variable();
+DBObject dbo;
     /**
      * Creates new form Login
      */
@@ -61,31 +68,96 @@ public void clear(){
     }
 }*/
 public boolean checklogin(String user,String pwd){
-    boolean output = false;
+    boolean output =false;
+    boolean checkid = false;
+    boolean checkemail = false;
+    int employeeid = 0;
     try{
         DBC = db.getCollection("MS_EMPLOYEE");
         BasicDBObject search = new BasicDBObject();
         search.put("MS_EMPLOYEE_USERNAME",user);
         search.put("MS_EMPLOYEE_PWD",pwd);
         DBCursor c = DBC.find(search);
+        dbo = DBC.findOne(search);
         if(c.hasNext()){
+            checkid = true;
+        }else{
+            checkid = false;
+        }
+        try{
+        employeeid = (int)dbo.get("MS_EMPLOYEE_ID");
+        }catch(Exception e){
+            
+        }
+        if(checkid==false){
+        BasicDBObject searchemail = new BasicDBObject();
+        DBCursor cl = DBC.find(searchemail);
+        dbo = DBC.findOne(searchemail);
+        searchemail.put("MS_EMPLOYEE_EMAIL",dbo.get("MS_EMPLOYEE_EMAIL"));
+        searchemail.put("MS_EMPLOYEE_PWD",pwd);
+        if(cl.hasNext()){
+           checkemail = true;
+        }else{
+           checkemail =false;
+        }
+        double m = (double) dbo.get("MS_EMPLOYEE_ID");
+        employeeid = (int)m;
+        }
+        System.out.println("PK=>"+employeeid);
+        System.out.println(dbo.get("MS_EMPLOYEE_TYPE"));
+        if(checkemail==true||checkid==true){
             output = true;
         }else{
-            output =false;
+            output = false;
         }
-        DBObject dbo = DBC.findOne(search);
-        System.out.println(dbo.get("MS_EMPLOYEE_ID"));
-        dbo.get("MS_EMPLOYEE_ID");
         if(dbo.get("MS_EMPLOYEE_TYPE").equals("Employee")){
             v.setstatus(1);
         }else if(dbo.get("MS_EMPLOYEE_TYPE").equals("Owner")){
             v.setstatus(0);
         }
+        DBCollection table = db.getCollection("TRAN_LOG");
+        BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
+        DBCursor cur = table.find().sort(sortObject);
+        int id = 0;
+        DBCursor find = table.find();
+        System.out.println(find.hasNext());
+        if(find.hasNext()==true){
+            System.out.println("eiei");
+            int n = (int)cur.one().get("TRAN_LOG_ID");
+            id = n+1;
+        }else{
+            id = 1; 
+        }
+             DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+             String formattedDate = formatter.format(LocalDate.now());
+             String month = v.month(Integer.parseInt(formattedDate.substring(4,6)));
+             String year = formattedDate.substring(0,4);
+             String date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());
+            BasicDBObject document = new BasicDBObject();
+            //-----------------------------------------------
+            document.put("TRAN_LOG_ID",id);
+            document.put("TRAN_LOG_DATE",month+" "+date+", "+year);
+            document.put("TRAN_LOG_TIME",LocalTime.now().toString().substring(0,8));
+            document.put("TRAN_LOG_TYPE","Login");
+            document.put("MS_EMPLOYEE_ID",employeeid);
+            //-----------------------------------------------
+            table.insert(document);
+            v.setid(employeeid);
+            System.out.println("เพิ่มประวัติการเข้าใช้เรียบร้อยแล้ว");
+        /*if(table)
+        System.err.println(cur.one().get("TRAN_LOG_ID"));
+        if(cur.one().get("TRAN_LOG_ID")){
+            id = 1;
+        }else{
+            double n = (double)(cur.one().get("TRAN_LOG_ID"));
+            id = (int)n+1;
+        }*/
+        System.err.println(id);
         /*while(c.hasNext()){
             System.out.println(c);
         }*/
     }catch(Exception e){
-        
+        e.printStackTrace();
     }
     return output;
 }
@@ -119,6 +191,7 @@ public void Mainpanel(){
         setPreferredSize(new java.awt.Dimension(720, 500));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        user_txt.setForeground(new java.awt.Color(153, 153, 153));
         user_txt.setText("Username or Email");
         user_txt.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         user_txt.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -142,6 +215,7 @@ public void Mainpanel(){
         pwd_label.setText("รหัสผ่าน:");
         getContentPane().add(pwd_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 270, -1, -1));
 
+        pwd_txt.setForeground(new java.awt.Color(153, 153, 153));
         pwd_txt.setText("Password");
         pwd_txt.setEchoChar((char)0);
         pwd_txt.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -226,12 +300,14 @@ public void Mainpanel(){
     private void user_txtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_user_txtFocusLost
         if(user_txt.getText().equals("")){
             user_txt.setText("Username or Email");
+            user_txt.setForeground(Color.GRAY);
         }
     }//GEN-LAST:event_user_txtFocusLost
 
     private void user_txtFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_user_txtFocusGained
         if(user_txt.getText().equals("Username or Email")){
             user_txt.setText("");
+            user_txt.setForeground(Color.BLACK);
         }
     }//GEN-LAST:event_user_txtFocusGained
 
@@ -239,6 +315,7 @@ public void Mainpanel(){
         if(pwd_txt.getText().equals("Password")){
             pwd_txt.setEchoChar('*');
             pwd_txt.setText("");
+            pwd_txt.setForeground(Color.BLACK);
         }
     }//GEN-LAST:event_pwd_txtFocusGained
 
@@ -246,6 +323,7 @@ public void Mainpanel(){
         if(pwd_txt.getText().equals("")){
             pwd_txt.setEchoChar((char)0);
             pwd_txt.setText("Password");
+            pwd_txt.setForeground(Color.GRAY);
         }
     }//GEN-LAST:event_pwd_txtFocusLost
 

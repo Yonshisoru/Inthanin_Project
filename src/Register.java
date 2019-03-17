@@ -9,13 +9,19 @@ import javax.swing.JFileChooser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.text.Document;
 public class Register extends javax.swing.JFrame {
 MongoClient mongo;
+DB db;
 boolean showpwd = false;
+Variable v =  new Variable();
     /**
      * Creates new form Register
      */
@@ -27,6 +33,7 @@ boolean showpwd = false;
 public void getconnect(){
     try{
         mongo = new MongoClient("localhost",27017);
+        db = mongo.getDB("InthaninDB");
     }catch(Exception e){
         System.out.println(e);
     }
@@ -117,7 +124,7 @@ public void clear(){
         jDesktopPane1 = new javax.swing.JDesktopPane();
         imageshow_txt = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
         setMinimumSize(new java.awt.Dimension(701, 500));
         setPreferredSize(new java.awt.Dimension(810, 630));
@@ -311,7 +318,6 @@ public void clear(){
         jDesktopPane1.setBackground(new java.awt.Color(255, 255, 255));
         jDesktopPane1.setMaximumSize(new java.awt.Dimension(310, 260));
         jDesktopPane1.setMinimumSize(new java.awt.Dimension(310, 260));
-        jDesktopPane1.setPreferredSize(new java.awt.Dimension(310, 260));
         jDesktopPane1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         imageshow_txt.setForeground(new java.awt.Color(255, 255, 255));
@@ -378,7 +384,50 @@ public void clear(){
        if(confirm.isSelected()==false){
            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้ยืนยันข้อมูล\nกรุณายืนยันด้วยครับ",null,ERROR_MESSAGE);
        }else{
-           
+           String year;
+           String month;
+           String date;
+           try{
+             DBCollection table = db.getCollection("MS_EMPLOYEE");
+             DBObject dbo = table.findOne(new BasicDBObject("_id",-1));
+             BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
+             DBCursor cur = table.find().sort(sortObject);
+             double n = (double)(cur.one().get("MS_EMPLOYEE_ID"));
+             System.out.println(birthdate_txt.getText());
+             SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
+             DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+             String formattedDate = formatter.format(LocalDate.now());
+             month = v.month(Integer.parseInt(formattedDate.substring(4,6)));
+             year = formattedDate.substring(0,4);
+             date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());
+             //System.out.println(formattedDate);
+             System.out.println(month+" "+date+", "+year);
+             /*format.parse(LocalDate.now().toString());
+             System.out.print(format.parse(LocalDate.now().toString()));*/
+             BasicDBObject document = new BasicDBObject();
+             document.put("MS_EMPLOYEE_ID",(int)n+1);
+             document.put("MS_EMPLOYEE_USERNAME",user_txt.getText());
+             document.put("MS_EMPLOYEE_PWD",pwd_txt.getText());
+             document.put("MS_EMPLOYEE_NAME",prefix.getSelectedItem().toString()+" "+fname_txt.getText()+" "+lname_txt.getText());
+             document.put("MS_EMPLOYEE_BIRTHDATE",birthdate_txt.getText());
+             document.put("MS_EMPLOYEE_EMAIL",email_txt.getText());
+             document.put("MS_EMPLOYEE_PHONE",phone_txt.getText());
+             BasicDBObject address = new BasicDBObject();
+             address.put("บ้านเลขที่", home_txt.getText());
+             address.put("ตำบล", locality_txt.getText());
+             address.put("อำเภอ", district_txt.getText());
+             address.put("จังหวัด", province_txt.getText());
+             address.put("รหัสไปรษณีย์", post_txt.getText());
+             document.put("MS_EMPLOYEE_ADDRESS",address);
+             document.put("MS_EMPLOYEE_HIRED_DATE",month+" "+date+", "+year);
+             document.put("MS_EMPLOYEE_TYPE",position_combo.getSelectedItem().toString());
+             document.put("MS_EMPLOYEE_PHOTO",filename);
+             table.insert(document);
+             JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
+             this.setVisible(false);
+           }catch(Exception e){
+               
+           }
        }
     }//GEN-LAST:event_confirm_btnActionPerformed
 
