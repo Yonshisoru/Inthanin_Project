@@ -181,14 +181,14 @@ public void Mainpanel(){
         pwd_txt = new javax.swing.JPasswordField();
         jCheckBox2 = new javax.swing.JCheckBox();
         login_btn = new javax.swing.JButton();
-        clear_btn = new javax.swing.JButton();
         exit_btn = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Inthanin.exe");
+        setTitle("หน้าต่างการล๊อคอิน");
         setBackground(new java.awt.Color(255, 255, 255));
-        setPreferredSize(new java.awt.Dimension(720, 500));
+        setMinimumSize(new java.awt.Dimension(800, 600));
+        setPreferredSize(new java.awt.Dimension(800, 600));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         user_txt.setForeground(new java.awt.Color(153, 153, 153));
@@ -207,13 +207,13 @@ public void Mainpanel(){
                 user_txtMouseEntered(evt);
             }
         });
-        getContentPane().add(user_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 200, 210, 30));
+        getContentPane().add(user_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 280, 210, 30));
 
         user_label.setText("ชื่อผู้ใช้");
-        getContentPane().add(user_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 210, -1, -1));
+        getContentPane().add(user_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 290, -1, -1));
 
         pwd_label.setText("รหัสผ่าน:");
-        getContentPane().add(pwd_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 270, -1, -1));
+        getContentPane().add(pwd_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 350, -1, -1));
 
         pwd_txt.setForeground(new java.awt.Color(153, 153, 153));
         pwd_txt.setText("Password");
@@ -226,7 +226,7 @@ public void Mainpanel(){
                 pwd_txtFocusLost(evt);
             }
         });
-        getContentPane().add(pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 260, 210, 30));
+        getContentPane().add(pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 340, 210, 30));
 
         jCheckBox2.setText("แสดงรหัสผ่าน");
         jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
@@ -234,7 +234,7 @@ public void Mainpanel(){
                 jCheckBox2ActionPerformed(evt);
             }
         });
-        getContentPane().add(jCheckBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 260, -1, -1));
+        getContentPane().add(jCheckBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 340, -1, -1));
 
         login_btn.setText("ลงชื่อเข้าใช้");
         login_btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -248,16 +248,7 @@ public void Mainpanel(){
                 login_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(login_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 340, 120, 50));
-
-        clear_btn.setText("ลงทะเบียน");
-        clear_btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        clear_btn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clear_btnActionPerformed(evt);
-            }
-        });
-        getContentPane().add(clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 340, 120, 50));
+        getContentPane().add(login_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 430, 120, 50));
 
         exit_btn.setText("ออกจากโปรแกรม");
         exit_btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -266,18 +257,13 @@ public void Mainpanel(){
                 exit_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(exit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 340, 120, 50));
+        getContentPane().add(exit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 430, 120, 50));
 
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/inthanin_garden.png"))); // NOI18N
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, -20, 700, 280));
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Untitled-3.png"))); // NOI18N
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 20, 480, 280));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_btnActionPerformed
-        Register r = new Register();
-        r.setVisible(true);
-    }//GEN-LAST:event_clear_btnActionPerformed
 
     private void exit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exit_btnActionPerformed
         if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะออกจากโปรแกรมจริงหรือไม่","System",YES_NO_OPTION)==YES_OPTION){
@@ -380,7 +366,6 @@ public void Mainpanel(){
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton clear_btn;
     private javax.swing.JButton exit_btn;
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JLabel jLabel4;
