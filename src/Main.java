@@ -187,6 +187,20 @@ public void disablepanel(){
         jLabel61 = new javax.swing.JLabel();
         jComboBox5 = new javax.swing.JComboBox<>();
         menu_panel = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTable4 = new javax.swing.JTable();
+        jLabel56 = new javax.swing.JLabel();
+        jLabel57 = new javax.swing.JLabel();
+        jLabel58 = new javax.swing.JLabel();
+        jLabel59 = new javax.swing.JLabel();
+        jLabel62 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jTextField3 = new javax.swing.JTextField();
+        jButton13 = new javax.swing.JButton();
+        jButton14 = new javax.swing.JButton();
+        jButton15 = new javax.swing.JButton();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTable5 = new javax.swing.JTable();
         partner_panel = new javax.swing.JPanel();
         fname_txt2 = new javax.swing.JTextField();
         jLabel43 = new javax.swing.JLabel();
@@ -556,6 +570,76 @@ public void disablepanel(){
         main_panel.add(stock_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
 
         menu_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jTable4.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "รหัสสินค้า", "ชื่อ", "จำนวน"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane4.setViewportView(jTable4);
+
+        menu_panel.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 120, 290, 280));
+
+        jLabel56.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel56.setText("ตารางสินค้า");
+        menu_panel.add(jLabel56, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, -1, -1));
+
+        jLabel57.setText("ราคา:");
+        menu_panel.add(jLabel57, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 130, -1, -1));
+
+        jLabel58.setText("ชื่อเมนู:");
+        menu_panel.add(jLabel58, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 80, -1, -1));
+
+        jLabel59.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        jLabel59.setText("หน้าต่างการสร้างเมนู");
+        menu_panel.add(jLabel59, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, -1, -1));
+
+        jLabel62.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel62.setText("รายละเอียดของเมนู");
+        menu_panel.add(jLabel62, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 90, -1, -1));
+        menu_panel.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 130, 60, -1));
+        menu_panel.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 80, 90, -1));
+
+        jButton13.setText("ล้างข้อมูล");
+        menu_panel.add(jButton13, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 410, -1, 30));
+
+        jButton14.setText("ยืนยัน");
+        menu_panel.add(jButton14, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 410, 80, 30));
+
+        jButton15.setText("แก้ไขเมนู");
+        menu_panel.add(jButton15, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 10, -1, 30));
+
+        jTable5.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "รหัสสินค้า", "ชื่อ", "ราคา"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane5.setViewportView(jTable5);
+
+        menu_panel.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 200, 290, 200));
+
         main_panel.add(menu_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
 
         partner_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1351,6 +1435,9 @@ public void disablepanel(){
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton12;
+    private javax.swing.JButton jButton13;
+    private javax.swing.JButton jButton14;
+    private javax.swing.JButton jButton15;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -1415,19 +1502,30 @@ public void disablepanel(){
     private javax.swing.JLabel jLabel53;
     private javax.swing.JLabel jLabel54;
     private javax.swing.JLabel jLabel55;
+    private javax.swing.JLabel jLabel56;
+    private javax.swing.JLabel jLabel57;
+    private javax.swing.JLabel jLabel58;
+    private javax.swing.JLabel jLabel59;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel60;
     private javax.swing.JLabel jLabel61;
+    private javax.swing.JLabel jLabel62;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
+    private javax.swing.JTable jTable4;
+    private javax.swing.JTable jTable5;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField lname_txt;
     private javax.swing.JTextField lname_txt1;
     private javax.swing.JTextField locality_txt;
