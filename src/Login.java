@@ -27,7 +27,7 @@ DBCollection DBC;
 boolean showpwd = false;
 boolean connected = false;
 Variable v = new Variable();
-DBObject dbo;
+//DBObject dbo;
     /**
      * Creates new form Login
      */
@@ -44,12 +44,12 @@ public void getConnect(){
     try{
         MongoClient mongo = new MongoClient("localhost",27017);
         db = mongo.getDB("InthaninDB");
-        System.out.println(db);
+        //System.out.println(db);
         connected = true;
         if(db==null){
             connected = false;
         }
-        System.out.println(mongo.getConnectPoint());
+        //System.out.println(mongo.getConnectPoint());
     }catch(Exception e){
         JOptionPane.showMessageDialog(null,"การเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว\nกำลังปิดโปรแกรม");
         System.exit(0);
@@ -73,46 +73,54 @@ public boolean checklogin(String user,String pwd){
     boolean checkemail = false;
     int employeeid = 0;
     try{
+        DBObject userinfo = null;
         DBC = db.getCollection("MS_EMPLOYEE");
         BasicDBObject search = new BasicDBObject();
         search.put("MS_EMPLOYEE_USERNAME",user);
         search.put("MS_EMPLOYEE_PWD",pwd);
         DBCursor c = DBC.find(search);
-        dbo = DBC.findOne(search);
         if(c.hasNext()){
             checkid = true;
+            try{
+                userinfo = c.next();
+            try{
+            employeeid = (int)userinfo.get("MS_EMPLOYEE_ID");
+            }catch(Exception e){
+                double k = (double)userinfo.get("MS_EMPLOYEE_ID"); 
+                employeeid = (int)k ;
+            }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
         }else{
             checkid = false;
-        }
-        try{
-        employeeid = (int)dbo.get("MS_EMPLOYEE_ID");
-        }catch(Exception e){
-            
         }
         if(checkid==false){
         BasicDBObject searchemail = new BasicDBObject();
         DBCursor cl = DBC.find(searchemail);
-        dbo = DBC.findOne(searchemail);
-        searchemail.put("MS_EMPLOYEE_EMAIL",dbo.get("MS_EMPLOYEE_EMAIL"));
+        searchemail.put("MS_EMPLOYEE_EMAIL",user);
         searchemail.put("MS_EMPLOYEE_PWD",pwd);
         if(cl.hasNext()){
            checkemail = true;
+           userinfo = cl.next();
+           try{
+           employeeid = (int)userinfo.get("MS_EMPLOYEE_ID");
+           }catch(Exception e){
+             double k = (double)userinfo.get("MS_EMPLOYEE_ID"); 
+             employeeid = (int)k ;
+           }
         }else{
            checkemail =false;
         }
-        double m = (double) dbo.get("MS_EMPLOYEE_ID");
-        employeeid = (int)m;
         }
-        System.out.println("PK=>"+employeeid);
-        System.out.println(dbo.get("MS_EMPLOYEE_TYPE"));
         if(checkemail==true||checkid==true){
             output = true;
         }else{
             output = false;
         }
-        if(dbo.get("MS_EMPLOYEE_TYPE").equals("Employee")){
+        if(userinfo.get("MS_EMPLOYEE_TYPE").equals("Employee")){
             v.setstatus(1);
-        }else if(dbo.get("MS_EMPLOYEE_TYPE").equals("Owner")){
+        }else if(userinfo.get("MS_EMPLOYEE_TYPE").equals("Owner")){
             v.setstatus(0);
         }
         DBCollection table = db.getCollection("TRAN_LOG");
@@ -120,7 +128,7 @@ public boolean checklogin(String user,String pwd){
         DBCursor cur = table.find().sort(sortObject);
         int id = 0;
         DBCursor find = table.find();
-        System.out.println(find.hasNext());
+       // System.out.println(find.hasNext());
         if(find.hasNext()==true){
             System.out.println("eiei");
             int n = (int)cur.one().get("TRAN_LOG_ID");
@@ -151,7 +159,7 @@ public boolean checklogin(String user,String pwd){
         }else{
             double n = (double)(cur.one().get("TRAN_LOG_ID"));
             id = (int)n+1;
-        }*/
+        }
         System.err.println(id);
         /*while(c.hasNext()){
             System.out.println(c);

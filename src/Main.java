@@ -20,6 +20,8 @@ import javax.swing.text.Document;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -38,12 +40,15 @@ DB db;
 DBCollection DBC;
 DBObject dbo;
 boolean showpwd = false;
+static String username;
+static String position;
     /**
      * Creates new form Main
      */
     public Main() {
         initComponents();
         disablepanel();
+        sessionnow();
         System.out.println(v.getstatus());
     }
 public void clear(){
@@ -84,7 +89,7 @@ public void disablepanel(){
     history_panel.setVisible(false);
 }
     public void logout(){
-            db = v.getConnect();
+            System.out.println("-----------logout----------------");
             DBCollection table = db.getCollection("TRAN_LOG");
             BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
             DBCursor cur = table.find().sort(sortObject);
@@ -114,6 +119,29 @@ public void disablepanel(){
             table.insert(document);
             System.out.println("เพิ่มประวัติการเข้าใช้เรียบร้อยแล้ว");
     }
+    public void sessionnow(){
+            db = v.getConnect();
+            DBCollection log = db.getCollection("TRAN_LOG");
+            DBCollection employee = db.getCollection("MS_EMPLOYEE");
+            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
+            DBCursor cur = log.find().sort(sortObject);
+            int emp_id = (int)cur.one().get("MS_EMPLOYEE_ID");
+            BasicDBObject search = new BasicDBObject();
+            search.put("MS_EMPLOYEE_ID",emp_id);
+            DBObject findemp = employee.findOne(search);
+            title_name_txt.setText(" "+findemp.get("MS_EMPLOYEE_NAME").toString());
+            if(findemp.get("MS_EMPLOYEE_TYPE").toString().equals("Owner")){
+                title_position_txt.setText(" เจ้าของร้าน");
+            }else{
+                title_position_txt.setText(" พนักงาน");
+                product_btn.setVisible(false);
+                stock_btn.setVisible(false);
+                menu_btn.setVisible(false);
+                partner_btn.setVisible(false);
+                employee_btn.setVisible(false);
+                history_btn.setVisible(false);
+            }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -128,7 +156,7 @@ public void disablepanel(){
         jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        title_name_txt1 = new javax.swing.JLabel();
+        title_position_txt = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         btn_panel = new javax.swing.JPanel();
         customer_btn = new javax.swing.JButton();
@@ -236,6 +264,7 @@ public void disablepanel(){
         jLabel38 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         jLabel34 = new javax.swing.JLabel();
+        jButton16 = new javax.swing.JButton();
         employee_panel = new javax.swing.JPanel();
         confirm = new javax.swing.JCheckBox();
         clear_btn = new javax.swing.JButton();
@@ -290,7 +319,7 @@ public void disablepanel(){
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("หน้าต่างหลัก");
         setMinimumSize(new java.awt.Dimension(815, 640));
-        setPreferredSize(new java.awt.Dimension(815, 640));
+        setPreferredSize(new java.awt.Dimension(915, 640));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -300,26 +329,34 @@ public void disablepanel(){
 
         title_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        title_name_txt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        title_panel.add(title_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 20, 250, 20));
+        title_name_txt.setText(" ");
+        title_name_txt.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        title_panel.add(title_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 18, 250, 20));
 
         jLabel2.setText("ยินดีต้อนรับคุณ:");
         title_panel.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 20, -1, -1));
 
         jButton1.setText("ออกจากระบบ");
-        title_panel.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 20, -1, -1));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        title_panel.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 20, -1, -1));
 
         jLabel3.setText("ตำแหน่ง:");
         title_panel.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 50, -1, -1));
 
-        title_name_txt1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        title_panel.add(title_name_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 50, 170, 20));
+        title_position_txt.setText(" ");
+        title_position_txt.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        title_panel.add(title_position_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 48, 170, 20));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Untitled-1.png"))); // NOI18N
         title_panel.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, -1, -1));
 
-        getContentPane().add(title_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 100));
+        getContentPane().add(title_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 100));
 
+        btn_panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         btn_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         customer_btn.setText("เพิ่มข้อมูลลูกค้า");
@@ -328,7 +365,7 @@ public void disablepanel(){
                 customer_btnActionPerformed(evt);
             }
         });
-        btn_panel.add(customer_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 0, 110, 40));
+        btn_panel.add(customer_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 0, 120, 40));
 
         stock_btn.setText("เพิ่มสินค้าในสต๊อก");
         stock_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -336,7 +373,7 @@ public void disablepanel(){
                 stock_btnActionPerformed(evt);
             }
         });
-        btn_panel.add(stock_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 0, 120, 40));
+        btn_panel.add(stock_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 0, 120, 40));
 
         order_btn.setText("หน้าต่างการขาย");
         order_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -344,7 +381,7 @@ public void disablepanel(){
                 order_btnActionPerformed(evt);
             }
         });
-        btn_panel.add(order_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 110, 40));
+        btn_panel.add(order_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 120, 40));
 
         menu_btn.setText("จัดการเมนู");
         menu_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -352,7 +389,7 @@ public void disablepanel(){
                 menu_btnActionPerformed(evt);
             }
         });
-        btn_panel.add(menu_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 0, 90, 40));
+        btn_panel.add(menu_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 0, 110, 40));
 
         partner_btn.setText("เพิ่มคู่ค้า");
         partner_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -360,7 +397,7 @@ public void disablepanel(){
                 partner_btnActionPerformed(evt);
             }
         });
-        btn_panel.add(partner_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 0, 90, 40));
+        btn_panel.add(partner_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 0, 100, 40));
 
         product_btn.setText("เพิ่มสินค้า");
         product_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -368,7 +405,7 @@ public void disablepanel(){
                 product_btnActionPerformed(evt);
             }
         });
-        btn_panel.add(product_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 0, 90, 40));
+        btn_panel.add(product_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 0, 120, 40));
 
         employee_btn.setText("เพิ่มพนักงาน");
         employee_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -376,7 +413,7 @@ public void disablepanel(){
                 employee_btnActionPerformed(evt);
             }
         });
-        btn_panel.add(employee_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 0, 90, 40));
+        btn_panel.add(employee_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 0, 100, 40));
 
         history_btn.setText("<html><body><center>ประวัติ<br>การขาย</center></body></html>");
         history_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -384,92 +421,92 @@ public void disablepanel(){
                 history_btnActionPerformed(evt);
             }
         });
-        btn_panel.add(history_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 0, 100, 40));
+        btn_panel.add(history_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 0, 110, 40));
 
-        getContentPane().add(btn_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 800, 40));
+        getContentPane().add(btn_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 900, 40));
 
         main_panel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         main_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         first_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        main_panel.add(first_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
+        main_panel.add(first_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 910, 460));
 
         customer_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel23.setText("นามสกุล:");
-        customer_panel.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 100, -1, -1));
+        customer_panel.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 110, -1, -1));
 
         type_txt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ลูกค้าใหม่", "ลูกค้าขาจร" }));
-        customer_panel.add(type_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 60, -1, -1));
+        customer_panel.add(type_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 70, -1, -1));
 
         prefix1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นาง", "นางสาว", "เด็กชาย", "เด็กหญิง" }));
-        customer_panel.add(prefix1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 100, -1, -1));
-        customer_panel.add(lname_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 100, 150, -1));
-        customer_panel.add(fname_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 100, 120, -1));
+        customer_panel.add(prefix1, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 110, -1, -1));
+        customer_panel.add(lname_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 110, 150, -1));
+        customer_panel.add(fname_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 110, 120, -1));
 
         jLabel24.setText("ประเภทลูกค้า:");
-        customer_panel.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 60, -1, -1));
+        customer_panel.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 70, -1, -1));
 
         jLabel25.setText("ชื่อ:");
-        customer_panel.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 100, -1, -1));
+        customer_panel.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 110, -1, -1));
 
         jLabel26.setText("เบอร์โทรศัพท์:");
-        customer_panel.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 140, -1, -1));
-        customer_panel.add(phone_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 140, 120, -1));
+        customer_panel.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 150, -1, -1));
+        customer_panel.add(phone_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 150, 120, -1));
 
         jLabel27.setText("อีเมลล์:");
-        customer_panel.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 140, -1, -1));
-        customer_panel.add(email_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 140, 150, -1));
+        customer_panel.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 150, -1, -1));
+        customer_panel.add(email_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 150, 150, -1));
 
         jLabel28.setText("วันเกิด:");
-        customer_panel.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 180, -1, -1));
+        customer_panel.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 190, -1, -1));
 
         home_txt1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 home_txt1ActionPerformed(evt);
             }
         });
-        customer_panel.add(home_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 220, 50, 20));
+        customer_panel.add(home_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 230, 50, 20));
 
         locality_txt1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 locality_txt1ActionPerformed(evt);
             }
         });
-        customer_panel.add(locality_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 220, 50, 20));
+        customer_panel.add(locality_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 230, 50, 20));
 
         jLabel29.setText("ตำบล:");
-        customer_panel.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 220, -1, -1));
+        customer_panel.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 230, -1, -1));
 
         jLabel30.setText("อำเภอ:");
-        customer_panel.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 220, -1, -1));
+        customer_panel.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 230, -1, -1));
 
         district_txt1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 district_txt1ActionPerformed(evt);
             }
         });
-        customer_panel.add(district_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 220, 50, 20));
+        customer_panel.add(district_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 230, 50, 20));
 
         post_txt1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 post_txt1ActionPerformed(evt);
             }
         });
-        customer_panel.add(post_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 260, 50, 20));
+        customer_panel.add(post_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 270, 50, 20));
 
         jLabel31.setText("รหัสไปรษณีย์:");
-        customer_panel.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 260, -1, -1));
+        customer_panel.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 270, -1, -1));
 
         jLabel32.setText("จังหวัด:");
-        customer_panel.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 260, -1, -1));
+        customer_panel.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 270, -1, -1));
 
         province_txt1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 province_txt1ActionPerformed(evt);
             }
         });
-        customer_panel.add(province_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 260, 140, 20));
+        customer_panel.add(province_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 270, 140, 20));
 
         jButton4.setText("ล้างข้อมูล");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -477,7 +514,7 @@ public void disablepanel(){
                 jButton4ActionPerformed(evt);
             }
         });
-        customer_panel.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 310, 110, 50));
+        customer_panel.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 320, 110, 50));
 
         jButton5.setText("บันทึก");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -485,27 +522,27 @@ public void disablepanel(){
                 jButton5ActionPerformed(evt);
             }
         });
-        customer_panel.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 310, 110, 50));
+        customer_panel.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 320, 110, 50));
 
         jLabel33.setText("บ้านเลขที่:");
-        customer_panel.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 220, -1, -1));
-        customer_panel.add(birthdate_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 180, -1, 20));
+        customer_panel.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 230, -1, -1));
+        customer_panel.add(birthdate_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 190, -1, 20));
 
         jLabel22.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel22.setText("เพิ่มข้อมูลลูกค้า");
-        customer_panel.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 20, -1, -1));
+        customer_panel.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 30, -1, -1));
 
-        main_panel.add(customer_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
+        main_panel.add(customer_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         product_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        product_panel.add(fname_txt3, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 110, 310, -1));
+        product_panel.add(fname_txt3, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 120, 310, -1));
 
         jLabel46.setText("ชื่อสินค้า:");
-        product_panel.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 110, -1, -1));
+        product_panel.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 120, -1, -1));
 
         jLabel53.setText("ราคา:");
-        product_panel.add(jLabel53, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 150, -1, -1));
-        product_panel.add(phone_txt3, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 150, 70, -1));
+        product_panel.add(jLabel53, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 160, -1, -1));
+        product_panel.add(phone_txt3, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 160, 70, -1));
 
         jButton9.setText("ล้างข้อมูล");
         jButton9.addActionListener(new java.awt.event.ActionListener() {
@@ -513,7 +550,7 @@ public void disablepanel(){
                 jButton9ActionPerformed(evt);
             }
         });
-        product_panel.add(jButton9, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 260, 110, 50));
+        product_panel.add(jButton9, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 270, 110, 50));
 
         jButton10.setText("บันทึก");
         jButton10.addActionListener(new java.awt.event.ActionListener() {
@@ -521,28 +558,28 @@ public void disablepanel(){
                 jButton10ActionPerformed(evt);
             }
         });
-        product_panel.add(jButton10, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 260, 110, 50));
+        product_panel.add(jButton10, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 270, 110, 50));
 
         jLabel60.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel60.setText("เพิ่มข้อมูลสินค้า");
-        product_panel.add(jLabel60, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 30, -1, -1));
+        product_panel.add(jLabel60, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 40, -1, -1));
 
         jLabel42.setText("ประเภทของสินค้า:");
-        product_panel.add(jLabel42, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 200, -1, -1));
+        product_panel.add(jLabel42, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 210, -1, -1));
 
         jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ส่วนประกอบเครื่องดื่ม", "เบเกอรี่", "ส่วนประกอบของคาว" }));
-        product_panel.add(jComboBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 190, 180, 30));
+        product_panel.add(jComboBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 200, 180, 30));
 
-        main_panel.add(product_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
+        main_panel.add(product_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         stock_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel54.setText("ชื่อสินค้า:");
-        stock_panel.add(jLabel54, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 110, -1, -1));
+        stock_panel.add(jLabel54, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 150, -1, -1));
 
         jLabel55.setText("จำนวนที่เพิ่มเข้าไปในสต๊อก:");
-        stock_panel.add(jLabel55, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 150, -1, 20));
-        stock_panel.add(phone_txt4, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 150, 70, -1));
+        stock_panel.add(jLabel55, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 190, -1, 20));
+        stock_panel.add(phone_txt4, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 190, 70, -1));
 
         jButton11.setText("ล้างข้อมูล");
         jButton11.addActionListener(new java.awt.event.ActionListener() {
@@ -550,7 +587,7 @@ public void disablepanel(){
                 jButton11ActionPerformed(evt);
             }
         });
-        stock_panel.add(jButton11, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 200, 110, 50));
+        stock_panel.add(jButton11, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 240, 110, 50));
 
         jButton12.setText("บันทึก");
         jButton12.addActionListener(new java.awt.event.ActionListener() {
@@ -558,16 +595,16 @@ public void disablepanel(){
                 jButton12ActionPerformed(evt);
             }
         });
-        stock_panel.add(jButton12, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 200, 110, 50));
+        stock_panel.add(jButton12, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 240, 110, 50));
 
         jLabel61.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel61.setText("เพิ่มข้อมูลสินค้าในสต๊อก");
-        stock_panel.add(jLabel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 30, -1, -1));
+        stock_panel.add(jLabel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 70, -1, -1));
 
         jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกสินค้า" }));
-        stock_panel.add(jComboBox5, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 100, 110, 30));
+        stock_panel.add(jComboBox5, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 140, 110, 30));
 
-        main_panel.add(stock_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
+        main_panel.add(stock_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         menu_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -589,36 +626,36 @@ public void disablepanel(){
         });
         jScrollPane4.setViewportView(jTable4);
 
-        menu_panel.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 120, 290, 280));
+        menu_panel.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 120, 290, 280));
 
         jLabel56.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel56.setText("ตารางสินค้า");
-        menu_panel.add(jLabel56, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, -1, -1));
+        menu_panel.add(jLabel56, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 170, -1, -1));
 
         jLabel57.setText("ราคา:");
-        menu_panel.add(jLabel57, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 130, -1, -1));
+        menu_panel.add(jLabel57, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 130, -1, -1));
 
         jLabel58.setText("ชื่อเมนู:");
-        menu_panel.add(jLabel58, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 80, -1, -1));
+        menu_panel.add(jLabel58, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 80, -1, -1));
 
         jLabel59.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel59.setText("หน้าต่างการสร้างเมนู");
-        menu_panel.add(jLabel59, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, -1, -1));
+        menu_panel.add(jLabel59, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 20, -1, -1));
 
         jLabel62.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel62.setText("รายละเอียดของเมนู");
-        menu_panel.add(jLabel62, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 90, -1, -1));
-        menu_panel.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 130, 60, -1));
-        menu_panel.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 80, 90, -1));
+        menu_panel.add(jLabel62, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 90, -1, -1));
+        menu_panel.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 130, 60, -1));
+        menu_panel.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 80, 90, -1));
 
         jButton13.setText("ล้างข้อมูล");
-        menu_panel.add(jButton13, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 410, -1, 30));
+        menu_panel.add(jButton13, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 410, -1, 30));
 
         jButton14.setText("ยืนยัน");
-        menu_panel.add(jButton14, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 410, 80, 30));
+        menu_panel.add(jButton14, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 410, 80, 30));
 
         jButton15.setText("แก้ไขเมนู");
-        menu_panel.add(jButton15, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 10, -1, 30));
+        menu_panel.add(jButton15, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 10, -1, 30));
 
         jTable5.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -638,70 +675,70 @@ public void disablepanel(){
         });
         jScrollPane5.setViewportView(jTable5);
 
-        menu_panel.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 200, 290, 200));
+        menu_panel.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 200, 290, 200));
 
-        main_panel.add(menu_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
+        main_panel.add(menu_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         partner_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        partner_panel.add(fname_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 110, 310, -1));
+        partner_panel.add(fname_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 110, 310, -1));
 
         jLabel43.setText("ชื่อบริษัท:");
-        partner_panel.add(jLabel43, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, -1, -1));
+        partner_panel.add(jLabel43, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, -1, -1));
 
         jLabel44.setText("เบอร์โทรศัพท์:");
-        partner_panel.add(jLabel44, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 150, -1, -1));
-        partner_panel.add(phone_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 150, 120, -1));
+        partner_panel.add(jLabel44, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 150, -1, -1));
+        partner_panel.add(phone_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 150, 120, -1));
 
         jLabel45.setText("อีเมลล์:");
-        partner_panel.add(jLabel45, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 150, -1, -1));
-        partner_panel.add(email_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 150, 150, -1));
+        partner_panel.add(jLabel45, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 150, -1, -1));
+        partner_panel.add(email_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 150, 150, -1));
 
         home_txt2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 home_txt2ActionPerformed(evt);
             }
         });
-        partner_panel.add(home_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 190, 50, 20));
+        partner_panel.add(home_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 190, 50, 20));
 
         locality_txt2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 locality_txt2ActionPerformed(evt);
             }
         });
-        partner_panel.add(locality_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 190, 50, 20));
+        partner_panel.add(locality_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 190, 50, 20));
 
         jLabel47.setText("ตำบล:");
-        partner_panel.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 190, -1, -1));
+        partner_panel.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 190, -1, -1));
 
         jLabel48.setText("อำเภอ:");
-        partner_panel.add(jLabel48, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 190, -1, -1));
+        partner_panel.add(jLabel48, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 190, -1, -1));
 
         district_txt2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 district_txt2ActionPerformed(evt);
             }
         });
-        partner_panel.add(district_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 190, 50, 20));
+        partner_panel.add(district_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 190, 50, 20));
 
         post_txt2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 post_txt2ActionPerformed(evt);
             }
         });
-        partner_panel.add(post_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 230, 50, 20));
+        partner_panel.add(post_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 230, 50, 20));
 
         jLabel49.setText("รหัสไปรษณีย์:");
-        partner_panel.add(jLabel49, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 230, -1, -1));
+        partner_panel.add(jLabel49, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 230, -1, -1));
 
         jLabel50.setText("จังหวัด:");
-        partner_panel.add(jLabel50, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 230, -1, -1));
+        partner_panel.add(jLabel50, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 230, -1, -1));
 
         province_txt2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 province_txt2ActionPerformed(evt);
             }
         });
-        partner_panel.add(province_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 230, 140, 20));
+        partner_panel.add(province_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 230, 140, 20));
 
         jButton7.setText("ล้างข้อมูล");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -709,7 +746,7 @@ public void disablepanel(){
                 jButton7ActionPerformed(evt);
             }
         });
-        partner_panel.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 320, 110, 50));
+        partner_panel.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 320, 110, 50));
 
         jButton8.setText("บันทึก");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
@@ -717,22 +754,22 @@ public void disablepanel(){
                 jButton8ActionPerformed(evt);
             }
         });
-        partner_panel.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 320, 110, 50));
+        partner_panel.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 320, 110, 50));
 
         jLabel51.setText("บ้านเลขที่:");
-        partner_panel.add(jLabel51, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 190, -1, -1));
+        partner_panel.add(jLabel51, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 190, -1, -1));
 
         jLabel52.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel52.setText("เพิ่มข้อมูลคู่ค้า");
-        partner_panel.add(jLabel52, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 30, -1, -1));
+        partner_panel.add(jLabel52, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 30, -1, -1));
 
         jLabel39.setText("ประเภทของคู่ค้า:");
-        partner_panel.add(jLabel39, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 270, -1, -1));
+        partner_panel.add(jLabel39, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 270, -1, -1));
 
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "คู่ค้าส่วนประกอบเครื่องดื่ม", "คู่ค้าของหวานเบเกอรี่", "คู่ค้าส่วนประกอบของคาว" }));
-        partner_panel.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 260, 180, 30));
+        partner_panel.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 260, 180, 30));
 
-        main_panel.add(partner_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
+        main_panel.add(partner_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         order_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -760,10 +797,10 @@ public void disablepanel(){
             jTable1.getColumnModel().getColumn(3).setPreferredWidth(40);
         }
 
-        order_panel.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 100, 390, 270));
+        order_panel.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 100, 380, 270));
 
         jButton2.setText("เคลียร์");
-        order_panel.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 420, 100, 30));
+        order_panel.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 420, 100, 30));
 
         jButton6.setText("สั่ง");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -771,7 +808,7 @@ public void disablepanel(){
                 jButton6ActionPerformed(evt);
             }
         });
-        order_panel.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 420, 100, 30));
+        order_panel.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 420, 100, 30));
 
         jTable3.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -791,33 +828,36 @@ public void disablepanel(){
         });
         jScrollPane3.setViewportView(jTable3);
 
-        order_panel.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 390, 270));
+        order_panel.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 390, 270));
 
         jLabel35.setForeground(new java.awt.Color(255, 0, 0));
-        jLabel35.setText("*ดับเบิ้ลคลิ๊กเพื่อเพิ่มสินค้าในตารางออเดอร์");
-        order_panel.add(jLabel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, -1, -1));
+        jLabel35.setText("เพิ่มสินค้า");
+        order_panel.add(jLabel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 200, 60, 20));
 
         jLabel36.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel36.setText("ตารางออเดอร์");
-        order_panel.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 70, -1, -1));
+        order_panel.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 70, -1, -1));
 
         jLabel37.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel37.setText("ตารางสินค้า");
-        order_panel.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 70, -1, -1));
+        order_panel.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, -1, -1));
 
         jLabel38.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel38.setText("หน้าต่างการสั่งออเดอร์");
-        order_panel.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 10, -1, -1));
+        order_panel.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 10, -1, -1));
 
         jTextField2.setEditable(false);
         jTextField2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        order_panel.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 380, 93, 30));
+        order_panel.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 380, 93, 30));
 
         jLabel34.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel34.setText("ราคารวม");
-        order_panel.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 380, -1, -1));
+        order_panel.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 380, -1, -1));
 
-        main_panel.add(order_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
+        jButton16.setText(">>");
+        order_panel.add(jButton16, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 220, 60, -1));
+
+        main_panel.add(order_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         employee_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -1016,7 +1056,7 @@ public void disablepanel(){
         jLabel4.setText("หน้าต่างเพิ่มพนักงาน");
         employee_panel.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 20, -1, -1));
 
-        main_panel.add(employee_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
+        main_panel.add(employee_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         history_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -1052,18 +1092,18 @@ public void disablepanel(){
         jLabel41.setText("เดือน:");
         history_panel.add(jLabel41, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 20, -1, -1));
 
-        main_panel.add(history_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 800, 460));
+        main_panel.add(history_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
-        getContentPane().add(main_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 135, 800, 470));
+        getContentPane().add(main_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 135, 900, 470));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        Login g = new Login();
-        g.setVisible(true);
-        this.setVisible(false);
-        logout();
+            Login g = new Login();
+            g.setVisible(true);
+            this.setVisible(false);
+            logout();
     }//GEN-LAST:event_formWindowClosing
 
     private void district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_district_txtActionPerformed
@@ -1268,6 +1308,7 @@ public void disablepanel(){
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลลูกค้าใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){
         try{
             try{
                 DBCollection table = db.getCollection("MS_CUSTOMER");
@@ -1308,6 +1349,7 @@ public void disablepanel(){
             }
         }catch(Exception e){
 
+        }
         }
     }//GEN-LAST:event_jButton5ActionPerformed
 
@@ -1365,6 +1407,15 @@ public void disablepanel(){
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton12ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะออกจากระบบหรือไม่","System",YES_NO_OPTION)==YES_OPTION){
+        Login g = new Login();
+            g.setVisible(true);
+            this.setVisible(false);
+            logout();
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1438,6 +1489,7 @@ public void disablepanel(){
     private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton14;
     private javax.swing.JButton jButton15;
+    private javax.swing.JButton jButton16;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -1560,8 +1612,8 @@ public void disablepanel(){
     private javax.swing.JButton stock_btn;
     private javax.swing.JPanel stock_panel;
     private javax.swing.JLabel title_name_txt;
-    private javax.swing.JLabel title_name_txt1;
     private javax.swing.JPanel title_panel;
+    private javax.swing.JLabel title_position_txt;
     private javax.swing.JComboBox<String> type_txt;
     private javax.swing.JTextField user_txt;
     private javax.swing.JRadioButton woman_radio;
