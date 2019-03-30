@@ -197,15 +197,15 @@ public void disablepanel(){
         birthdate_txt1 = new datechooser.beans.DateChooserCombo();
         jLabel22 = new javax.swing.JLabel();
         product_panel = new javax.swing.JPanel();
-        fname_txt3 = new javax.swing.JTextField();
+        pro_name_txt = new javax.swing.JTextField();
         jLabel46 = new javax.swing.JLabel();
         jLabel53 = new javax.swing.JLabel();
-        phone_txt3 = new javax.swing.JTextField();
+        pro_price_txt = new javax.swing.JTextField();
         jButton9 = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
         jLabel60 = new javax.swing.JLabel();
         jLabel42 = new javax.swing.JLabel();
-        jComboBox3 = new javax.swing.JComboBox<>();
+        pro_type_combo = new javax.swing.JComboBox<>();
         stock_panel = new javax.swing.JPanel();
         jLabel54 = new javax.swing.JLabel();
         jLabel55 = new javax.swing.JLabel();
@@ -535,14 +535,14 @@ public void disablepanel(){
         main_panel.add(customer_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         product_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        product_panel.add(fname_txt3, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 120, 310, -1));
+        product_panel.add(pro_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 120, 310, -1));
 
         jLabel46.setText("ชื่อสินค้า:");
         product_panel.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 120, -1, -1));
 
         jLabel53.setText("ราคา:");
         product_panel.add(jLabel53, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 160, -1, -1));
-        product_panel.add(phone_txt3, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 160, 70, -1));
+        product_panel.add(pro_price_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 160, 70, -1));
 
         jButton9.setText("ล้างข้อมูล");
         jButton9.addActionListener(new java.awt.event.ActionListener() {
@@ -567,8 +567,8 @@ public void disablepanel(){
         jLabel42.setText("ประเภทของสินค้า:");
         product_panel.add(jLabel42, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 210, -1, -1));
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ส่วนประกอบเครื่องดื่ม", "เบเกอรี่", "ส่วนประกอบของคาว" }));
-        product_panel.add(jComboBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 200, 180, 30));
+        pro_type_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ส่วนประกอบเครื่องดื่ม", "เบเกอรี่", "ส่วนประกอบของคาว" }));
+        product_panel.add(pro_type_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 200, 180, 30));
 
         main_panel.add(product_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
@@ -1339,7 +1339,11 @@ public void disablepanel(){
                 address.put("รหัสไปรษณีย์", post_txt.getText());
                 document.put("MS_CUSTOMER_ADDRESS",address);
                 document.put("MS_CUSTOMER_BIRTHDATE",birthdate_txt.getText());
-                document.put("MS_CUSTOMER_TYPE",type_txt.getSelectedItem().toString());
+                if(type_txt.getSelectedIndex()==0){
+                    document.put("MS_CUSTOMER_TYPE","New Customer");
+                }else if(type_txt.getSelectedIndex()==1){
+                    document.put("MS_CUSTOMER_TYPE","Patron");
+                }
                 document.put("MS_CUSTOMER_POINTS",0);
                 table.insert(document);
                 JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
@@ -1397,7 +1401,50 @@ public void disablepanel(){
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-        // TODO add your handling code here:
+    if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลสินค้าใหม่ใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){
+        try{
+            try{
+                DBCollection table = db.getCollection("MS_PRODUCT");
+                BasicDBObject productobject = new BasicDBObject().append("_id", -1);
+                DBCursor cur = table.find().sort(productobject);
+                int productid = 0;
+                DBCursor find = table.find();
+                System.out.println(find.hasNext());
+                if(find.hasNext()==true){
+                    try{
+                    productid = 1+(int)productobject.get("MS_PRODUCT_ID");
+                    }catch(Exception e){
+                    double k = 1+(double)productobject.get("MS_PRODUCT_ID"); 
+                    productid = (int)k ;
+                    }
+                }else{
+                    productid = 1;
+                }
+                //System.out.println(productid);
+                BasicDBObject document = new BasicDBObject();
+                document.put("MS_PRODUCT_ID",(int)productid);
+                document.put("MS_PRODUCT_AMOUNT",0);
+                document.put("MS_PRODUCT_NAME",pro_name_txt.getText());
+                document.put("MS_PRODUCT_PRICE",Integer.parseInt(pro_price_txt.getText()));
+                String type = null;
+                if(pro_type_combo.getSelectedIndex()==0){
+                   type = "Drink";
+                }else if(pro_type_combo.getSelectedIndex()==1){
+                    type = "Bakery";
+                }else if(pro_type_combo.getSelectedIndex()==2){
+                    type = "Meal";
+                }
+                document.put("MS_PRODUCTR_TYPE",type);
+                table.insert(document);
+                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
+                //this.setVisible(false);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        }
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
@@ -1474,7 +1521,6 @@ public void disablepanel(){
     private javax.swing.JTextField fname_txt;
     private javax.swing.JTextField fname_txt1;
     private javax.swing.JTextField fname_txt2;
-    private javax.swing.JTextField fname_txt3;
     private javax.swing.JButton history_btn;
     private javax.swing.JPanel history_panel;
     private javax.swing.JTextField home_txt;
@@ -1500,7 +1546,6 @@ public void disablepanel(){
     private javax.swing.JButton jButton9;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox2;
-    private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox5;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JLabel jLabel1;
@@ -1594,7 +1639,6 @@ public void disablepanel(){
     private javax.swing.JTextField phone_txt;
     private javax.swing.JTextField phone_txt1;
     private javax.swing.JTextField phone_txt2;
-    private javax.swing.JTextField phone_txt3;
     private javax.swing.JTextField phone_txt4;
     private javax.swing.JComboBox<String> position_combo;
     private javax.swing.JTextField post_txt;
@@ -1602,6 +1646,9 @@ public void disablepanel(){
     private javax.swing.JTextField post_txt2;
     private javax.swing.JComboBox<String> prefix;
     private javax.swing.JComboBox<String> prefix1;
+    private javax.swing.JTextField pro_name_txt;
+    private javax.swing.JTextField pro_price_txt;
+    private javax.swing.JComboBox<String> pro_type_combo;
     private javax.swing.JButton product_btn;
     private javax.swing.JPanel product_panel;
     private javax.swing.JTextField province_txt;
