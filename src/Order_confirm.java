@@ -1,3 +1,20 @@
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.awt.Desktop;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -9,7 +26,53 @@
  * @author Yonshisoru
  */
 public class Order_confirm extends javax.swing.JFrame {
-
+    public void printInvoice(){
+        String time = LocalTime.now().toString().substring(0,2)+"-"+LocalTime.now().toString().substring(3,5)+"-"+LocalTime.now().toString().substring(6,8);
+        String filename = "$"+LocalDate.now()+"$"+time+"$"+/*t.getorderid()*/001+".pdf";
+        try{
+        Document doc = new Document();
+        BaseFont baseFont = BaseFont.createFont("fonts/fontsgod.ttf", BaseFont.IDENTITY_H,true);
+        Font font = new Font(baseFont,18);
+        Font topicfont = new Font(baseFont,20);
+        Font bigfont = new Font(baseFont,30);
+        PdfWriter.getInstance(doc,new FileOutputStream("invoice/"+filename));
+        doc.open();
+        doc.add(new Paragraph(String.format("Inthanin Coffee"),bigfont));
+        String date = LocalDate.now().toString().substring(LocalDate.now().toString().length()-2,LocalDate.now().toString().length());
+        String month= LocalDate.now().toString().substring(5,7);
+        String year = LocalDate.now().toString().substring(0,4);
+        doc.add(new Paragraph(String.format("%s\n","วันที่: "+date+"/"+month+"/"+year),font));
+        doc.add(new Phrase(String.format("%s\n","เวลา: "+LocalTime.now().toString().substring(0,8)+" น."),font));
+        doc.add(new Paragraph(String.format("%s","-----------------------------------------------------------------------------------------------------"),font));
+        doc.add(new Paragraph(String.format("%s\n","ใบเสร็จรับเงิน"),bigfont));
+                /*for(Menu_variable mm:Pay_Menu){
+                        double eiei = (double)mm.c.gettotal()*(double)mm.c.getunits();
+                       doc.add(new Paragraph(String.format("%s",mm.c.getunits()+"          "+mm.getname()+"               "+String.format("%.2f",eiei)+" บาท"),font)); 
+            }*/
+     doc.add(new Paragraph(String.format("%s","-----------------------------------------------------------------------------------------------------"),font));  
+     doc.add(new Paragraph(String.format("%s\n","จำนวนสุทธิ: "+" รายการ"),font));    
+     doc.add(new Paragraph(String.format("%s\n","รับเงิน: "+" บาท"),font));       
+     doc.add(new Paragraph(String.format("%s\n","ราคารวมทั้งหมด: "+" บาท"),font)); 
+     doc.add(new Paragraph(String.format("%s\n","เงินทอน: "+" บาท"),font));     
+     doc.add(new Paragraph(String.format("%s","\n\n\n"),font)); 
+     doc.add(new Paragraph(String.format("%s","                                       Thank you and please come again                         "),font)); 
+     doc.add(new Paragraph(String.format("%s","                                             Inthanin Coffee                              "),font)); 
+     doc.add(new Paragraph(String.format("%s","\n\n\n"),font)); 
+     doc.add(new Paragraph(String.format("%s"," -------------------------------------------@powered by SAM---------------------------------------"),font));  
+        doc.close();
+}catch (DocumentException ex){
+    Logger.getLogger(Order_confirm.class.getName()).log(Level.SEVERE,null,ex);
+}      catch (FileNotFoundException ex) {
+           Logger.getLogger(Order_confirm.class.getName()).log(Level.SEVERE, null, ex);
+       }catch(IOException ex){
+          Logger.getLogger(Order_confirm.class.getName()).log(Level.SEVERE, null, ex); 
+       }
+try{
+        Desktop.getDesktop().open(new File("./invoice/"+filename));
+                }catch(Exception e){
+                    System.out.println(e);
+                }
+    }
     /**
      * Creates new form Order_confirm
      */
@@ -128,6 +191,11 @@ public class Order_confirm extends javax.swing.JFrame {
 
         jButton3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButton3.setText("ยืนยันการออเดอร์");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
         getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 460, 120, 40));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -156,6 +224,10 @@ public class Order_confirm extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+         printInvoice();
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments

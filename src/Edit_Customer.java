@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
  *
  * @author Yonshisoru
  */
-public class Customer extends javax.swing.JFrame {
+public class Edit_Customer extends javax.swing.JFrame {
 Variable v = new Variable();
     MongoClient mongo;
     DB db;
@@ -28,7 +28,7 @@ Variable v = new Variable();
     /**
      * Creates new form Customer
      */
-    public Customer() {
+    public Edit_Customer() {
         initComponents();
         getconnect();
     }
@@ -76,6 +76,10 @@ public void getconnect(){
         jButton4 = new javax.swing.JButton();
         jLabel13 = new javax.swing.JLabel();
         birthdate_txt = new datechooser.beans.DateChooserCombo();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jRadioButton1 = new javax.swing.JRadioButton();
+        jRadioButton2 = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Inthanin.exe");
@@ -90,85 +94,85 @@ public void getconnect(){
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jLabel1.setText("ข้อมูลลูกค้า");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 6, -1, -1));
+        jLabel1.setText("หน้าต่างแก้ไขข้อมูลลูกค้า");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 5, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-9, 0, 790, 30));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 30));
 
         jLabel2.setText("นามสกุล:");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 100, -1, -1));
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 120, -1, -1));
 
         type_txt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ลูกค้าใหม่", "ลูกค้าขาจร" }));
-        getContentPane().add(type_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 60, -1, -1));
+        getContentPane().add(type_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 70, -1, -1));
 
         prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นาง", "นางสาว", "เด็กชาย", "เด็กหญิง" }));
-        getContentPane().add(prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 100, -1, -1));
-        getContentPane().add(lname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 100, 150, -1));
-        getContentPane().add(fname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 100, 120, -1));
+        getContentPane().add(prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 80, -1, -1));
+        getContentPane().add(lname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 120, 150, -1));
+        getContentPane().add(fname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 120, 120, -1));
 
         jLabel3.setText("ประเภทลูกค้า:");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 60, -1, -1));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 70, -1, -1));
 
         jLabel4.setText("ชื่อ:");
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 100, -1, -1));
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 120, -1, -1));
 
         jLabel5.setText("เบอร์โทรศัพท์:");
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 140, -1, -1));
-        getContentPane().add(phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 140, 120, -1));
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 160, -1, -1));
+        getContentPane().add(phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 160, 120, -1));
 
         jLabel6.setText("อีเมลล์:");
-        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 140, -1, -1));
-        getContentPane().add(email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 140, 150, -1));
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 160, -1, -1));
+        getContentPane().add(email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 160, 150, -1));
 
         jLabel11.setText("วันเกิด:");
-        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 180, -1, -1));
+        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 200, -1, -1));
 
         home_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 home_txtActionPerformed(evt);
             }
         });
-        getContentPane().add(home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 210, 50, 20));
+        getContentPane().add(home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 240, 50, 20));
 
         locality_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 locality_txtActionPerformed(evt);
             }
         });
-        getContentPane().add(locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 210, 50, 20));
+        getContentPane().add(locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 240, 50, 20));
 
         jLabel10.setText("ตำบล:");
-        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 210, -1, -1));
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 240, -1, -1));
 
         jLabel9.setText("อำเภอ:");
-        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 210, -1, -1));
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 240, -1, -1));
 
         district_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 district_txtActionPerformed(evt);
             }
         });
-        getContentPane().add(district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 210, 50, 20));
+        getContentPane().add(district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 240, 50, 20));
 
         post_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 post_txtActionPerformed(evt);
             }
         });
-        getContentPane().add(post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 250, 50, 20));
+        getContentPane().add(post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 280, 50, 20));
 
         jLabel18.setText("รหัสไปรษณีย์:");
-        getContentPane().add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 250, -1, -1));
+        getContentPane().add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 280, -1, -1));
 
         jLabel12.setText("จังหวัด:");
-        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 250, -1, -1));
+        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 280, -1, -1));
 
         province_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 province_txtActionPerformed(evt);
             }
         });
-        getContentPane().add(province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 250, 140, 20));
+        getContentPane().add(province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 280, 140, 20));
 
         jButton3.setText("ยกเลิก");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -176,21 +180,39 @@ public void getconnect(){
                 jButton3ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 300, 110, 50));
+        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 520, 110, 50));
 
-        jButton4.setText("บันทึก");
+        jButton4.setText("ยืนยันการแก้ไข");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 300, 110, 50));
+        getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 520, 110, 50));
 
         jLabel13.setText("บ้านเลขที่:");
-        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 210, -1, -1));
+        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 240, -1, -1));
 
         birthdate_txt.setFormat(1);
-        getContentPane().add(birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 180, -1, 20));
+        getContentPane().add(birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 200, -1, 20));
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "รหัสสมาชิก", "ชื่อ-สกุล"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
+
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 97, -1, 360));
+
+        jRadioButton1.setText("ลบข้อมูลพนักงาน");
+        getContentPane().add(jRadioButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 60, -1, -1));
+
+        jRadioButton2.setText("แก้ไขข้อมูลพนักงาน");
+        getContentPane().add(jRadioButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -280,20 +302,23 @@ public void getconnect(){
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Customer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Edit_Customer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Customer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Edit_Customer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Customer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Edit_Customer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Customer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Edit_Customer.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Customer().setVisible(true);
+                new Edit_Customer().setVisible(true);
             }
         });
     }
@@ -319,6 +344,10 @@ public void getconnect(){
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JRadioButton jRadioButton1;
+    private javax.swing.JRadioButton jRadioButton2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
     private javax.swing.JTextField lname_txt;
     private javax.swing.JTextField locality_txt;
     private javax.swing.JTextField phone_txt;
