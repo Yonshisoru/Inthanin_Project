@@ -81,10 +81,9 @@ public void getconnect(){
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton2 = new javax.swing.JRadioButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Inthanin.exe");
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("หน้าต่างแก้ไขข้อมูลลูกค้า");
         setMinimumSize(new java.awt.Dimension(713, 408));
-        setPreferredSize(new java.awt.Dimension(713, 430));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
@@ -217,26 +216,6 @@ public void getconnect(){
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_home_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_home_txtActionPerformed
-
-    private void locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_locality_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_locality_txtActionPerformed
-
-    private void district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_district_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_district_txtActionPerformed
-
-    private void post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_post_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_post_txtActionPerformed
-
-    private void province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_province_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_province_txtActionPerformed
-
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         try{
            try{
@@ -284,6 +263,26 @@ public void getconnect(){
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
             this.setVisible(false);
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_province_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_province_txtActionPerformed
+
+    private void post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_post_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_post_txtActionPerformed
+
+    private void district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_district_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_district_txtActionPerformed
+
+    private void locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_locality_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_locality_txtActionPerformed
+
+    private void home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_home_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_home_txtActionPerformed
 
     /**
      * @param args the command line arguments

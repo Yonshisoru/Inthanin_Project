@@ -47,11 +47,13 @@ static String position;
      */
     public Main() {
         initComponents();
+        increaseagecombo();
+        this.setLocationRelativeTo(null);
         disablepanel();
         sessionnow();
         System.out.println(v.getstatus());
     }
-public void clear(){
+public void clear_emp(){
     Calendar calendar = Calendar.getInstance();
     //Date date =  calendar.getTime();
     //System.out.println(date); //15/10/2013
@@ -86,6 +88,11 @@ public void disablepanel(){
     partner_panel.setVisible(false);
     employee_panel.setVisible(false);
     history_panel.setVisible(false);
+}
+public void increaseagecombo(){
+    for(int i =15;i<60;i++){
+        agecombo.addItem(""+i);
+    }
 }
     public void logout(){
             System.out.println("-----------logout----------------");
@@ -352,7 +359,7 @@ public void disablepanel(){
         title_position_txt.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         title_panel.add(title_position_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 48, 170, 20));
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Untitled-1.png"))); // NOI18N
+        jLabel1.setIcon(new javax.swing.ImageIcon("C:\\Users\\informatics\\Documents\\GIT\\Inthanin_Project\\src\\image\\Untitled-1.png")); // NOI18N
         title_panel.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, -1, -1));
 
         getContentPane().add(title_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 100));
@@ -426,7 +433,7 @@ public void disablepanel(){
 
         getContentPane().add(btn_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 900, 40));
 
-        main_panel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        main_panel.setBorder(javax.swing.BorderFactory.createBevelBorder(0));
         main_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         first_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -534,6 +541,11 @@ public void disablepanel(){
         customer_panel.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 30, -1, -1));
 
         jButton17.setText("แก้ไขข้อมูลลูกค้า");
+        jButton17.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton17ActionPerformed(evt);
+            }
+        });
         customer_panel.add(jButton17, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, -1, -1));
 
         main_panel.add(customer_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
@@ -581,6 +593,11 @@ public void disablepanel(){
         product_panel.add(jLabel63, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 260, -1, -1));
 
         jButton19.setText("แก้ไขข้อมูลสินค้า");
+        jButton19.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton19ActionPerformed(evt);
+            }
+        });
         product_panel.add(jButton19, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 10, -1, -1));
 
         main_panel.add(product_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
@@ -668,6 +685,11 @@ public void disablepanel(){
         menu_panel.add(jButton14, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 410, 80, 30));
 
         jButton15.setText("แก้ไขเมนู");
+        jButton15.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton15ActionPerformed(evt);
+            }
+        });
         menu_panel.add(jButton15, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 10, -1, 30));
 
         jTable5.setModel(new javax.swing.table.DefaultTableModel(
@@ -783,6 +805,11 @@ public void disablepanel(){
         partner_panel.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 260, 180, 30));
 
         jButton18.setText("แก้ไขข้อมูลคู่ค้า");
+        jButton18.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton18ActionPerformed(evt);
+            }
+        });
         partner_panel.add(jButton18, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, -1, -1));
 
         main_panel.add(partner_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
@@ -863,7 +890,7 @@ public void disablepanel(){
         order_panel.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 10, -1, -1));
 
         jTextField2.setEditable(false);
-        jTextField2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jTextField2.setBorder(javax.swing.BorderFactory.createBevelBorder(0));
         order_panel.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 380, 93, 30));
 
         jLabel34.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -1049,6 +1076,11 @@ public void disablepanel(){
         employee_panel.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 20, -1, -1));
 
         jButton3.setText("แก้ไขพนักงาน");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
         employee_panel.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, -1, -1));
 
         main_panel.add(employee_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
@@ -1138,7 +1170,7 @@ public void disablepanel(){
     }//GEN-LAST:event_phone_txtActionPerformed
 
     private void clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_btnActionPerformed
-        clear();
+        clear_emp();
     }//GEN-LAST:event_clear_btnActionPerformed
 
     private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
@@ -1153,7 +1185,14 @@ public void disablepanel(){
                 DBObject dbo = table.findOne(new BasicDBObject("_id",-1));
                 BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
                 DBCursor cur = table.find().sort(sortObject);
-                double n = (double)(cur.one().get("MS_EMPLOYEE_ID"));
+                int n;
+                try{
+                    n = (int)(cur.one().get("MS_EMPLOYEE_ID"));
+                }catch(Exception e){
+                    double k = (double)(cur.one().get("MS_EMPLOYEE_ID"));
+                    n = (int)k;
+                    
+                }
                 System.out.println(birthdate_txt.getText());
                 SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
                 DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
@@ -1185,9 +1224,9 @@ public void disablepanel(){
                 document.put("MS_EMPLOYEE_PHOTO",filename);
                 table.insert(document);
                 JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
-                this.setVisible(false);
+                clear_emp();
             }catch(Exception e){
-
+                   System.out.println(e);
             }
         }
     }//GEN-LAST:event_confirm_btnActionPerformed
@@ -1427,6 +1466,36 @@ public void disablepanel(){
             logout();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton18ActionPerformed
+        Edit_Partner g = new Edit_Partner();
+            g.setLocationRelativeTo(null);
+            g.setVisible(true);
+    }//GEN-LAST:event_jButton18ActionPerformed
+
+    private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
+                Edit_Menu g = new Edit_Menu();
+                g.setLocationRelativeTo(null);
+                g.setVisible(true);
+    }//GEN-LAST:event_jButton15ActionPerformed
+
+    private void jButton19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton19ActionPerformed
+                Edit_Product g = new Edit_Product();
+                g.setLocationRelativeTo(null);
+                g.setVisible(true);
+    }//GEN-LAST:event_jButton19ActionPerformed
+
+    private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
+        Edit_Customer g = new Edit_Customer();
+        g.setLocationRelativeTo(null);
+                g.setVisible(true);
+    }//GEN-LAST:event_jButton17ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        Edit_Employee g = new Edit_Employee();
+        g.setLocationRelativeTo(null);
+                g.setVisible(true);
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments

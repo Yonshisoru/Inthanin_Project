@@ -267,7 +267,7 @@ public void Mainpanel(){
         });
         getContentPane().add(exit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 430, 120, 50));
 
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Untitled-3.png"))); // NOI18N
+        jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\informatics\\Documents\\GIT\\Inthanin_Project\\src\\image\\Untitled-3.png")); // NOI18N
         getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 20, 480, 280));
 
         pack();
