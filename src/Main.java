@@ -48,10 +48,20 @@ static String position;
     public Main() {
         initComponents();
         increaseagecombo();
+        set_logo();
         this.setLocationRelativeTo(null);
         disablepanel();
         sessionnow();
         System.out.println(v.getstatus());
+    }
+    public void set_logo(){
+        try{
+        ImageIcon imageIcon = new ImageIcon ("./image/main_icon.png"); 
+        picture_label.setIcon(imageIcon);
+                }catch(Exception e){
+                    System.out.println(e);
+                }
+        //picture_label.setIcon(new ImageIcon("./image/Untitled-3.png"));
     }
 public void clear_emp(){
     Calendar calendar = Calendar.getInstance();
@@ -163,7 +173,7 @@ public void increaseagecombo(){
         jButton1 = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         title_position_txt = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        picture_label = new javax.swing.JLabel();
         btn_panel = new javax.swing.JPanel();
         customer_btn = new javax.swing.JButton();
         stock_btn = new javax.swing.JButton();
@@ -358,9 +368,7 @@ public void increaseagecombo(){
         title_position_txt.setText(" ");
         title_position_txt.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         title_panel.add(title_position_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 48, 170, 20));
-
-        jLabel1.setIcon(new javax.swing.ImageIcon("C:\\Users\\informatics\\Documents\\GIT\\Inthanin_Project\\src\\image\\Untitled-1.png")); // NOI18N
-        title_panel.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, -1, -1));
+        title_panel.add(picture_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, -1, -1));
 
         getContentPane().add(title_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 100));
 
@@ -433,7 +441,7 @@ public void increaseagecombo(){
 
         getContentPane().add(btn_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 900, 40));
 
-        main_panel.setBorder(javax.swing.BorderFactory.createBevelBorder(0));
+        main_panel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         main_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         first_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -890,7 +898,7 @@ public void increaseagecombo(){
         order_panel.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 10, -1, -1));
 
         jTextField2.setEditable(false);
-        jTextField2.setBorder(javax.swing.BorderFactory.createBevelBorder(0));
+        jTextField2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         order_panel.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 380, 93, 30));
 
         jLabel34.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -1582,7 +1590,6 @@ public void increaseagecombo(){
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JComboBox<String> jComboBox5;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -1675,6 +1682,7 @@ public void increaseagecombo(){
     private javax.swing.JTextField phone_txt1;
     private javax.swing.JTextField phone_txt2;
     private javax.swing.JTextField phone_txt4;
+    private javax.swing.JLabel picture_label;
     private javax.swing.JComboBox<String> position_combo;
     private javax.swing.JTextField post_txt;
     private javax.swing.JTextField post_txt1;

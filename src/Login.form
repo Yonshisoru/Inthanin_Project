@@ -142,15 +142,10 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel4">
-      <Properties>
-        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="2" name="C:\Users\informatics\Documents\GIT\Inthanin_Project\src\image\Untitled-3.png"/>
-        </Property>
-      </Properties>
+    <Component class="javax.swing.JLabel" name="picture_label">
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="160" y="20" width="480" height="280"/>
+          <AbsoluteConstraints x="180" y="30" width="480" height="280"/>
         </Constraint>
       </Constraints>
     </Component>

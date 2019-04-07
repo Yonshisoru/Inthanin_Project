@@ -5,10 +5,14 @@ import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
 import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Image;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import javax.swing.ImageIcon;
 import javax.swing.text.Document;
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -33,12 +37,22 @@ Variable v = new Variable();
      */
     public Login() {
         initComponents();
+        setpicture();
         this.setLocationRelativeTo(null);
         getConnect();
         if(connected==false){
             JOptionPane.showMessageDialog(null,"การเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว\nกำลังปิดโปรแกรม");
             System.exit(0);
         }
+    }
+    public void setpicture(){
+        try{
+        ImageIcon imageIcon = new ImageIcon ("./image/login_icon.png"); 
+        picture_label.setIcon(imageIcon);
+                }catch(Exception e){
+                    System.out.println(e);
+                }
+        //picture_label.setIcon(new ImageIcon("./image/Untitled-3.png"));
     }
 public void getConnect(){
     try{
@@ -85,6 +99,7 @@ public boolean checklogin(String user,String pwd){
                 userinfo = c.next();
             try{
             employeeid = (int)userinfo.get("MS_EMPLOYEE_ID");
+            String employeeid2 = userinfo.get("MS_EMPLOYEE_NAME").toString();
             }catch(Exception e){
                 double k = (double)userinfo.get("MS_EMPLOYEE_ID"); 
                 employeeid = (int)k ;
@@ -190,7 +205,7 @@ public void Mainpanel(){
         jCheckBox2 = new javax.swing.JCheckBox();
         login_btn = new javax.swing.JButton();
         exit_btn = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
+        picture_label = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("หน้าต่างการล๊อคอิน");
@@ -266,9 +281,7 @@ public void Mainpanel(){
             }
         });
         getContentPane().add(exit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 430, 120, 50));
-
-        jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\informatics\\Documents\\GIT\\Inthanin_Project\\src\\image\\Untitled-3.png")); // NOI18N
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 20, 480, 280));
+        getContentPane().add(picture_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 30, 480, 280));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -376,8 +389,8 @@ public void Mainpanel(){
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton exit_btn;
     private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JButton login_btn;
+    private javax.swing.JLabel picture_label;
     private javax.swing.JLabel pwd_label;
     private javax.swing.JPasswordField pwd_txt;
     private javax.swing.JLabel user_label;

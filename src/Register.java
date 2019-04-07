@@ -47,7 +47,6 @@ public void clear(){
     Calendar calendar = Calendar.getInstance();
     //Date date =  calendar.getTime();
     //System.out.println(date); //15/10/2013
-    imageshow_txt.setIcon(null);
     fname_txt.setText("");
     lname_txt.setText("");
     agecombo.setSelectedIndex(0);
@@ -79,7 +78,6 @@ public void clear(){
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
         district_txt = new javax.swing.JTextField();
         id_txt = new javax.swing.JTextField();
         agecombo = new javax.swing.JComboBox<>();
@@ -117,21 +115,14 @@ public void clear(){
         jLabel18 = new javax.swing.JLabel();
         phone_txt = new javax.swing.JTextField();
         jLabel19 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
-        jLabel20 = new javax.swing.JLabel();
         showpwd_check = new javax.swing.JCheckBox();
         pwd_txt = new javax.swing.JPasswordField();
-        jDesktopPane1 = new javax.swing.JDesktopPane();
-        imageshow_txt = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
         setMinimumSize(new java.awt.Dimension(701, 500));
         setPreferredSize(new java.awt.Dimension(810, 630));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/inthanin.png"))); // NOI18N
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, -40, -1, -1));
 
         district_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -292,17 +283,6 @@ public void clear(){
         jLabel19.setText("เบอร์โทรศัพท์:");
         getContentPane().add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 220, -1, -1));
 
-        jButton3.setText("Upload");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 380, -1, -1));
-
-        jLabel20.setText("อัพโหลดรูปภาพ");
-        getContentPane().add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 380, -1, -1));
-
         showpwd_check.setText("แสดงรหัสผ่าน");
         showpwd_check.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -314,19 +294,6 @@ public void clear(){
         pwd_txt.setToolTipText("");
         pwd_txt.setEchoChar('*');
         getContentPane().add(pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 460, 140, -1));
-
-        jDesktopPane1.setBackground(new java.awt.Color(255, 255, 255));
-        jDesktopPane1.setMaximumSize(new java.awt.Dimension(310, 260));
-        jDesktopPane1.setMinimumSize(new java.awt.Dimension(310, 260));
-        jDesktopPane1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        imageshow_txt.setForeground(new java.awt.Color(255, 255, 255));
-        imageshow_txt.setMaximumSize(new java.awt.Dimension(310, 260));
-        imageshow_txt.setMinimumSize(new java.awt.Dimension(310, 260));
-        imageshow_txt.setPreferredSize(new java.awt.Dimension(310, 260));
-        jDesktopPane1.add(imageshow_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, -10, 320, 270));
-
-        getContentPane().add(jDesktopPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(21, 101, 310, 260));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -392,7 +359,16 @@ public void clear(){
              DBObject dbo = table.findOne(new BasicDBObject("_id",-1));
              BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
              DBCursor cur = table.find().sort(sortObject);
-             double n = (double)(cur.one().get("MS_EMPLOYEE_ID"));
+            int id = 0;
+            DBCursor find = table.find();
+       // System.out.println(find.hasNext());
+            if(find.hasNext()==true){
+            System.out.println("eiei");
+            int n = (int)cur.one().get("MS_EMPLOYEE_ID");
+            id = n+1;
+            }else{
+            id = 1; 
+            }
              System.out.println(birthdate_txt.getText());
              SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
              DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
@@ -405,7 +381,7 @@ public void clear(){
              /*format.parse(LocalDate.now().toString());
              System.out.print(format.parse(LocalDate.now().toString()));*/
              BasicDBObject document = new BasicDBObject();
-             document.put("MS_EMPLOYEE_ID",(int)n+1);
+             document.put("MS_EMPLOYEE_ID",(int)id);
              document.put("MS_EMPLOYEE_USERNAME",user_txt.getText());
              document.put("MS_EMPLOYEE_PWD",pwd_txt.getText());
              document.put("MS_EMPLOYEE_NAME",prefix.getSelectedItem().toString()+" "+fname_txt.getText()+" "+lname_txt.getText());
@@ -421,46 +397,13 @@ public void clear(){
              document.put("MS_EMPLOYEE_ADDRESS",address);
              document.put("MS_EMPLOYEE_HIRED_DATE",month+" "+date+", "+year);
              document.put("MS_EMPLOYEE_TYPE",position_combo.getSelectedItem().toString());
-             document.put("MS_EMPLOYEE_PHOTO",filename);
              table.insert(document);
              JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
-             this.setVisible(false);
            }catch(Exception e){
-               
+               e.printStackTrace();
            }
        }
     }//GEN-LAST:event_confirm_btnActionPerformed
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        BufferedImage img = null;
-        JFileChooser chooser = new JFileChooser();
-        chooser.showOpenDialog(null);
-        try {
-            File f=chooser.getSelectedFile();
-            img = ImageIO.read(f);
-            Image dimg = img.getScaledInstance(imageshow_txt.getWidth(), imageshow_txt.getHeight(),
-            Image.SCALE_SMOOTH);
-            ImageIcon imageIcon = new ImageIcon(dimg);
-            imageshow_txt.setIcon(imageIcon);
-            filename = f.getAbsolutePath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-        try{
-            File image = new File(filename);
-            FileInputStream fis = new FileInputStream(image);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            byte[] buf=new byte[1024];
-            for(int readNum; (readNum=fis.read(buf))!=-1;){
-                bos.write(buf,0,readNum);
-            }
-            photo = bos.toByteArray();
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(null,e);
-        }
-    }//GEN-LAST:event_jButton3ActionPerformed
 
     private void clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_btnActionPerformed
         clear();
@@ -513,10 +456,6 @@ public void clear(){
     private javax.swing.JTextField fname_txt;
     private javax.swing.JTextField home_txt;
     private javax.swing.JTextField id_txt;
-    private javax.swing.JLabel imageshow_txt;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JDesktopPane jDesktopPane1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -527,7 +466,6 @@ public void clear(){
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
