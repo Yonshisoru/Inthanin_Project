@@ -68,13 +68,14 @@ Variable v = new Variable();
     }
     public void get_collection_in_to_table(){
         DefaultTableModel table = (DefaultTableModel)partner_table.getModel(); //ดึงข้อมูลตารางจากตารางชื่อ partner_table มาเก็บไว้ในตัวแปร-
-        Object[] row = new Object[2]; // สร้างอาเรย์ Object ชื่อว่า row ขนาด 2 ช่อง
+        String[] row = new String[2]; // สร้างอาเรย์ Object ชื่อว่า row ขนาด 2 ช่อง
         DBCursor cursor = DBC.find(); // ค้นหาข้อมูลในcollectionทั้งหมด
         do{ //สร้างลูป do-while
             try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
                 DBObject partner = cursor.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ partner
+                System.out.println(partner.get("MS_PARTNER_NAME"));
                 try{ //สร้างลูป do-while
-                row[0] = (int)partner.get("MS_PARTNER_ID"); //Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสบริษัทคู่ค้า
+                row[0] = partner.get("MS_PARTNER_ID").toString(); //Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสบริษัทคู่ค้า
                 row[1] = partner.get("MS_PARTNER_NAME").toString(); //Object อาเรย์ ช่องที่ 2 เก็บข้อมูลของชื่อบริษัทคู่ค้า
                 table.addRow(row); //เพิ่มแถวข้อมูลของตาราง partner_table โดยนำข้อมูลมาจาก อาเรย์ของObject ที่ชื่อว่า row
                 }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
@@ -413,6 +414,7 @@ Variable v = new Variable();
            System.out.println("Success");
            remove_data_in_table();
            get_collection_in_to_table();
+           
             }catch(Exception e){
                 e.printStackTrace();
             }

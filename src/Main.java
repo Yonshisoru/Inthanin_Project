@@ -54,6 +54,30 @@ static String position;
         sessionnow();
         System.out.println(v.getstatus());
     }
+    
+    
+    //--------clear partner data--------------------------
+    public void clear_partner(){
+        partner_name_txt.setText("");
+        partner_phone_txt.setText("");
+        partner_email_txt.setText("");
+        partner_home_txt.setText("");
+        partner_locality_txt.setText("");
+        partner_distict_txt.setText("");
+        partner_province_txt.setText("");
+        partner_post_txt.setText("");
+        partner_type_combo.setSelectedIndex(0);
+    }
+    public boolean checkpartnerid(int id){
+        DBCollection partnerdata = db.getCollection("MS_PARNTER");
+        BasicDBObject data = new BasicDBObject("MS_PARTNER_ID",id);
+        DBCursor find = partnerdata.find(data);
+        if(find.hasNext()){
+            return true;
+        }else{
+            return false;
+        }
+    }
     public void set_logo(){
         try{
         ImageIcon imageIcon = new ImageIcon ("./image/main_icon.png"); 
@@ -250,27 +274,27 @@ public void increaseagecombo(){
         jScrollPane5 = new javax.swing.JScrollPane();
         jTable5 = new javax.swing.JTable();
         partner_panel = new javax.swing.JPanel();
-        fname_txt2 = new javax.swing.JTextField();
+        partner_name_txt = new javax.swing.JTextField();
         jLabel43 = new javax.swing.JLabel();
         jLabel44 = new javax.swing.JLabel();
-        phone_txt2 = new javax.swing.JTextField();
+        partner_phone_txt = new javax.swing.JTextField();
         jLabel45 = new javax.swing.JLabel();
-        email_txt2 = new javax.swing.JTextField();
-        home_txt2 = new javax.swing.JTextField();
-        locality_txt2 = new javax.swing.JTextField();
+        partner_email_txt = new javax.swing.JTextField();
+        partner_home_txt = new javax.swing.JTextField();
+        partner_locality_txt = new javax.swing.JTextField();
         jLabel47 = new javax.swing.JLabel();
         jLabel48 = new javax.swing.JLabel();
-        district_txt2 = new javax.swing.JTextField();
-        post_txt2 = new javax.swing.JTextField();
+        partner_distict_txt = new javax.swing.JTextField();
+        partner_post_txt = new javax.swing.JTextField();
         jLabel49 = new javax.swing.JLabel();
         jLabel50 = new javax.swing.JLabel();
-        province_txt2 = new javax.swing.JTextField();
+        partner_province_txt = new javax.swing.JTextField();
         jButton7 = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
         jLabel51 = new javax.swing.JLabel();
         jLabel52 = new javax.swing.JLabel();
         jLabel39 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        partner_type_combo = new javax.swing.JComboBox<>();
         jButton18 = new javax.swing.JButton();
         order_panel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -723,32 +747,32 @@ public void increaseagecombo(){
         main_panel.add(menu_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         partner_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        partner_panel.add(fname_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 110, 310, -1));
+        partner_panel.add(partner_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 110, 310, -1));
 
         jLabel43.setText("ชื่อบริษัท:");
         partner_panel.add(jLabel43, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, -1, -1));
 
         jLabel44.setText("เบอร์โทรศัพท์:");
         partner_panel.add(jLabel44, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 150, -1, -1));
-        partner_panel.add(phone_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 150, 120, -1));
+        partner_panel.add(partner_phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 150, 120, -1));
 
-        jLabel45.setText("อีเมลล์:");
+        jLabel45.setText("อีเมล:");
         partner_panel.add(jLabel45, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 150, -1, -1));
-        partner_panel.add(email_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 150, 150, -1));
+        partner_panel.add(partner_email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 150, 150, -1));
 
-        home_txt2.addActionListener(new java.awt.event.ActionListener() {
+        partner_home_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                home_txt2ActionPerformed(evt);
+                partner_home_txtActionPerformed(evt);
             }
         });
-        partner_panel.add(home_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 190, 50, 20));
+        partner_panel.add(partner_home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 190, 50, 20));
 
-        locality_txt2.addActionListener(new java.awt.event.ActionListener() {
+        partner_locality_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                locality_txt2ActionPerformed(evt);
+                partner_locality_txtActionPerformed(evt);
             }
         });
-        partner_panel.add(locality_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 190, 50, 20));
+        partner_panel.add(partner_locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 190, 50, 20));
 
         jLabel47.setText("ตำบล:");
         partner_panel.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 190, -1, -1));
@@ -756,19 +780,19 @@ public void increaseagecombo(){
         jLabel48.setText("อำเภอ:");
         partner_panel.add(jLabel48, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 190, -1, -1));
 
-        district_txt2.addActionListener(new java.awt.event.ActionListener() {
+        partner_distict_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                district_txt2ActionPerformed(evt);
+                partner_distict_txtActionPerformed(evt);
             }
         });
-        partner_panel.add(district_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 190, 50, 20));
+        partner_panel.add(partner_distict_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 190, 50, 20));
 
-        post_txt2.addActionListener(new java.awt.event.ActionListener() {
+        partner_post_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                post_txt2ActionPerformed(evt);
+                partner_post_txtActionPerformed(evt);
             }
         });
-        partner_panel.add(post_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 230, 50, 20));
+        partner_panel.add(partner_post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 230, 50, 20));
 
         jLabel49.setText("รหัสไปรษณีย์:");
         partner_panel.add(jLabel49, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 230, -1, -1));
@@ -776,12 +800,12 @@ public void increaseagecombo(){
         jLabel50.setText("จังหวัด:");
         partner_panel.add(jLabel50, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 230, -1, -1));
 
-        province_txt2.addActionListener(new java.awt.event.ActionListener() {
+        partner_province_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                province_txt2ActionPerformed(evt);
+                partner_province_txtActionPerformed(evt);
             }
         });
-        partner_panel.add(province_txt2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 230, 140, 20));
+        partner_panel.add(partner_province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 230, 140, 20));
 
         jButton7.setText("ล้างข้อมูล");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -809,8 +833,8 @@ public void increaseagecombo(){
         jLabel39.setText("ประเภทของคู่ค้า:");
         partner_panel.add(jLabel39, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 270, -1, -1));
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "คู่ค้าส่วนประกอบเครื่องดื่ม", "คู่ค้าของหวานเบเกอรี่", "คู่ค้าส่วนประกอบของคาว" }));
-        partner_panel.add(jComboBox2, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 260, 180, 30));
+        partner_type_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "คู่ค้าส่วนประกอบเครื่องดื่ม", "คู่ค้าของหวานเบเกอรี่", "คู่ค้าส่วนประกอบของคาว" }));
+        partner_panel.add(partner_type_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 260, 180, 30));
 
         jButton18.setText("แก้ไขข้อมูลคู่ค้า");
         jButton18.addActionListener(new java.awt.event.ActionListener() {
@@ -1379,32 +1403,95 @@ public void increaseagecombo(){
         this.setTitle("หน้าต่างประวัติการขาย");
     }//GEN-LAST:event_history_btnActionPerformed
 
-    private void home_txt2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_home_txt2ActionPerformed
+    private void partner_home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_home_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_home_txt2ActionPerformed
+    }//GEN-LAST:event_partner_home_txtActionPerformed
 
-    private void locality_txt2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_locality_txt2ActionPerformed
+    private void partner_locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_locality_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_locality_txt2ActionPerformed
+    }//GEN-LAST:event_partner_locality_txtActionPerformed
 
-    private void district_txt2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_district_txt2ActionPerformed
+    private void partner_distict_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_distict_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_district_txt2ActionPerformed
+    }//GEN-LAST:event_partner_distict_txtActionPerformed
 
-    private void post_txt2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_post_txt2ActionPerformed
+    private void partner_post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_post_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_post_txt2ActionPerformed
+    }//GEN-LAST:event_partner_post_txtActionPerformed
 
-    private void province_txt2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_province_txt2ActionPerformed
+    private void partner_province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_province_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_province_txt2ActionPerformed
+    }//GEN-LAST:event_partner_province_txtActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        // TODO add your handling code here:
+    int partner_id = 0;
+        if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลบริษัทคู่ค้าใหม่ใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){ //แสดงผลหน้าจอประเภท2คำตอบ
+        try{//ดักจับข้อผิดพลาดโดยใช้ try-catch
+            try{ //ดักจับข้อผิดพลาดโดยใช้ try-catch
+                DBCollection table = db.getCollection("MS_PARTNER"); //ดึงข้อมูลของcollection MS_PRODUCT มาใส่ในตัวแปรที่ชื่อว่า table
+                BasicDBObject partnerobject = new BasicDBObject().append("_id", -1); //ดึงข้อมูลตัวสุดท้าย
+                System.out.println(partnerobject);
+                DBCursor find = table.find().sort(partnerobject); //ค้นหาข้อมูลทั้งหมดในcollection MS_PRODUCT
+                //System.out.println(find.hasNext());
+                if(find.hasNext()==true){ //ถ้าหากว่ามีข้อมูลอยู่แล้ว
+                    DBObject getdoc = find.next();
+                    System.out.println((int)getdoc.get("MS_PARTNER_ID"));
+                    try{//ดักจับข้อผิดพลาดของตัวเลขโดยใช้ try-catch
+                    partner_id = 1+(int)getdoc.get("MS_PARTNER_ID"); //นำค่าของPKมาบวกด้วย 1
+                    }catch(Exception e){
+                    double k = 1+(double)getdoc.get("MS_PARTNER_ID"); //นำค่าของPKมาบวกด้วย 1
+                    partner_id = (int)k ;
+                    }
+                }else{
+                    partner_id = 1;//สร้างPKของ MS_PRODUCT
+                }
+                //System.out.println(productid);
+                //สร้างการเก็บข้อมูลที่อยู่เป็นชุดข้อมูลแยก
+                BasicDBObject document = new BasicDBObject(); //สร้างการเก็บข้อมูลใหม่
+                document.put("MS_PARTNER_ID",(int)partner_id); //เพิ่มข้อมูลรหัสของสินค้า
+                document.put("MS_PARTNER_NAME",partner_name_txt.getText()); //เพิ่มข้อมูลชื่อ
+                document.put("MS_PARTNER_PHONE",partner_phone_txt.getText()); //ตั้งจำนวนให้มีค่าเท่ากับ 0
+                document.put("MS_PARTNER_EMAIL",Integer.parseInt(partner_email_txt.getText())); //เพิ่มข้อมูลอีเมล
+                BasicDBObject partner_address = new BasicDBObject();//สร้างการเก็บข้อมูลใหม่
+                partner_address.put("บ้านเลขที่", partner_home_txt.getText());
+                partner_address.put("ตำบล", partner_locality_txt.getText());
+                partner_address.put("อำเภอ", partner_distict_txt.getText());
+                partner_address.put("จังหวัด", partner_province_txt.getText());
+                partner_address.put("รหัสไปรษณีย์", partner_post_txt.getText());
+                document.put("MS_PARTNER_ADDRESS",partner_address); //เพิ่มข้อมูลอีเมล
+                String type = null; //สร้างตัวแปรเปล่าเพื่อเก็บประเภทของสินค้า
+                
+                /*
+                
+                  index 0 = เครื่องดื่ม
+                  index 1 = เบเกอรี่
+                  index 2 = ของคาว
+                
+                */
+                
+                if(partner_type_combo.getSelectedIndex()==0){ 
+                   type = "Drink Partner";
+                }else if(partner_type_combo.getSelectedIndex()==1){
+                    type = "Bakery Partner";
+                }else if(partner_type_combo.getSelectedIndex()==2){
+                    type = "Meal Partner";
+                }
+                document.put("MS_PARTNER_TYPE",type);//เพิ่มข้อมูลประเภท
+                table.insert(document); //เพิ่มชุดข้อมูลในcollection
+                clear_partner();
+                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ"); //แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
+                //this.setVisible(false);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        }
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
@@ -1412,42 +1499,51 @@ public void increaseagecombo(){
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-    if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลสินค้าใหม่ใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){
-        try{
-            try{
-                DBCollection table = db.getCollection("MS_PRODUCT");
-                BasicDBObject productobject = new BasicDBObject().append("_id", -1);
-                DBCursor cur = table.find().sort(productobject);
-                int productid = 0;
-                DBCursor find = table.find();
-                System.out.println(find.hasNext());
-                if(find.hasNext()==true){
-                    try{
-                    productid = 1+(int)productobject.get("MS_PRODUCT_ID");
+    int productid = 0;
+        if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลสินค้าใหม่ใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){ //แสดงผลหน้าจอประเภท2คำตอบ
+        try{//ดักจับข้อผิดพลาดโดยใช้ try-catch
+            try{ //ดักจับข้อผิดพลาดโดยใช้ try-catch
+                DBCollection table = db.getCollection("MS_PRODUCT"); //ดึงข้อมูลของcollection MS_PRODUCT มาใส่ในตัวแปรที่ชื่อว่า table
+                BasicDBObject productobject = new BasicDBObject().append("_id", -1); //ดึงข้อมูลตัวสุดท้าย
+                DBCursor find = table.find().sort(productobject); //ค้นหาข้อมูลทั้งหมดในcollection MS_PRODUCT
+                //System.out.println(find.hasNext());
+                if(find.hasNext()==true){ //ถ้าหากว่ามีข้อมูลอยู่แล้ว
+                    DBObject data = find.next();
+                    try{//ดักจับข้อผิดพลาดของตัวเลขโดยใช้ try-catch
+                    productid = 1+(int)data.get("MS_PRODUCT_ID"); //นำค่าของPKมาบวกด้วย 1
                     }catch(Exception e){
-                    double k = 1+(double)productobject.get("MS_PRODUCT_ID"); 
+                    double k = 1+(double)data.get("MS_PRODUCT_ID"); //นำค่าของPKมาบวกด้วย 1
                     productid = (int)k ;
                     }
                 }else{
-                    productid = 1;
+                    productid = 1;//สร้างPKของ MS_PRODUCT
                 }
                 //System.out.println(productid);
-                BasicDBObject document = new BasicDBObject();
-                document.put("MS_PRODUCT_ID",(int)productid);
-                document.put("MS_PRODUCT_AMOUNT",0);
-                document.put("MS_PRODUCT_NAME",pro_name_txt.getText());
-                document.put("MS_PRODUCT_PRICE",Integer.parseInt(pro_price_txt.getText()));
-                String type = null;
-                if(pro_type_combo.getSelectedIndex()==0){
+                BasicDBObject document = new BasicDBObject(); //สร้างการเก็บข้อมูลใหม่
+                document.put("MS_PRODUCT_ID",(int)productid); //เพิ่มข้อมูลรหัสของสินค้า
+                document.put("MS_PRODUCT_AMOUNT",0); //ตั้งจำนวนให้มีค่าเท่ากับ 0
+                document.put("MS_PRODUCT_NAME",pro_name_txt.getText()); //เพิ่มข้อมูลชื่อ
+                document.put("MS_PRODUCT_PRICE",Integer.parseInt(pro_price_txt.getText())); //เพิ่มข้อมูลราคา
+                String type = null; //สร้างตัวแปรเปล่าเพื่อเก็บประเภทของสินค้า
+                
+                /*
+                
+                  index 0 = เครื่องดื่ม
+                  index 1 = เบเกอรี่
+                  index 2 = ของคาว
+                
+                */
+                
+                if(pro_type_combo.getSelectedIndex()==0){ 
                    type = "Drink";
                 }else if(pro_type_combo.getSelectedIndex()==1){
                     type = "Bakery";
                 }else if(pro_type_combo.getSelectedIndex()==2){
                     type = "Meal";
                 }
-                document.put("MS_PRODUCTR_TYPE",type);
-                table.insert(document);
-                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
+                document.put("MS_PRODUCT_TYPE",type);//เพิ่มข้อมูลประเภท
+                table.insert(document); //เพิ่มชุดข้อมูลในcollection
+                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ"); //แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
                 //this.setVisible(false);
             }catch(Exception e){
                 e.printStackTrace();
@@ -1552,21 +1648,17 @@ public void increaseagecombo(){
     private javax.swing.JPanel customer_panel;
     private javax.swing.JTextField district_txt;
     private javax.swing.JTextField district_txt1;
-    private javax.swing.JTextField district_txt2;
     private javax.swing.JTextField email_txt;
     private javax.swing.JTextField email_txt1;
-    private javax.swing.JTextField email_txt2;
     private javax.swing.JButton employee_btn;
     private javax.swing.JPanel employee_panel;
     private javax.swing.JPanel first_panel;
     private javax.swing.JTextField fname_txt;
     private javax.swing.JTextField fname_txt1;
-    private javax.swing.JTextField fname_txt2;
     private javax.swing.JButton history_btn;
     private javax.swing.JPanel history_panel;
     private javax.swing.JTextField home_txt;
     private javax.swing.JTextField home_txt1;
-    private javax.swing.JTextField home_txt2;
     private javax.swing.JTextField id_txt;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
@@ -1588,7 +1680,6 @@ public void increaseagecombo(){
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
     private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JComboBox<String> jComboBox5;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1668,7 +1759,6 @@ public void increaseagecombo(){
     private javax.swing.JTextField lname_txt1;
     private javax.swing.JTextField locality_txt;
     private javax.swing.JTextField locality_txt1;
-    private javax.swing.JTextField locality_txt2;
     private javax.swing.JPanel main_panel;
     private javax.swing.JRadioButton man_radio;
     private javax.swing.JButton menu_btn;
@@ -1677,16 +1767,23 @@ public void increaseagecombo(){
     private javax.swing.JPanel order_panel;
     private javax.swing.JButton partner_btn;
     private javax.swing.JComboBox<String> partner_combo;
+    private javax.swing.JTextField partner_distict_txt;
+    private javax.swing.JTextField partner_email_txt;
+    private javax.swing.JTextField partner_home_txt;
+    private javax.swing.JTextField partner_locality_txt;
+    private javax.swing.JTextField partner_name_txt;
     private javax.swing.JPanel partner_panel;
+    private javax.swing.JTextField partner_phone_txt;
+    private javax.swing.JTextField partner_post_txt;
+    private javax.swing.JTextField partner_province_txt;
+    private javax.swing.JComboBox<String> partner_type_combo;
     private javax.swing.JTextField phone_txt;
     private javax.swing.JTextField phone_txt1;
-    private javax.swing.JTextField phone_txt2;
     private javax.swing.JTextField phone_txt4;
     private javax.swing.JLabel picture_label;
     private javax.swing.JComboBox<String> position_combo;
     private javax.swing.JTextField post_txt;
     private javax.swing.JTextField post_txt1;
-    private javax.swing.JTextField post_txt2;
     private javax.swing.JComboBox<String> prefix;
     private javax.swing.JComboBox<String> prefix1;
     private javax.swing.JTextField pro_name_txt;
@@ -1696,7 +1793,6 @@ public void increaseagecombo(){
     private javax.swing.JPanel product_panel;
     private javax.swing.JTextField province_txt;
     private javax.swing.JTextField province_txt1;
-    private javax.swing.JTextField province_txt2;
     private javax.swing.JPasswordField pwd_txt;
     private javax.swing.JCheckBox showpwd_check;
     private javax.swing.JButton stock_btn;
