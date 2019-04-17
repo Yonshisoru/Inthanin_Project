@@ -110,14 +110,14 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTable" name="jTable1">
+        <Component class="javax.swing.JTable" name="employee_table">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="5" rowCount="0">
-                <Column editable="false" title="&#xe25;&#xe33;&#xe14;&#xe31;&#xe1a;&#xe17;&#xe35;&#xe48;" type="java.lang.Object"/>
-                <Column editable="false" title="&#xe0a;&#xe37;&#xe48;&#xe2d;-&#xe2a;&#xe01;&#xe38;&#xe25;" type="java.lang.Object"/>
+                <Column editable="false" title="&#xe23;&#xe2b;&#xe31;&#xe2a;&#xe1e;&#xe19;&#xe31;&#xe01;&#xe07;&#xe32;&#xe19;" type="java.lang.Object"/>
                 <Column editable="false" title="&#xe0a;&#xe37;&#xe48;&#xe2d;&#xe1c;&#xe39;&#xe49;&#xe40;&#xe02;&#xe49;&#xe32;&#xe43;&#xe0a;&#xe49;&#xe07;&#xe32;&#xe19;" type="java.lang.Object"/>
-                <Column editable="true" title="&#xe2d;&#xe35;&#xe40;&#xe21;&#xe25;&#xe25;&#xe4c;" type="java.lang.Object"/>
+                <Column editable="false" title="&#xe0a;&#xe37;&#xe48;&#xe2d;-&#xe2a;&#xe01;&#xe38;&#xe25;" type="java.lang.Object"/>
+                <Column editable="false" title="&#xe2d;&#xe35;&#xe40;&#xe21;&#xe25;" type="java.lang.Object"/>
                 <Column editable="false" title="&#xe15;&#xe33;&#xe41;&#xe2b;&#xe19;&#xe48;&#xe07;" type="java.lang.Object"/>
               </Table>
             </Property>
@@ -154,6 +154,9 @@
               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="employee_tableMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -316,7 +319,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel9">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&#xe0a;&#xe37;&#xe48;&#xe2d;:"/>
+        <Property name="text" type="java.lang.String" value="&#xe0a;&#xe37;&#xe48;&#xe2d;-&#xe2a;&#xe01;&#xe38;&#xe25;:"/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -324,20 +327,10 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JTextField" name="fname_txt">
+    <Component class="javax.swing.JTextField" name="employee_name_txt">
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="150" y="210" width="110" height="20"/>
-        </Constraint>
-      </Constraints>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel10">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="&#xe19;&#xe32;&#xe21;&#xe2a;&#xe01;&#xe38;&#xe25;:"/>
-      </Properties>
-      <Constraints>
-        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="300" y="210" width="-1" height="-1"/>
+          <AbsoluteConstraints x="170" y="210" width="280" height="20"/>
         </Constraint>
       </Constraints>
     </Component>
@@ -348,16 +341,6 @@
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
           <AbsoluteConstraints x="730" y="220" width="-1" height="-1"/>
-        </Constraint>
-      </Constraints>
-    </Component>
-    <Component class="javax.swing.JTextField" name="lname_txt">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lname_txtActionPerformed"/>
-      </Events>
-      <Constraints>
-        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="350" y="210" width="110" height="20"/>
         </Constraint>
       </Constraints>
     </Component>

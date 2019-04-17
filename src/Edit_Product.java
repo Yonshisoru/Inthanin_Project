@@ -65,6 +65,8 @@ public void getconnect(){
         pro_type_combo = new javax.swing.JComboBox<>();
         partner_combo = new javax.swing.JComboBox<>();
         jLabel63 = new javax.swing.JLabel();
+        pro_amount_txt = new javax.swing.JTextField();
+        jLabel54 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("หน้าต่างแก้ไขข้อมูลสินค้า");
@@ -105,15 +107,20 @@ public void getconnect(){
 
             },
             new String [] {
-                "รายการที่", "ชื่อสินค้า"
+                "รายการที่", "ชื่อสินค้า", "จำนวนที่มีอยู่"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false
+                false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable1MouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(jTable1);
@@ -135,16 +142,20 @@ public void getconnect(){
         getContentPane().add(pro_price_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 150, 70, -1));
 
         jLabel42.setText("ประเภทของสินค้า:");
-        getContentPane().add(jLabel42, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 200, -1, -1));
+        getContentPane().add(jLabel42, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 250, -1, -1));
 
         pro_type_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ส่วนประกอบเครื่องดื่ม", "เบเกอรี่", "ส่วนประกอบของคาว" }));
-        getContentPane().add(pro_type_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 190, 180, 30));
+        getContentPane().add(pro_type_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 240, 180, 30));
 
         partner_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกบริษัทคู่ค้า" }));
-        getContentPane().add(partner_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 240, 180, 30));
+        getContentPane().add(partner_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 290, 180, 30));
 
         jLabel63.setText("บริษัทคู่ค้า:");
-        getContentPane().add(jLabel63, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 250, -1, -1));
+        getContentPane().add(jLabel63, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 300, -1, -1));
+        getContentPane().add(pro_amount_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 190, 70, -1));
+
+        jLabel54.setText("จำนวนที่มีทั้งหมด:");
+        getContentPane().add(jLabel54, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 190, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -197,6 +208,10 @@ public void getconnect(){
             this.setVisible(false);
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTable1MouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -242,6 +257,7 @@ public void getconnect(){
     private javax.swing.JLabel jLabel42;
     private javax.swing.JLabel jLabel46;
     private javax.swing.JLabel jLabel53;
+    private javax.swing.JLabel jLabel54;
     private javax.swing.JLabel jLabel63;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton jRadioButton1;
@@ -249,6 +265,7 @@ public void getconnect(){
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JComboBox<String> partner_combo;
+    private javax.swing.JTextField pro_amount_txt;
     private javax.swing.JTextField pro_name_txt;
     private javax.swing.JTextField pro_price_txt;
     private javax.swing.JComboBox<String> pro_type_combo;

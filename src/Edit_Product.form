@@ -113,13 +113,19 @@
         <Component class="javax.swing.JTable" name="jTable1">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="2" rowCount="0">
+              <Table columnCount="3" rowCount="0">
                 <Column editable="false" title="&#xe23;&#xe32;&#xe22;&#xe01;&#xe32;&#xe23;&#xe17;&#xe35;&#xe48;" type="java.lang.Object"/>
                 <Column editable="false" title="&#xe0a;&#xe37;&#xe48;&#xe2d;&#xe2a;&#xe34;&#xe19;&#xe04;&#xe49;&#xe32;" type="java.lang.Object"/>
+                <Column editable="false" title="&#xe08;&#xe33;&#xe19;&#xe27;&#xe19;&#xe17;&#xe35;&#xe48;&#xe21;&#xe35;&#xe2d;&#xe22;&#xe39;&#xe48;" type="java.lang.Object"/>
               </Table>
             </Property>
             <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
               <TableColumnModel selectionModel="0">
+                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                  <Title/>
+                  <Editor/>
+                  <Renderer/>
+                </Column>
                 <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
                   <Title/>
                   <Editor/>
@@ -136,6 +142,9 @@
               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTable1MouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -199,7 +208,7 @@
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="480" y="200" width="-1" height="-1"/>
+          <AbsoluteConstraints x="480" y="250" width="-1" height="-1"/>
         </Constraint>
       </Constraints>
     </Component>
@@ -218,7 +227,7 @@
       </AuxValues>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="570" y="190" width="180" height="30"/>
+          <AbsoluteConstraints x="570" y="240" width="180" height="30"/>
         </Constraint>
       </Constraints>
     </Component>
@@ -235,7 +244,7 @@
       </AuxValues>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="570" y="240" width="180" height="30"/>
+          <AbsoluteConstraints x="570" y="290" width="180" height="30"/>
         </Constraint>
       </Constraints>
     </Component>
@@ -245,7 +254,24 @@
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="510" y="250" width="-1" height="-1"/>
+          <AbsoluteConstraints x="510" y="300" width="-1" height="-1"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="pro_amount_txt">
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+          <AbsoluteConstraints x="570" y="190" width="70" height="-1"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel54">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&#xe08;&#xe33;&#xe19;&#xe27;&#xe19;&#xe17;&#xe35;&#xe48;&#xe21;&#xe35;&#xe17;&#xe31;&#xe49;&#xe07;&#xe2b;&#xe21;&#xe14;:"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+          <AbsoluteConstraints x="480" y="190" width="-1" height="-1"/>
         </Constraint>
       </Constraints>
     </Component>

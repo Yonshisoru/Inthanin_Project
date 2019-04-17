@@ -1,4 +1,5 @@
 import com.mongodb.*;
+import com.mongodb.util.JSON;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -20,8 +21,11 @@ import javax.swing.text.Document;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
+import javax.swing.table.DefaultTableModel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -42,12 +46,16 @@ DBObject dbo;
 boolean showpwd = false;
 static String username;
 static String position;
+List<DBObject>menu_component = new ArrayList<>();
+
+//-------------------Menu Panel Variable-----------------------
+String menu_table_doubleclick = "";
+//----------------------------------------------------------
     /**
      * Creates new form Main
      */
     public Main() {
         initComponents();
-        increaseagecombo();
         set_logo();
         this.setLocationRelativeTo(null);
         disablepanel();
@@ -55,8 +63,31 @@ static String position;
         System.out.println(v.getstatus());
     }
     
-    
-    //--------clear partner data--------------------------
+//---------------------Initilization-----------------------------
+        public void set_logo(){
+        try{
+        ImageIcon imageIcon = new ImageIcon ("./image/main_icon.png");
+        picture_label.setIcon(imageIcon);
+                }catch(Exception e){
+                    System.out.println(e);
+                }
+        //picture_label.setIcon(new ImageIcon("./image/Untitled-3.png"));
+    }
+        
+        public void disablepanel(){
+            first_panel.setVisible(false);
+            order_panel.setVisible(false);
+            customer_panel.setVisible(false);
+            product_panel.setVisible(false);
+            stock_panel.setVisible(false);
+            menu_panel.setVisible(false);
+            partner_panel.setVisible(false);
+            employee_panel.setVisible(false);
+            history_panel.setVisible(false);
+}
+//-------------------------------------------------------------------
+
+//--------clear partner data--------------------------
     public void clear_partner(){
         partner_name_txt.setText("");
         partner_phone_txt.setText("");
@@ -68,6 +99,155 @@ static String position;
         partner_post_txt.setText("");
         partner_type_combo.setSelectedIndex(0);
     }
+
+    public void clear_product(){
+        pro_name_txt.setText("");
+        pro_price_txt.setText("");
+        pro_type_combo.setSelectedIndex(0);
+        partner_combo.setSelectedIndex(0);
+    }
+    
+    public void clear_stock(){
+        stock_combo.setSelectedIndex(0);
+        stock_amount.setText("");
+    }
+    
+    public void clear_emp(){
+    Calendar calendar = Calendar.getInstance();
+    //Date date =  calendar.getTime();
+    //System.out.println(date); //15/10/2013
+    employee_name_txt.setText("");
+    employee_age_combo.setSelectedIndex(0);
+    man_radio.setSelected(false);
+    woman_radio.setSelected(false);
+    employee_birthdate_txt.setSelectedDate(calendar);
+    employee_phone_txt.setText("");
+    employee_id_txt.setText("");
+    employee_home_txt.setText("");
+    employee_locality_txt.setText("");
+    employee_district_txt.setText("");
+    employee_province_txt.setText("");
+    employee_email_txt.setText("");
+    employee_position_combo.setSelectedIndex(0);
+    employee_user_txt.setText("");
+    employee_pwd_txt.setText("");
+    showpwd_check.setSelected(false);
+    showpwd = false;
+    confirm.setSelected(false);
+    employee_prefix.setSelectedIndex(0);
+}
+    
+    public void clear_table(DefaultTableModel table){
+        while(table.getRowCount()>0){
+            table.removeRow(0);
+        }
+    }
+    
+    public void clear_menu(){
+        menu_name_txt.setText("");
+        menu_price_txt.setText("");
+    }
+    //-------------------------Partner--------------------------------------//
+    public void set_productcombo(int k){
+         partner_combo.removeAllItems();
+         partner_combo.addItem("เลือกบริษัทคู่ค้า");
+        try{
+        DBCollection table = db.getCollection("MS_PARTNER");
+        DBCursor cur = table.find();
+        while(cur.hasNext()){
+            DBObject kk = cur.next();
+            if(k==1){
+                if(kk.get("MS_PARTNER_TYPE").toString().contains("Drink")){
+                partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
+                }
+            }else if(k==2){
+                if(kk.get("MS_PARTNER_TYPE").toString().contains("Bakery")){
+                partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
+                }
+            }else if(k==3){
+                if(kk.get("MS_PARTNER_TYPE").toString().contains("Meal")){
+                partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
+                }
+            }
+        }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        //partner_combo
+    }
+
+
+//----------------------Employee---------------------------
+    public void emp_age_combo(){
+        for(int i =15;i<60;i++){
+            employee_age_combo.addItem(""+i);
+        }
+    }
+//----------------------Stocking-------------------
+    public void set_stocking_product_combo(){ //เพิ่มข้อมูลรายการสินค้าในแท็บเลือก
+         stock_combo.removeAllItems();
+         stock_combo.addItem("เลือกสินค้า");
+        try{
+        DBCollection table = db.getCollection("MS_PRODUCT");
+        DBCursor cur = table.find();
+        while(cur.hasNext()){
+            DBObject kk = cur.next();
+            stock_combo.addItem(kk.get("MS_PRODUCT_NAME").toString());
+        }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        //partner_combo
+    }
+//-----------------------------Menu---------------------------------------------------------
+    public void set_menu_table(DefaultTableModel table){
+        DefaultTableModel model = table;
+        while(model.getRowCount()>0){
+            model.removeRow(0);
+        }
+        Object[] row = new Object[3];
+        for(DBObject e:menu_component){
+            DBObject product = e;
+            row[0] = product.get("MS_PRODUCT_ID");
+            row[1] = product.get("MS_PRODUCT_NAME");
+            row[2] = product.get("MS_PRODUCT_AMOUNT");
+            model.addRow(row);
+        }
+    }
+//---------------------------Put Data From Database into ModelTable--------------------------------------------
+    public void get_product(DefaultTableModel table){
+        DefaultTableModel model = table;
+        Object[] row = new Object[4];
+        DBCollection product_collection  = db.getCollection("MS_PRODUCT");
+        DBCursor product_finding = product_collection.find();
+        while(product_finding.hasNext()){
+            DBObject product_json = product_finding.next();
+            row[0] = (int)product_json.get("MS_PRODUCT_ID");
+            row[1] = product_json.get("MS_PRODUCT_NAME");
+            row[2] = product_json.get("MS_PRODUCT_PRICE");
+            row[3] = product_json.get("MS_PRODUCT_AMOUNT");
+            model.addRow(row);
+        }
+    }
+    
+//---------------------------Find & Check-------------------------------
+    public int find_partner(String name){
+        int id = 0;
+        try{
+        DBCollection table = db.getCollection("MS_PARTNER");
+        BasicDBObject partner = new BasicDBObject("MS_PARTNER_NAME",name);
+        DBCursor cur = table.find(partner);
+        while(cur.hasNext()){
+            DBObject kk = cur.next();
+            id = (int)kk.get("MS_PARTNER_ID");
+        }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return id;
+        //partner_combo
+    }
+    
     public boolean checkpartnerid(int id){
         DBCollection partnerdata = db.getCollection("MS_PARNTER");
         BasicDBObject data = new BasicDBObject("MS_PARTNER_ID",id);
@@ -78,56 +258,24 @@ static String position;
             return false;
         }
     }
-    public void set_logo(){
-        try{
-        ImageIcon imageIcon = new ImageIcon ("./image/main_icon.png"); 
-        picture_label.setIcon(imageIcon);
-                }catch(Exception e){
-                    System.out.println(e);
-                }
-        //picture_label.setIcon(new ImageIcon("./image/Untitled-3.png"));
+    
+        public DBObject find_product_id(String name){ //ค้นหารหัสของสินค้าจากชื่อ
+            DBCollection product = db.getCollection("MS_PRODUCT");
+            BasicDBObject data = new BasicDBObject("MS_PRODUCT_NAME",name);
+            DBCursor find = product.find(data);
+            DBObject product_json = null;
+            //int productid = -1; //-1 = null
+            try{
+                product_json = find.next();
+                //System.out.println(product_json);
+                //productid = (int)product_json.get("MS_PRODUCT_ID");
+                //System.out.println(productid);
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");
+            }
+        return product_json;
     }
-public void clear_emp(){
-    Calendar calendar = Calendar.getInstance();
-    //Date date =  calendar.getTime();
-    //System.out.println(date); //15/10/2013
-    fname_txt.setText("");
-    lname_txt.setText("");
-    agecombo.setSelectedIndex(0);
-    man_radio.setSelected(false);
-    woman_radio.setSelected(false);
-    birthdate_txt.setSelectedDate(calendar);
-    phone_txt.setText("");
-    id_txt.setText("");
-    home_txt.setText("");
-    locality_txt.setText("");
-    district_txt.setText("");
-    province_txt.setText("");
-    email_txt.setText("");
-    position_combo.setSelectedIndex(0);
-    user_txt.setText("");
-    pwd_txt.setText("");
-    showpwd_check.setSelected(false);
-    showpwd = false;
-    confirm.setSelected(false);
-    prefix.setSelectedIndex(0);
-}
-public void disablepanel(){
-    first_panel.setVisible(false);
-    order_panel.setVisible(false);
-    customer_panel.setVisible(false);
-    product_panel.setVisible(false);
-    stock_panel.setVisible(false);
-    menu_panel.setVisible(false);
-    partner_panel.setVisible(false);
-    employee_panel.setVisible(false);
-    history_panel.setVisible(false);
-}
-public void increaseagecombo(){
-    for(int i =15;i<60;i++){
-        agecombo.addItem(""+i);
-    }
-}
+//------------------------logout-----------------------------------
     public void logout(){
             System.out.println("-----------logout----------------");
             DBCollection table = db.getCollection("TRAN_LOG");
@@ -141,7 +289,7 @@ public void increaseagecombo(){
             int n = (int)cur.one().get("TRAN_LOG_ID");
             id = n+1;
             }else{
-            id = 1; 
+            id = 1;
             }
             DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
             String formattedDate = formatter.format(LocalDate.now());
@@ -159,6 +307,8 @@ public void increaseagecombo(){
             table.insert(document);
             System.out.println("เพิ่มประวัติการเข้าใช้เรียบร้อยแล้ว");
     }
+    
+//-----------------------------Check last session in system-----------------------------------------
     public void sessionnow(){
             db = v.getConnect();
             DBCollection log = db.getCollection("TRAN_LOG");
@@ -210,31 +360,29 @@ public void increaseagecombo(){
         main_panel = new javax.swing.JPanel();
         first_panel = new javax.swing.JPanel();
         customer_panel = new javax.swing.JPanel();
-        jLabel23 = new javax.swing.JLabel();
-        type_txt = new javax.swing.JComboBox<>();
-        prefix1 = new javax.swing.JComboBox<>();
-        lname_txt1 = new javax.swing.JTextField();
-        fname_txt1 = new javax.swing.JTextField();
+        customer_type_txt = new javax.swing.JComboBox<>();
+        customer_prefix = new javax.swing.JComboBox<>();
+        customer_name_txt = new javax.swing.JTextField();
         jLabel24 = new javax.swing.JLabel();
         jLabel25 = new javax.swing.JLabel();
         jLabel26 = new javax.swing.JLabel();
-        phone_txt1 = new javax.swing.JTextField();
+        customer_phone_txt = new javax.swing.JTextField();
         jLabel27 = new javax.swing.JLabel();
-        email_txt1 = new javax.swing.JTextField();
+        customer_email_txt = new javax.swing.JTextField();
         jLabel28 = new javax.swing.JLabel();
-        home_txt1 = new javax.swing.JTextField();
-        locality_txt1 = new javax.swing.JTextField();
+        customer_home_txt = new javax.swing.JTextField();
+        customer_locality_txt = new javax.swing.JTextField();
         jLabel29 = new javax.swing.JLabel();
         jLabel30 = new javax.swing.JLabel();
-        district_txt1 = new javax.swing.JTextField();
-        post_txt1 = new javax.swing.JTextField();
+        customer_district_txt = new javax.swing.JTextField();
+        customer_post_txt = new javax.swing.JTextField();
         jLabel31 = new javax.swing.JLabel();
         jLabel32 = new javax.swing.JLabel();
-        province_txt1 = new javax.swing.JTextField();
+        customer_province_txt = new javax.swing.JTextField();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jLabel33 = new javax.swing.JLabel();
-        birthdate_txt1 = new datechooser.beans.DateChooserCombo();
+        customer_birthdate_txt = new datechooser.beans.DateChooserCombo();
         jLabel22 = new javax.swing.JLabel();
         jButton17 = new javax.swing.JButton();
         product_panel = new javax.swing.JPanel();
@@ -253,26 +401,26 @@ public void increaseagecombo(){
         stock_panel = new javax.swing.JPanel();
         jLabel54 = new javax.swing.JLabel();
         jLabel55 = new javax.swing.JLabel();
-        phone_txt4 = new javax.swing.JTextField();
+        stock_amount = new javax.swing.JTextField();
         jButton11 = new javax.swing.JButton();
         jButton12 = new javax.swing.JButton();
         jLabel61 = new javax.swing.JLabel();
-        jComboBox5 = new javax.swing.JComboBox<>();
+        stock_combo = new javax.swing.JComboBox<>();
         menu_panel = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTable4 = new javax.swing.JTable();
+        menu_table = new javax.swing.JTable();
         jLabel56 = new javax.swing.JLabel();
         jLabel57 = new javax.swing.JLabel();
         jLabel58 = new javax.swing.JLabel();
         jLabel59 = new javax.swing.JLabel();
         jLabel62 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        menu_price_txt = new javax.swing.JTextField();
+        menu_name_txt = new javax.swing.JTextField();
         jButton13 = new javax.swing.JButton();
         jButton14 = new javax.swing.JButton();
         jButton15 = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jTable5 = new javax.swing.JTable();
+        menu_product_table = new javax.swing.JTable();
         partner_panel = new javax.swing.JPanel();
         partner_name_txt = new javax.swing.JTextField();
         jLabel43 = new javax.swing.JLabel();
@@ -315,40 +463,38 @@ public void increaseagecombo(){
         clear_btn = new javax.swing.JButton();
         confirm_btn = new javax.swing.JButton();
         showpwd_check = new javax.swing.JCheckBox();
-        district_txt = new javax.swing.JTextField();
-        id_txt = new javax.swing.JTextField();
-        agecombo = new javax.swing.JComboBox<>();
+        employee_district_txt = new javax.swing.JTextField();
+        employee_id_txt = new javax.swing.JTextField();
+        employee_age_combo = new javax.swing.JComboBox<>();
         man_radio = new javax.swing.JRadioButton();
         woman_radio = new javax.swing.JRadioButton();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        birthdate_txt = new datechooser.beans.DateChooserCombo();
+        employee_birthdate_txt = new datechooser.beans.DateChooserCombo();
         jLabel7 = new javax.swing.JLabel();
-        prefix = new javax.swing.JComboBox<>();
+        employee_prefix = new javax.swing.JComboBox<>();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        fname_txt = new javax.swing.JTextField();
-        jLabel10 = new javax.swing.JLabel();
+        employee_name_txt = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        lname_txt = new javax.swing.JTextField();
-        locality_txt = new javax.swing.JTextField();
+        employee_locality_txt = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
-        home_txt = new javax.swing.JTextField();
+        employee_home_txt = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
-        email_txt = new javax.swing.JTextField();
+        employee_email_txt = new javax.swing.JTextField();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
-        post_txt = new javax.swing.JTextField();
+        employee_post_txt = new javax.swing.JTextField();
         jLabel16 = new javax.swing.JLabel();
-        province_txt = new javax.swing.JTextField();
+        employee_province_txt = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
-        user_txt = new javax.swing.JTextField();
+        employee_user_txt = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
-        position_combo = new javax.swing.JComboBox<>();
+        employee_position_combo = new javax.swing.JComboBox<>();
         jLabel19 = new javax.swing.JLabel();
-        phone_txt = new javax.swing.JTextField();
+        employee_phone_txt = new javax.swing.JTextField();
         jLabel20 = new javax.swing.JLabel();
-        pwd_txt = new javax.swing.JPasswordField();
+        employee_pwd_txt = new javax.swing.JPasswordField();
         jLabel4 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
         history_panel = new javax.swing.JPanel();
@@ -473,16 +619,12 @@ public void increaseagecombo(){
 
         customer_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel23.setText("นามสกุล:");
-        customer_panel.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 110, -1, -1));
+        customer_type_txt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ลูกค้าใหม่", "ลูกค้าขาจร" }));
+        customer_panel.add(customer_type_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 70, -1, -1));
 
-        type_txt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ลูกค้าใหม่", "ลูกค้าขาจร" }));
-        customer_panel.add(type_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 70, -1, -1));
-
-        prefix1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นาง", "นางสาว", "เด็กชาย", "เด็กหญิง" }));
-        customer_panel.add(prefix1, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 110, -1, -1));
-        customer_panel.add(lname_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 110, 150, -1));
-        customer_panel.add(fname_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 110, 120, -1));
+        customer_prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นาง", "นางสาว", "เด็กชาย", "เด็กหญิง" }));
+        customer_panel.add(customer_prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 110, -1, -1));
+        customer_panel.add(customer_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 110, 340, -1));
 
         jLabel24.setText("ประเภทลูกค้า:");
         customer_panel.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 70, -1, -1));
@@ -492,28 +634,28 @@ public void increaseagecombo(){
 
         jLabel26.setText("เบอร์โทรศัพท์:");
         customer_panel.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 150, -1, -1));
-        customer_panel.add(phone_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 150, 120, -1));
+        customer_panel.add(customer_phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 150, 120, -1));
 
         jLabel27.setText("อีเมลล์:");
         customer_panel.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 150, -1, -1));
-        customer_panel.add(email_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 150, 150, -1));
+        customer_panel.add(customer_email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 150, 150, -1));
 
         jLabel28.setText("วันเกิด:");
         customer_panel.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 190, -1, -1));
 
-        home_txt1.addActionListener(new java.awt.event.ActionListener() {
+        customer_home_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                home_txt1ActionPerformed(evt);
+                customer_home_txtActionPerformed(evt);
             }
         });
-        customer_panel.add(home_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 230, 50, 20));
+        customer_panel.add(customer_home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 230, 50, 20));
 
-        locality_txt1.addActionListener(new java.awt.event.ActionListener() {
+        customer_locality_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                locality_txt1ActionPerformed(evt);
+                customer_locality_txtActionPerformed(evt);
             }
         });
-        customer_panel.add(locality_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 230, 50, 20));
+        customer_panel.add(customer_locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 230, 50, 20));
 
         jLabel29.setText("ตำบล:");
         customer_panel.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 230, -1, -1));
@@ -521,19 +663,19 @@ public void increaseagecombo(){
         jLabel30.setText("อำเภอ:");
         customer_panel.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 230, -1, -1));
 
-        district_txt1.addActionListener(new java.awt.event.ActionListener() {
+        customer_district_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                district_txt1ActionPerformed(evt);
+                customer_district_txtActionPerformed(evt);
             }
         });
-        customer_panel.add(district_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 230, 50, 20));
+        customer_panel.add(customer_district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 230, 50, 20));
 
-        post_txt1.addActionListener(new java.awt.event.ActionListener() {
+        customer_post_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                post_txt1ActionPerformed(evt);
+                customer_post_txtActionPerformed(evt);
             }
         });
-        customer_panel.add(post_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 270, 50, 20));
+        customer_panel.add(customer_post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 270, 50, 20));
 
         jLabel31.setText("รหัสไปรษณีย์:");
         customer_panel.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 270, -1, -1));
@@ -541,12 +683,12 @@ public void increaseagecombo(){
         jLabel32.setText("จังหวัด:");
         customer_panel.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 270, -1, -1));
 
-        province_txt1.addActionListener(new java.awt.event.ActionListener() {
+        customer_province_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                province_txt1ActionPerformed(evt);
+                customer_province_txtActionPerformed(evt);
             }
         });
-        customer_panel.add(province_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 270, 140, 20));
+        customer_panel.add(customer_province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 270, 140, 20));
 
         jButton4.setText("ล้างข้อมูล");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -566,7 +708,7 @@ public void increaseagecombo(){
 
         jLabel33.setText("บ้านเลขที่:");
         customer_panel.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 230, -1, -1));
-        customer_panel.add(birthdate_txt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 190, -1, 20));
+        customer_panel.add(customer_birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 190, -1, 20));
 
         jLabel22.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel22.setText("เพิ่มข้อมูลลูกค้า");
@@ -615,7 +757,12 @@ public void increaseagecombo(){
         jLabel42.setText("ประเภทของสินค้า:");
         product_panel.add(jLabel42, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 210, -1, -1));
 
-        pro_type_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ส่วนประกอบเครื่องดื่ม", "เบเกอรี่", "ส่วนประกอบของคาว" }));
+        pro_type_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกประเภทของสินค้า", "ส่วนประกอบเครื่องดื่ม", "เบเกอรี่", "ส่วนประกอบของคาว" }));
+        pro_type_combo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pro_type_comboActionPerformed(evt);
+            }
+        });
         product_panel.add(pro_type_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 200, 180, 30));
 
         partner_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกบริษัทคู่ค้า" }));
@@ -641,7 +788,7 @@ public void increaseagecombo(){
 
         jLabel55.setText("จำนวนที่เพิ่มเข้าไปในสต๊อก:");
         stock_panel.add(jLabel55, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 190, -1, 20));
-        stock_panel.add(phone_txt4, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 190, 70, -1));
+        stock_panel.add(stock_amount, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 190, 70, -1));
 
         jButton11.setText("ล้างข้อมูล");
         jButton11.addActionListener(new java.awt.event.ActionListener() {
@@ -663,14 +810,14 @@ public void increaseagecombo(){
         jLabel61.setText("เพิ่มข้อมูลสินค้าในสต๊อก");
         stock_panel.add(jLabel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 70, -1, -1));
 
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกสินค้า" }));
-        stock_panel.add(jComboBox5, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 140, 110, 30));
+        stock_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกสินค้า" }));
+        stock_panel.add(stock_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 140, 110, 30));
 
         main_panel.add(stock_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
         menu_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTable4.setModel(new javax.swing.table.DefaultTableModel(
+        menu_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -686,13 +833,13 @@ public void increaseagecombo(){
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane4.setViewportView(jTable4);
+        jScrollPane4.setViewportView(menu_table);
 
-        menu_panel.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 120, 290, 280));
+        menu_panel.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 120, 390, 280));
 
         jLabel56.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel56.setText("ตารางสินค้า");
-        menu_panel.add(jLabel56, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 170, -1, -1));
+        menu_panel.add(jLabel56, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 170, -1, -1));
 
         jLabel57.setText("ราคา:");
         menu_panel.add(jLabel57, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 130, -1, -1));
@@ -706,14 +853,24 @@ public void increaseagecombo(){
 
         jLabel62.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel62.setText("รายละเอียดของเมนู");
-        menu_panel.add(jLabel62, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 90, -1, -1));
-        menu_panel.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 130, 60, -1));
-        menu_panel.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 80, 90, -1));
+        menu_panel.add(jLabel62, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 90, -1, -1));
+        menu_panel.add(menu_price_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 130, 60, -1));
+        menu_panel.add(menu_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 80, 90, -1));
 
         jButton13.setText("ล้างข้อมูล");
+        jButton13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton13ActionPerformed(evt);
+            }
+        });
         menu_panel.add(jButton13, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 410, -1, 30));
 
         jButton14.setText("ยืนยัน");
+        jButton14.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton14ActionPerformed(evt);
+            }
+        });
         menu_panel.add(jButton14, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 410, 80, 30));
 
         jButton15.setText("แก้ไขเมนู");
@@ -724,25 +881,30 @@ public void increaseagecombo(){
         });
         menu_panel.add(jButton15, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 10, -1, 30));
 
-        jTable5.setModel(new javax.swing.table.DefaultTableModel(
+        menu_product_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "รหัสสินค้า", "ชื่อ", "ราคา"
+                "รหัสสินค้า", "ชื่อ", "ราคา", "จำนวนที่มีอยู่"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane5.setViewportView(jTable5);
+        menu_product_table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menu_product_tableMouseClicked(evt);
+            }
+        });
+        jScrollPane5.setViewportView(menu_product_table);
 
-        menu_panel.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 200, 290, 200));
+        menu_panel.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 200, 390, 200));
 
         main_panel.add(menu_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
@@ -968,16 +1130,16 @@ public void increaseagecombo(){
         });
         employee_panel.add(showpwd_check, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 290, -1, -1));
 
-        district_txt.addActionListener(new java.awt.event.ActionListener() {
+        employee_district_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                district_txtActionPerformed(evt);
+                employee_district_txtActionPerformed(evt);
             }
         });
-        employee_panel.add(district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 100, 50, 20));
-        employee_panel.add(id_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 220, 210, 20));
+        employee_panel.add(employee_district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 100, 50, 20));
+        employee_panel.add(employee_id_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 220, 210, 20));
 
-        agecombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกอายุ" }));
-        employee_panel.add(agecombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 130, 80, 20));
+        employee_age_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกอายุ" }));
+        employee_panel.add(employee_age_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 130, 80, 20));
 
         man_radio.setText("ชาย");
         employee_panel.add(man_radio, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 130, -1, -1));
@@ -991,61 +1153,51 @@ public void increaseagecombo(){
         jLabel6.setText("อายุ:");
         employee_panel.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 130, -1, -1));
 
-        birthdate_txt.setWeekStyle(datechooser.view.WeekDaysStyle.FULL);
-        employee_panel.add(birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, -1, -1));
+        employee_birthdate_txt.setWeekStyle(datechooser.view.WeekDaysStyle.FULL);
+        employee_panel.add(employee_birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, -1, -1));
 
         jLabel7.setText("เพศ:");
         employee_panel.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 130, -1, -1));
 
-        prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นางสาว" }));
-        employee_panel.add(prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, -1, -1));
+        employee_prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นางสาว" }));
+        employee_panel.add(employee_prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, -1, -1));
 
         jLabel8.setText("เลขบัตรประจำตัวประชาชน:");
         employee_panel.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 220, -1, -1));
 
-        jLabel9.setText("ชื่อ:");
+        jLabel9.setText("ชื่อ-สกุล:");
         employee_panel.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 90, -1, -1));
-        employee_panel.add(fname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 90, 110, 20));
-
-        jLabel10.setText("นามสกุล:");
-        employee_panel.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 90, -1, -1));
+        employee_panel.add(employee_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 90, 280, 20));
 
         jLabel11.setText("อำเภอ:");
         employee_panel.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 100, -1, -1));
 
-        lname_txt.addActionListener(new java.awt.event.ActionListener() {
+        employee_locality_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lname_txtActionPerformed(evt);
+                employee_locality_txtActionPerformed(evt);
             }
         });
-        employee_panel.add(lname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 90, 110, 20));
-
-        locality_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                locality_txtActionPerformed(evt);
-            }
-        });
-        employee_panel.add(locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 100, 50, 20));
+        employee_panel.add(employee_locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 100, 50, 20));
 
         jLabel12.setText("ตำบล:");
         employee_panel.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 100, -1, -1));
 
-        home_txt.addActionListener(new java.awt.event.ActionListener() {
+        employee_home_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                home_txtActionPerformed(evt);
+                employee_home_txtActionPerformed(evt);
             }
         });
-        employee_panel.add(home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 100, 50, 20));
+        employee_panel.add(employee_home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 100, 50, 20));
 
         jLabel13.setText("บ้านเลขที่:");
         employee_panel.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 100, -1, -1));
 
-        email_txt.addActionListener(new java.awt.event.ActionListener() {
+        employee_email_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                email_txtActionPerformed(evt);
+                employee_email_txtActionPerformed(evt);
             }
         });
-        employee_panel.add(email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 180, 140, 20));
+        employee_panel.add(employee_email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 180, 140, 20));
 
         jLabel14.setText("จังหวัด:");
         employee_panel.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 140, -1, -1));
@@ -1053,55 +1205,55 @@ public void increaseagecombo(){
         jLabel15.setText("ตำแหน่ง:");
         employee_panel.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 250, -1, -1));
 
-        post_txt.addActionListener(new java.awt.event.ActionListener() {
+        employee_post_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                post_txtActionPerformed(evt);
+                employee_post_txtActionPerformed(evt);
             }
         });
-        employee_panel.add(post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 140, 50, 20));
+        employee_panel.add(employee_post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 140, 50, 20));
 
         jLabel16.setText("อีเมลล์:");
         employee_panel.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 180, -1, -1));
 
-        province_txt.addActionListener(new java.awt.event.ActionListener() {
+        employee_province_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                province_txtActionPerformed(evt);
+                employee_province_txtActionPerformed(evt);
             }
         });
-        employee_panel.add(province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 140, 140, 20));
+        employee_panel.add(employee_province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 140, 140, 20));
 
         jLabel17.setText("ชื่อผู้ใช้งาน:\n");
         employee_panel.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 290, -1, -1));
 
-        user_txt.addActionListener(new java.awt.event.ActionListener() {
+        employee_user_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                user_txtActionPerformed(evt);
+                employee_user_txtActionPerformed(evt);
             }
         });
-        employee_panel.add(user_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 290, 140, 20));
+        employee_panel.add(employee_user_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 290, 140, 20));
 
         jLabel18.setText("รหัสผ่าน:");
         employee_panel.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 290, -1, -1));
 
-        position_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกตำแหน่ง", "Employee", "Owner" }));
-        employee_panel.add(position_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 250, -1, -1));
+        employee_position_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกตำแหน่ง", "Employee", "Owner" }));
+        employee_panel.add(employee_position_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 250, -1, -1));
 
         jLabel19.setText("รหัสไปรษณีย์:");
         employee_panel.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 140, -1, -1));
 
-        phone_txt.addActionListener(new java.awt.event.ActionListener() {
+        employee_phone_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                phone_txtActionPerformed(evt);
+                employee_phone_txtActionPerformed(evt);
             }
         });
-        employee_panel.add(phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 210, 140, 20));
+        employee_panel.add(employee_phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 210, 140, 20));
 
         jLabel20.setText("เบอร์โทรศัพท์:");
         employee_panel.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 210, -1, -1));
 
-        pwd_txt.setToolTipText("");
-        pwd_txt.setEchoChar('*');
-        employee_panel.add(pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 290, 140, -1));
+        employee_pwd_txt.setToolTipText("");
+        employee_pwd_txt.setEchoChar('*');
+        employee_panel.add(employee_pwd_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 290, 140, -1));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel4.setText("หน้าต่างเพิ่มพนักงาน");
@@ -1165,117 +1317,6 @@ public void increaseagecombo(){
             logout();
     }//GEN-LAST:event_formWindowClosing
 
-    private void district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_district_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_district_txtActionPerformed
-
-    private void lname_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lname_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_lname_txtActionPerformed
-
-    private void locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_locality_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_locality_txtActionPerformed
-
-    private void home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_home_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_home_txtActionPerformed
-
-    private void email_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_email_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_email_txtActionPerformed
-
-    private void post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_post_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_post_txtActionPerformed
-
-    private void province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_province_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_province_txtActionPerformed
-
-    private void user_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_user_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_user_txtActionPerformed
-
-    private void phone_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_phone_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_phone_txtActionPerformed
-
-    private void clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_btnActionPerformed
-        clear_emp();
-    }//GEN-LAST:event_clear_btnActionPerformed
-
-    private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
-        if(confirm.isSelected()==false){
-            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้ยืนยันข้อมูล\nกรุณายืนยันด้วยครับ",null,ERROR_MESSAGE);
-        }else{
-            String year;
-            String month;
-            String date;
-            try{
-                DBCollection table = db.getCollection("MS_EMPLOYEE");
-                DBObject dbo = table.findOne(new BasicDBObject("_id",-1));
-                BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-                DBCursor cur = table.find().sort(sortObject);
-                int n;
-                try{
-                    n = (int)(cur.one().get("MS_EMPLOYEE_ID"));
-                }catch(Exception e){
-                    double k = (double)(cur.one().get("MS_EMPLOYEE_ID"));
-                    n = (int)k;
-                    
-                }
-                System.out.println(birthdate_txt.getText());
-                SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
-                DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
-                String formattedDate = formatter.format(LocalDate.now());
-                month = v.month(Integer.parseInt(formattedDate.substring(4,6)));
-                year = formattedDate.substring(0,4);
-                date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());
-                //System.out.println(formattedDate);
-                System.out.println(month+" "+date+", "+year);
-                /*format.parse(LocalDate.now().toString());
-                System.out.print(format.parse(LocalDate.now().toString()));*/
-                BasicDBObject document = new BasicDBObject();
-                document.put("MS_EMPLOYEE_ID",(int)n+1);
-                document.put("MS_EMPLOYEE_USERNAME",user_txt.getText());
-                document.put("MS_EMPLOYEE_PWD",pwd_txt.getText());
-                document.put("MS_EMPLOYEE_NAME",prefix.getSelectedItem().toString()+" "+fname_txt.getText()+" "+lname_txt.getText());
-                document.put("MS_EMPLOYEE_BIRTHDATE",birthdate_txt.getText());
-                document.put("MS_EMPLOYEE_EMAIL",email_txt.getText());
-                document.put("MS_EMPLOYEE_PHONE",phone_txt.getText());
-                BasicDBObject address = new BasicDBObject();
-                address.put("บ้านเลขที่", home_txt.getText());
-                address.put("ตำบล", locality_txt.getText());
-                address.put("อำเภอ", district_txt.getText());
-                address.put("จังหวัด", province_txt.getText());
-                address.put("รหัสไปรษณีย์", post_txt.getText());
-                document.put("MS_EMPLOYEE_ADDRESS",address);
-                document.put("MS_EMPLOYEE_HIRED_DATE",month+" "+date+", "+year);
-                document.put("MS_EMPLOYEE_TYPE",position_combo.getSelectedItem().toString());
-                document.put("MS_EMPLOYEE_PHOTO",filename);
-                table.insert(document);
-                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
-                clear_emp();
-            }catch(Exception e){
-                   System.out.println(e);
-            }
-        }
-    }//GEN-LAST:event_confirm_btnActionPerformed
-
-    private void confirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_confirmActionPerformed
-
-    private void showpwd_checkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showpwd_checkActionPerformed
-        showpwd = !showpwd;
-        if(showpwd ==true){
-            pwd_txt.setEchoChar((char)0);
-        }else{
-            pwd_txt.setEchoChar('*');
-        }
-    }//GEN-LAST:event_showpwd_checkActionPerformed
-
     private void order_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_order_btnActionPerformed
         disablepanel();
         order_panel.setVisible(true);
@@ -1284,6 +1325,7 @@ public void increaseagecombo(){
 
     private void employee_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_btnActionPerformed
         disablepanel();
+        emp_age_combo();
         employee_panel.setVisible(true);
         this.setTitle("หน้าต่างการเพิ่มพนักงาน");
     }//GEN-LAST:event_employee_btnActionPerformed
@@ -1304,10 +1346,13 @@ public void increaseagecombo(){
         disablepanel();
         stock_panel.setVisible(true);
         this.setTitle("หน้าต่างเพิ่มสต๊อก");
+        set_stocking_product_combo();
     }//GEN-LAST:event_stock_btnActionPerformed
 
     private void menu_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_btnActionPerformed
         disablepanel();
+        clear_table((DefaultTableModel)menu_product_table.getModel());
+        get_product((DefaultTableModel)menu_product_table.getModel());
         menu_panel.setVisible(true);
         this.setTitle("หน้าต่างการจัดการเมนู");
     }//GEN-LAST:event_menu_btnActionPerformed
@@ -1318,25 +1363,25 @@ public void increaseagecombo(){
         this.setTitle("หน้าต่างการเพิ่มคู่ค้า");
     }//GEN-LAST:event_partner_btnActionPerformed
 
-    private void home_txt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_home_txt1ActionPerformed
+    private void customer_home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_home_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_home_txt1ActionPerformed
+    }//GEN-LAST:event_customer_home_txtActionPerformed
 
-    private void locality_txt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_locality_txt1ActionPerformed
+    private void customer_locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_locality_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_locality_txt1ActionPerformed
+    }//GEN-LAST:event_customer_locality_txtActionPerformed
 
-    private void district_txt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_district_txt1ActionPerformed
+    private void customer_district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_district_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_district_txt1ActionPerformed
+    }//GEN-LAST:event_customer_district_txtActionPerformed
 
-    private void post_txt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_post_txt1ActionPerformed
+    private void customer_post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_post_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_post_txt1ActionPerformed
+    }//GEN-LAST:event_customer_post_txtActionPerformed
 
-    private void province_txt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_province_txt1ActionPerformed
+    private void customer_province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_province_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_province_txt1ActionPerformed
+    }//GEN-LAST:event_customer_province_txtActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         this.setVisible(false);
@@ -1361,22 +1406,28 @@ public void increaseagecombo(){
                     id = 1;
                 }
                 System.out.println(id);
+                SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
+                //DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+                //String month = v.month(Integer.parseInt(customer_birthdate_txt.getText().substring(4,6)));
+                //String year = customer_birthdate_txt.getText().substring(0,4);
+                //String date = customer_birthdate_txt.getText().substring(customer_birthdate_txt.getText().length()-2,customer_birthdate_txt.getText().length());
                 BasicDBObject document = new BasicDBObject();
+                String birthdate = format.format(customer_birthdate_txt.getSelectedDate().getTime());
                 document.put("MS_CUSTOMER_ID",(int)id);
-                document.put("MS_CUSTOMER_NAME",prefix.getSelectedItem().toString()+" "+fname_txt.getText()+" "+lname_txt.getText());
-                document.put("MS_CUSTOMER_PHONE",phone_txt.getText());
-                document.put("MS_CUSTOMER_EMAIL",email_txt.getText());
+                document.put("MS_CUSTOMER_NAME",customer_prefix.getSelectedItem().toString()+" "+customer_name_txt.getText());
+                document.put("MS_CUSTOMER_PHONE",customer_phone_txt.getText());
+                document.put("MS_CUSTOMER_EMAIL",customer_email_txt.getText());
                 BasicDBObject address = new BasicDBObject();
-                address.put("บ้านเลขที่", home_txt.getText());
-                address.put("ตำบล", locality_txt.getText());
-                address.put("อำเภอ", district_txt.getText());
-                address.put("จังหวัด", province_txt.getText());
-                address.put("รหัสไปรษณีย์", post_txt.getText());
+                address.put("บ้านเลขที่", customer_home_txt.getText());
+                address.put("ตำบล", customer_locality_txt.getText());
+                address.put("อำเภอ", customer_district_txt.getText());
+                address.put("จังหวัด", customer_province_txt.getText());
+                address.put("รหัสไปรษณีย์", customer_post_txt.getText());
                 document.put("MS_CUSTOMER_ADDRESS",address);
-                document.put("MS_CUSTOMER_BIRTHDATE",birthdate_txt.getText());
-                if(type_txt.getSelectedIndex()==0){
+                document.put("MS_CUSTOMER_BIRTHDATE",birthdate);
+                if(customer_type_txt.getSelectedIndex()==0){
                     document.put("MS_CUSTOMER_TYPE","New Customer");
-                }else if(type_txt.getSelectedIndex()==1){
+                }else if(customer_type_txt.getSelectedIndex()==1){
                     document.put("MS_CUSTOMER_TYPE","Patron");
                 }
                 document.put("MS_CUSTOMER_POINTS",0);
@@ -1464,16 +1515,16 @@ public void increaseagecombo(){
                 partner_address.put("รหัสไปรษณีย์", partner_post_txt.getText());
                 document.put("MS_PARTNER_ADDRESS",partner_address); //เพิ่มข้อมูลอีเมล
                 String type = null; //สร้างตัวแปรเปล่าเพื่อเก็บประเภทของสินค้า
-                
+
                 /*
-                
+
                   index 0 = เครื่องดื่ม
                   index 1 = เบเกอรี่
                   index 2 = ของคาว
-                
+
                 */
-                
-                if(partner_type_combo.getSelectedIndex()==0){ 
+
+                if(partner_type_combo.getSelectedIndex()==0){
                    type = "Drink Partner";
                 }else if(partner_type_combo.getSelectedIndex()==1){
                     type = "Bakery Partner";
@@ -1521,28 +1572,31 @@ public void increaseagecombo(){
                 //System.out.println(productid);
                 BasicDBObject document = new BasicDBObject(); //สร้างการเก็บข้อมูลใหม่
                 document.put("MS_PRODUCT_ID",(int)productid); //เพิ่มข้อมูลรหัสของสินค้า
-                document.put("MS_PRODUCT_AMOUNT",0); //ตั้งจำนวนให้มีค่าเท่ากับ 0
                 document.put("MS_PRODUCT_NAME",pro_name_txt.getText()); //เพิ่มข้อมูลชื่อ
-                document.put("MS_PRODUCT_PRICE",Integer.parseInt(pro_price_txt.getText())); //เพิ่มข้อมูลราคา
+                document.put("MS_PRODUCT_AMOUNT",(double)0); //ตั้งจำนวนให้มีค่าเท่ากับ 0
+                document.put("MS_PRODUCT_PRICE",Double.parseDouble(pro_price_txt.getText())); //เพิ่มข้อมูลราคา
                 String type = null; //สร้างตัวแปรเปล่าเพื่อเก็บประเภทของสินค้า
-                
+
                 /*
-                
+
                   index 0 = เครื่องดื่ม
                   index 1 = เบเกอรี่
                   index 2 = ของคาว
-                
+
                 */
-                
-                if(pro_type_combo.getSelectedIndex()==0){ 
+
+                if(pro_type_combo.getSelectedIndex()==1){
                    type = "Drink";
-                }else if(pro_type_combo.getSelectedIndex()==1){
-                    type = "Bakery";
                 }else if(pro_type_combo.getSelectedIndex()==2){
+                    type = "Bakery";
+                }else if(pro_type_combo.getSelectedIndex()==3){
                     type = "Meal";
                 }
                 document.put("MS_PRODUCT_TYPE",type);//เพิ่มข้อมูลประเภท
+
+                document.put("MS_PARTNER_ID", find_partner(partner_combo.getSelectedItem().toString()));//เพิ่มข้อมูลประเภท
                 table.insert(document); //เพิ่มชุดข้อมูลในcollection
+                clear_product();
                 JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ"); //แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
                 //this.setVisible(false);
             }catch(Exception e){
@@ -1559,7 +1613,45 @@ public void increaseagecombo(){
     }//GEN-LAST:event_jButton11ActionPerformed
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
-        // TODO add your handling code here:
+        if(stock_combo.getSelectedIndex()!=0){
+        try{
+            double amount = Double.parseDouble(stock_amount.getText());
+            String product_name = stock_combo.getSelectedItem().toString();
+            find_product_id(product_name);
+            DBCollection partner = db.getCollection("MS_PRODUCT");
+            DBObject partner_json = find_product_id(stock_combo.getSelectedItem().toString());
+            if(JOptionPane.showConfirmDialog(null,"ชื่อสินค้า : "+product_name+
+                                               "\nจำนวนที่มีอยู่  : "+(double)partner_json.get("MS_PRODUCT_AMOUNT")+
+                                               "\nจำนวนที่จะเพิ่มเข้าไป : "+amount+
+                                               "\n\nคุณยืนยันที่จะเพิ่มสินค้าตามจำนวนข้างต้นใช่หรือไม่","",YES_NO_OPTION)==YES_OPTION){
+            try{
+                BasicDBObject partner_id = new BasicDBObject("MS_PRODUCT_ID",partner_json.get("MS_PRODUCT_ID"));
+                BasicDBObject setQuery = new BasicDBObject();
+                BasicDBObject updateFields = new BasicDBObject();
+                updateFields.append("MS_PRODUCT_AMOUNT",(double)partner_json.get("MS_PRODUCT_AMOUNT")+amount);
+                setQuery.append("$set", updateFields);
+                partner.update(partner_id,setQuery);
+                partner_json = find_product_id(stock_combo.getSelectedItem().toString());
+                JOptionPane.showMessageDialog(null, "ทำรายการเสร็จสิ้น!!\n"+
+                                                    "\nชื่อสินค้า : "+product_name+""+
+                                                    "\nจำนวนที่มีอยู่ขณะนี้ : "+(double)partner_json.get("MS_PRODUCT_AMOUNT"));
+                clear_stock();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            }else{
+                clear_stock();
+            }
+        }catch(NumberFormatException e){
+                JOptionPane.showMessageDialog(null,"จำนวนไม่ถูกต้อง\nกรุณาทำรายการใหม่ด้วยครับ","",ERROR_MESSAGE);
+                clear_stock();
+        }catch(Exception e){
+                e.printStackTrace();
+                clear_stock();
+        }
+        }else{
+            JOptionPane.showMessageDialog(null,"กรุณาใส่ชื่อให้ถูกต้อง","",ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton12ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -1598,8 +1690,221 @@ public void increaseagecombo(){
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         Edit_Employee g = new Edit_Employee();
         g.setLocationRelativeTo(null);
-                g.setVisible(true);
+        g.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void employee_phone_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_phone_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_employee_phone_txtActionPerformed
+
+    private void employee_user_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_user_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_employee_user_txtActionPerformed
+
+    private void employee_province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_province_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_employee_province_txtActionPerformed
+
+    private void employee_post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_post_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_employee_post_txtActionPerformed
+
+    private void employee_email_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_email_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_employee_email_txtActionPerformed
+
+    private void employee_home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_home_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_employee_home_txtActionPerformed
+
+    private void employee_locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_locality_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_employee_locality_txtActionPerformed
+
+    private void employee_district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_district_txtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_employee_district_txtActionPerformed
+
+    private void showpwd_checkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showpwd_checkActionPerformed
+        showpwd = !showpwd;
+        if(showpwd ==true){
+            employee_pwd_txt.setEchoChar((char)0);
+        }else{
+            employee_pwd_txt.setEchoChar('*');
+        }
+    }//GEN-LAST:event_showpwd_checkActionPerformed
+
+    private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
+        if(confirm.isSelected()==false){
+            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้ยืนยันข้อมูล\nกรุณายืนยันด้วยครับ",null,ERROR_MESSAGE);
+        }else{
+            String year;
+            String month;
+            String date;
+            try{
+                DBCollection table = db.getCollection("MS_EMPLOYEE");
+                DBObject dbo = table.findOne(new BasicDBObject("_id",-1));
+                BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
+                DBCursor cur = table.find().sort(sortObject);
+                int n;
+                try{
+                    n = (int)(cur.one().get("MS_EMPLOYEE_ID"));
+                }catch(Exception e){
+                    double k = (double)(cur.one().get("MS_EMPLOYEE_ID"));
+                    n = (int)k;
+
+                }
+                //System.out.println(employee_birthdate_txt.getText());
+                SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
+                DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+                String formattedDate = formatter.format(LocalDate.now());
+                month = v.month(Integer.parseInt(formattedDate.substring(4,6)));
+                year = formattedDate.substring(0,4);
+                date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());
+                String birthdate = format.format(employee_birthdate_txt.getSelectedDate().getTime());
+                //System.out.println(formattedDate);
+                System.out.println(month+" "+date+", "+year);
+                System.out.println(birthdate);
+                /*format.parse(LocalDate.now().toString());
+                System.out.print(format.parse(LocalDate.now().toString()));*/
+                BasicDBObject document = new BasicDBObject();
+                document.put("MS_EMPLOYEE_ID",(int)n+1);
+                document.put("MS_EMPLOYEE_USERNAME",employee_user_txt.getText());
+                document.put("MS_EMPLOYEE_PWD",employee_pwd_txt.getText());
+                document.put("MS_EMPLOYEE_NAME",employee_prefix.getSelectedItem().toString()+" "+employee_name_txt.getText());
+                document.put("MS_EMPLOYEE_BIRTHDATE",birthdate);
+                document.put("MS_EMPLOYEE_EMAIL",employee_email_txt.getText());
+                document.put("MS_EMPLOYEE_PHONE",employee_phone_txt.getText());
+                BasicDBObject address = new BasicDBObject();
+                address.put("บ้านเลขที่", employee_home_txt.getText());
+                address.put("ตำบล", employee_locality_txt.getText());
+                address.put("อำเภอ", employee_district_txt.getText());
+                address.put("จังหวัด", employee_province_txt.getText());
+                address.put("รหัสไปรษณีย์", employee_post_txt.getText());
+                document.put("MS_EMPLOYEE_ADDRESS",address);
+                document.put("MS_EMPLOYEE_HIRED_DATE",month+" "+date+", "+year);
+                document.put("MS_EMPLOYEE_TYPE",employee_position_combo.getSelectedItem().toString());
+                table.insert(document);
+                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
+                clear_emp();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_confirm_btnActionPerformed
+
+    private void clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_btnActionPerformed
+        clear_emp();
+    }//GEN-LAST:event_clear_btnActionPerformed
+
+    private void confirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_confirmActionPerformed
+
+    private void pro_type_comboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pro_type_comboActionPerformed
+        set_productcombo(pro_type_combo.getSelectedIndex());
+    }//GEN-LAST:event_pro_type_comboActionPerformed
+
+    private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
+        try{
+            String menu_name = menu_name_txt.getText();
+            double menu_price = Double.parseDouble(menu_price_txt.getText());
+            DBCollection get_menu = db.getCollection("MS_MENU");
+            BasicDBObject menu_json = new BasicDBObject();
+            BasicDBObject find_menu_condition = new BasicDBObject().append("_id", -1);
+            DBCursor finding_last_menu = get_menu.find().sort(find_menu_condition);
+                int menu_last_id;
+                try{
+                    menu_last_id = (int)(finding_last_menu.one().get("MS_MENU_ID"))+1;
+                }catch(Exception e){
+                    double k = (double)(finding_last_menu.one().get("MS_MENU_ID"));
+                    menu_last_id = (int)k+1;
+                }
+            menu_json.put("MS_MENU_ID",menu_last_id);    
+            menu_json.put("MS_MENU_NAME",menu_name);
+            menu_json.put("MS_MENU_PRICE",menu_price);
+            menu_json.put("MS_PRODUCT",menu_component);
+            get_menu.insert(menu_json);
+            clear_table((DefaultTableModel)menu_product_table.getModel());
+            clear_table((DefaultTableModel)menu_table.getModel());
+            get_product((DefaultTableModel)menu_product_table.getModel());
+            clear_menu();
+            JOptionPane.showMessageDialog(null,"เพิ่มเมนูสำเร็จ");
+            menu_component.clear();
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null,"เพิ่มเมนูไม่สำเร็จ","",ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButton14ActionPerformed
+
+    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
+        clear_menu();
+        clear_table((DefaultTableModel)menu_product_table.getModel());
+        clear_table((DefaultTableModel)menu_table.getModel());
+        get_product((DefaultTableModel)menu_product_table.getModel());
+        menu_component.clear();
+    }//GEN-LAST:event_jButton13ActionPerformed
+
+    private void menu_product_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menu_product_tableMouseClicked
+        String productid = menu_product_table.getModel().getValueAt(menu_product_table.getSelectedRow(),0).toString();
+        String productname = menu_product_table.getModel().getValueAt(menu_product_table.getSelectedRow(),1).toString();
+        try{
+        DBCollection get_product = db.getCollection("MS_PRODUCT");
+        if(menu_table_doubleclick.equals(productid)){
+        try{
+        double menu_per_amount = Double.parseDouble(JOptionPane.showInputDialog(null,"จำนวนที่คุณต้องการจะใช้ต่อเมนู 1 รายการ\nRange ของจำนวนจะอยู่ตั้งแต่ 0.01-9.99 หน่วย"));
+        if(menu_per_amount<=0||menu_per_amount>=10){
+            JOptionPane.showMessageDialog(null,"คุณใส่ตัวเลขไม่ถูกต้อง\nกรุณาทำรายการใหม่",null,ERROR_MESSAGE);
+            menu_table_doubleclick = "";
+        }else{
+        if(JOptionPane.showConfirmDialog(null,"ชื่อสินค้า: "+productname+" \n"+
+                                              "จำนวนที่จะใช้ต่อเมนู: "+ menu_per_amount+" \n"+
+                                              "\n ยืนยืนการเพิ่มสินค้าของเมนูนี้","",YES_NO_OPTION)==YES_OPTION){
+        BasicDBObject product_condition = new BasicDBObject("MS_PRODUCT_ID",Integer.parseInt(productid));
+        DBCursor find_product = get_product.find(product_condition);
+        if(find_product.hasNext()==true){
+            DBObject product_json = find_product.next();
+            product_json.put("MS_PRODUCT_AMOUNT", menu_per_amount);
+            product_json.removeField("_id");
+            product_json.removeField("MS_PRODUCT_PRICE");
+            //System.out.println(product_json);
+            /*new_product_json.append("$set", new BasicDBObject().append("MS_PRODUCT_AMOUNT", menu_per_amount));
+            BasicDBObject searchQuery = (BasicDBObject)product_json;
+            searchQuery.*/
+            //product_json.update(new BasicDBObject("MS_PRODUCT_ID",Integer.parseInt(productid)));
+            //System.out.println(product_json);
+            menu_component.add(product_json);
+            System.out.println("***************************************");
+            for(DBObject d:menu_component){
+                System.out.println(d);
+            }
+            System.out.println("***************************************");
+            DefaultTableModel product_model = (DefaultTableModel) menu_product_table.getModel();
+            DefaultTableModel menu_model = (DefaultTableModel) menu_table.getModel();
+            product_model.removeRow(menu_product_table.getSelectedRow());
+            set_menu_table(menu_model);
+            //menu_product_table.remove(menu_product_table.getSelectedRow());
+        }
+        //System.out.println(menu_product_table.getModel().getValueAt(menu_product_table.getSelectedRow(),0));
+        menu_table_doubleclick = "";
+        }
+        }
+        }catch(NumberFormatException e){
+            JOptionPane.showMessageDialog(null,"คุณใส่ตัวเลขไม่ถูกต้อง\nกรุณาทำรายการใหม่",null,ERROR_MESSAGE);
+            menu_table_doubleclick = "";
+        }catch(NullPointerException e){
+            menu_table_doubleclick = ""; 
+        //JOptionPane.showMessageDialog(null,"คุณยังไม่ได้กรอกตัวเลขให้ถูกต้อง\nกรุณาทำรายการใหม่",null,ERROR_MESSAGE);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        }else{
+            menu_table_doubleclick = productid;
+        }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_menu_product_tableMouseClicked
 
     /**
      * @param args the command line arguments
@@ -1608,7 +1913,7 @@ public void increaseagecombo(){
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -1637,29 +1942,43 @@ public void increaseagecombo(){
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> agecombo;
-    private datechooser.beans.DateChooserCombo birthdate_txt;
-    private datechooser.beans.DateChooserCombo birthdate_txt1;
     private javax.swing.JPanel btn_panel;
     private javax.swing.JButton clear_btn;
     private javax.swing.JCheckBox confirm;
     private javax.swing.JButton confirm_btn;
+    private datechooser.beans.DateChooserCombo customer_birthdate_txt;
     private javax.swing.JButton customer_btn;
+    private javax.swing.JTextField customer_district_txt;
+    private javax.swing.JTextField customer_email_txt;
+    private javax.swing.JTextField customer_home_txt;
+    private javax.swing.JTextField customer_locality_txt;
+    private javax.swing.JTextField customer_name_txt;
     private javax.swing.JPanel customer_panel;
-    private javax.swing.JTextField district_txt;
-    private javax.swing.JTextField district_txt1;
-    private javax.swing.JTextField email_txt;
-    private javax.swing.JTextField email_txt1;
+    private javax.swing.JTextField customer_phone_txt;
+    private javax.swing.JTextField customer_post_txt;
+    private javax.swing.JComboBox<String> customer_prefix;
+    private javax.swing.JTextField customer_province_txt;
+    private javax.swing.JComboBox<String> customer_type_txt;
+    private javax.swing.JComboBox<String> employee_age_combo;
+    private datechooser.beans.DateChooserCombo employee_birthdate_txt;
     private javax.swing.JButton employee_btn;
+    private javax.swing.JTextField employee_district_txt;
+    private javax.swing.JTextField employee_email_txt;
+    private javax.swing.JTextField employee_home_txt;
+    private javax.swing.JTextField employee_id_txt;
+    private javax.swing.JTextField employee_locality_txt;
+    private javax.swing.JTextField employee_name_txt;
     private javax.swing.JPanel employee_panel;
+    private javax.swing.JTextField employee_phone_txt;
+    private javax.swing.JComboBox<String> employee_position_combo;
+    private javax.swing.JTextField employee_post_txt;
+    private javax.swing.JComboBox<String> employee_prefix;
+    private javax.swing.JTextField employee_province_txt;
+    private javax.swing.JPasswordField employee_pwd_txt;
+    private javax.swing.JTextField employee_user_txt;
     private javax.swing.JPanel first_panel;
-    private javax.swing.JTextField fname_txt;
-    private javax.swing.JTextField fname_txt1;
     private javax.swing.JButton history_btn;
     private javax.swing.JPanel history_panel;
-    private javax.swing.JTextField home_txt;
-    private javax.swing.JTextField home_txt1;
-    private javax.swing.JTextField id_txt;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
@@ -1680,8 +1999,6 @@ public void increaseagecombo(){
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
     private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox5;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -1694,7 +2011,6 @@ public void increaseagecombo(){
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel22;
-    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
@@ -1750,19 +2066,15 @@ public void increaseagecombo(){
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
-    private javax.swing.JTable jTable4;
-    private javax.swing.JTable jTable5;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField lname_txt;
-    private javax.swing.JTextField lname_txt1;
-    private javax.swing.JTextField locality_txt;
-    private javax.swing.JTextField locality_txt1;
     private javax.swing.JPanel main_panel;
     private javax.swing.JRadioButton man_radio;
     private javax.swing.JButton menu_btn;
+    private javax.swing.JTextField menu_name_txt;
     private javax.swing.JPanel menu_panel;
+    private javax.swing.JTextField menu_price_txt;
+    private javax.swing.JTable menu_product_table;
+    private javax.swing.JTable menu_table;
     private javax.swing.JButton order_btn;
     private javax.swing.JPanel order_panel;
     private javax.swing.JButton partner_btn;
@@ -1777,33 +2089,20 @@ public void increaseagecombo(){
     private javax.swing.JTextField partner_post_txt;
     private javax.swing.JTextField partner_province_txt;
     private javax.swing.JComboBox<String> partner_type_combo;
-    private javax.swing.JTextField phone_txt;
-    private javax.swing.JTextField phone_txt1;
-    private javax.swing.JTextField phone_txt4;
     private javax.swing.JLabel picture_label;
-    private javax.swing.JComboBox<String> position_combo;
-    private javax.swing.JTextField post_txt;
-    private javax.swing.JTextField post_txt1;
-    private javax.swing.JComboBox<String> prefix;
-    private javax.swing.JComboBox<String> prefix1;
     private javax.swing.JTextField pro_name_txt;
     private javax.swing.JTextField pro_price_txt;
     private javax.swing.JComboBox<String> pro_type_combo;
     private javax.swing.JButton product_btn;
     private javax.swing.JPanel product_panel;
-    private javax.swing.JTextField province_txt;
-    private javax.swing.JTextField province_txt1;
-    private javax.swing.JPasswordField pwd_txt;
     private javax.swing.JCheckBox showpwd_check;
+    private javax.swing.JTextField stock_amount;
     private javax.swing.JButton stock_btn;
+    private javax.swing.JComboBox<String> stock_combo;
     private javax.swing.JPanel stock_panel;
     private javax.swing.JLabel title_name_txt;
     private javax.swing.JPanel title_panel;
     private javax.swing.JLabel title_position_txt;
-    private javax.swing.JComboBox<String> type_txt;
-    private javax.swing.JTextField user_txt;
     private javax.swing.JRadioButton woman_radio;
     // End of variables declaration//GEN-END:variables
-byte[] photo=null;
-String filename = null;
 }

@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -31,16 +32,80 @@ Variable v = new Variable();
      */
     public Edit_Employee() {
         initComponents();
-        getconnect();
+        get_connect();
+        get_collection_in_to_table();
     }
-public void getconnect(){
-    try{
-        mongo = new MongoClient("localhost",27017);
-        db = mongo.getDB("InthaninDB");
-    }catch(Exception e){
-        System.out.println(e);
+    public void get_connect(){
+        try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+      	MongoClient mongo = new MongoClient("localhost", 27017); //เชื่อมต่อ Database Mongodb IP:localhost Port:27017
+        db = mongo.getDB(("InthaninDB")); //ดึงข้อมูลจากดาต้าเบสที่ชื่อ InthaninDB
+        DBC = db.getCollection("MS_EMPLOYEE"); // ดึงข้อมูลจาก collection ที่ชื่อ MS_EMPLOYEE
+        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+            e.printStackTrace(); //แสดงออกการผิดพลาดทางหน้าจอ
+            System.exit(0);//ถ้าหากว่ามีการทำงานผิดพลาด ให้ออกจากโปรแกรม
+        }
     }
-}
+
+    public void get_collection_in_to_table(){
+        DefaultTableModel table = (DefaultTableModel)employee_table.getModel(); //ดึงข้อมูลตารางจากตารางชื่อ partner_table มาเก็บไว้ในตัวแปร-
+        String[] row = new String[5]; // สร้างอาเรย์ Object ชื่อว่า row ขนาด 2 ช่อง
+        DBCursor cursor = DBC.find(); // ค้นหาข้อมูลในcollectionทั้งหมด
+        do{ //สร้างลูป do-while
+            try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                DBObject employee = cursor.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ partner
+                System.out.println(employee.get("MS_EMPLOYEE_NAME"));
+                try{ //สร้างลูป do-while
+                row[0] = employee.get("MS_EMPLOYEE_ID").toString(); //Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสพนักงาน
+                row[1] = employee.get("MS_EMPLOYEE_USERNAME").toString(); //Object อาเรย์ ช่องที่ 2 เก็บข้อมูลของชื่อผู้เข้าใช้งานของพนักงาน
+                row[2] = employee.get("MS_EMPLOYEE_NAME").toString(); //Object อาเรย์ ช่องที่ 3 เก็บข้อมูลของชื่อพนักงาน
+                row[3] = employee.get("MS_EMPLOYEE_EMAIL").toString(); //Object อาเรย์ ช่องที่ 4 เก็บข้อมูลอีเมลของพนักงาน
+                row[4] = employee.get("MS_EMPLOYEE_TYPE").toString(); //Object อาเรย์ ช่องที่ 5 เก็บข้อมูลตำแหน่งของพนักงาน
+                table.addRow(row); //เพิ่มแถวข้อมูลของตาราง partner_table โดยนำข้อมูลมาจาก อาเรย์ของObject ที่ชื่อว่า row
+                }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                   e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+                }
+            //table.addRow(row);*/
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
+        }while(cursor.hasNext()); //จะจบการทำงานเมื่อเงื่อนไขเป็น false (ไม่มีข้อมูลตัวถัดไป)
+    }
+    
+    public void get_data_from_table(){
+        int partnerid = 0; //
+        BasicDBObject partner_data = new BasicDBObject("MS_EMPLOYEE_ID",employee_table.getSelectedRow()+1);//สร้างObjectชื่อ partner_data เพื่อเก็บข้อมูลที่จะนำไปค้นหา
+        DBCursor cursor = DBC.find(partner_data);// ค้นหาข้อมูลในcollectionที่ตรงกับเงื่อนไขของ partner_data
+        do{//สร้างลูป do-while
+            try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                DBObject employee = cursor.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ employee
+                System.out.println(employee);
+                try{ //สร้างลูป do-while
+                //mployee_id = (int)employee.get("MS_PARTNER_ID");
+                employee_name_txt.setText(employee.get("MS_EMPLOYEE_NAME").toString()); //ใส่ข้อมูลของชื่อบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า employee_name_txt
+                /*employee_phone_txt.setText(employee.get("MS_PARTNER_PHONE").toString()); //ใส่ข้อมูลของเบอร์โทรศัพท์บริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า employee_phone_txt
+                employee_email_txt.setText(employee.get("MS_PARTNER_EMAIL").toString()); //ใส่ข้อมูลของอีเมลบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า employee_email_txt
+                DBObject employee_address = (DBObject)employee.get("MS_PARTNER_ADDRESS"); //สร้างobjectที่ชื่อว่า employee_address โดยนำข้อมูลมาจาก MS_PARTNER_ADDRESS
+                employee_home_txt.setText(employee_address.get("บ้านเลขที่").toString()); //ใส่ข้อมูลของบ้านเลขที่บริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า employee_home_txt
+                employee_locality_txt.setText(employee_address.get("ตำบล").toString()); //ใส่ข้อมูลของตำบลบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า employee_locality_txt
+                employee_distict_txt.setText(employee_address.get("อำเภอ").toString()); //ใส่ข้อมูลของอำเภอบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า employee_distict_txt
+                employee_province_txt.setText(employee_address.get("จังหวัด").toString()); //ใส่ข้อมูลของจังหวัดบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า employee_province_txt
+                employee_post_txt.setText(employee_address.get("รหัสไปรษณีย์").toString()); //ใส่ข้อมูลของรหัสไปรษณีย์บริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า employee_post_txt
+                if(employee.get("MS_PARTNER_TYPE").toString().contains("Drink")){ //ตรวจสอบประเภทของบริษัทคู่ค้าประเภทเครื่องดื่ม
+                    employee_type_combo.setSelectedIndex(0);
+                }else if(employee.get("MS_PARTNER_TYPE").toString().contains("Bakery")){//ตรวจสอบประเภทของบริษัทคู่ค้าประเภทเครื่องดื่ม
+                    employee_type_combo.setSelectedIndex(1);
+                }else if(employee.get("MS_PARTNER_TYPE").toString().contains("Meal")){//ตรวจสอบประเภทของบริษัทคู่ค้าประเภทเครื่องดื่ม
+                   employee_type_combo.setSelectedIndex(2); 
+                }*/
+                }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                   e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+                }
+            //table.addRow(row);*/
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
+        }while(cursor.hasNext());//จะจบการทำงานเมื่อเงื่อนไขเป็น false (ไม่มีข้อมูลตัวถัดไป)
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -55,7 +120,7 @@ public void getconnect(){
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        employee_table = new javax.swing.JTable();
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton2 = new javax.swing.JRadioButton();
         showpwd_check = new javax.swing.JCheckBox();
@@ -71,10 +136,8 @@ public void getconnect(){
         prefix = new javax.swing.JComboBox<>();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        fname_txt = new javax.swing.JTextField();
-        jLabel10 = new javax.swing.JLabel();
+        employee_name_txt = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        lname_txt = new javax.swing.JTextField();
         locality_txt = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         home_txt = new javax.swing.JTextField();
@@ -128,23 +191,28 @@ public void getconnect(){
         });
         getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 520, 110, 50));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        employee_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "ลำดับที่", "ชื่อ-สกุล", "ชื่อผู้เข้าใช้งาน", "อีเมลล์", "ตำแหน่ง"
+                "รหัสพนักงาน", "ชื่อผู้เข้าใช้งาน", "ชื่อ-สกุล", "อีเมล", "ตำแหน่ง"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, true, false
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        employee_table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                employee_tableMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(employee_table);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 860, 100));
 
@@ -197,22 +265,12 @@ public void getconnect(){
         jLabel8.setText("เลขบัตรประจำตัวประชาชน:");
         getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 340, -1, -1));
 
-        jLabel9.setText("ชื่อ:");
+        jLabel9.setText("ชื่อ-สกุล:");
         getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 210, -1, -1));
-        getContentPane().add(fname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 210, 110, 20));
-
-        jLabel10.setText("นามสกุล:");
-        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 210, -1, -1));
+        getContentPane().add(employee_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 210, 280, 20));
 
         jLabel11.setText("อำเภอ:");
         getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 220, -1, -1));
-
-        lname_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lname_txtActionPerformed(evt);
-            }
-        });
-        getContentPane().add(lname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 210, 110, 20));
 
         locality_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -361,10 +419,6 @@ public void getconnect(){
         // TODO add your handling code here:
     }//GEN-LAST:event_district_txtActionPerformed
 
-    private void lname_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lname_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_lname_txtActionPerformed
-
     private void locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_locality_txtActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_locality_txtActionPerformed
@@ -392,6 +446,10 @@ public void getconnect(){
     private void phone_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_phone_txtActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_phone_txtActionPerformed
+
+    private void employee_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_employee_tableMouseClicked
+    get_data_from_table();        // TODO add your handling code here:
+    }//GEN-LAST:event_employee_tableMouseClicked
 
     /**
      * @param args the command line arguments
@@ -430,7 +488,7 @@ public void getconnect(){
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Edit_Menu().setVisible(true);
+                new Edit_Employee().setVisible(true);
             }
         });
     }
@@ -440,13 +498,13 @@ public void getconnect(){
     private datechooser.beans.DateChooserCombo birthdate_txt;
     private javax.swing.JTextField district_txt;
     private javax.swing.JTextField email_txt;
-    private javax.swing.JTextField fname_txt;
+    private javax.swing.JTextField employee_name_txt;
+    private javax.swing.JTable employee_table;
     private javax.swing.JTextField home_txt;
     private javax.swing.JTextField id_txt;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -466,8 +524,6 @@ public void getconnect(){
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField lname_txt;
     private javax.swing.JTextField locality_txt;
     private javax.swing.JRadioButton man_radio;
     private javax.swing.JTextField phone_txt;
