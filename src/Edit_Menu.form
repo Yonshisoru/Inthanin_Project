@@ -60,10 +60,30 @@
         <Component class="javax.swing.JTable" name="jTable1">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="2" rowCount="0">
-                <Column editable="true" title="&#xe23;&#xe2b;&#xe31;&#xe2a;&#xe40;&#xe21;&#xe19;&#xe39;" type="java.lang.Object"/>
-                <Column editable="true" title="&#xe0a;&#xe37;&#xe48;&#xe2d;&#xe40;&#xe21;&#xe19;&#xe39;" type="java.lang.Object"/>
+              <Table columnCount="3" rowCount="0">
+                <Column editable="false" title="&#xe23;&#xe2b;&#xe31;&#xe2a;&#xe40;&#xe21;&#xe19;&#xe39;" type="java.lang.Object"/>
+                <Column editable="false" title="&#xe0a;&#xe37;&#xe48;&#xe2d;&#xe40;&#xe21;&#xe19;&#xe39;" type="java.lang.Object"/>
+                <Column editable="false" title="&#xe23;&#xe32;&#xe04;&#xe32;" type="java.lang.Object"/>
               </Table>
+            </Property>
+            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+              <TableColumnModel selectionModel="0">
+                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                  <Title/>
+                  <Editor/>
+                  <Renderer/>
+                </Column>
+                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                  <Title/>
+                  <Editor/>
+                  <Renderer/>
+                </Column>
+                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                  <Title/>
+                  <Editor/>
+                  <Renderer/>
+                </Column>
+              </TableColumnModel>
             </Property>
             <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>

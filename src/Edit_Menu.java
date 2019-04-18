@@ -85,9 +85,17 @@ public void getconnect(){
 
             },
             new String [] {
-                "รหัสเมนู", "ชื่อเมนู"
+                "รหัสเมนู", "ชื่อเมนู", "ราคา"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 97, -1, 160));

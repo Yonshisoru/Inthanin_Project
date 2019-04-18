@@ -46,10 +46,15 @@ DBObject dbo;
 boolean showpwd = false;
 static String username;
 static String position;
+//-----------------------List / ArrayList -------------------------------------
 List<DBObject>menu_component = new ArrayList<>();
-
+List<DBObject>order_list = new ArrayList<>();
 //-------------------Menu Panel Variable-----------------------
 String menu_table_doubleclick = "";
+//-------------------Order Variable--------------------------
+boolean add_order = false;
+int total_price = -1;
+int order_list_price = -1;
 //----------------------------------------------------------
     /**
      * Creates new form Main
@@ -214,7 +219,45 @@ String menu_table_doubleclick = "";
             model.addRow(row);
         }
     }
-//---------------------------Put Data From Database into ModelTable--------------------------------------------
+//-------------------------------Ordering--------------------------------------------
+        public void set_order_table(DefaultTableModel table){
+        DefaultTableModel model = table;
+        while(model.getRowCount()>0){
+            model.removeRow(0);
+        }
+        Object[] row = new Object[3];
+        for(DBObject e:menu_component){
+            DBObject product = e;
+            row[0] = product.get("MS_MENU_ID");
+            row[1] = product.get("MS_MENU_NAME");
+            row[2] = product.get("MS_MENU_PRICE");
+            model.addRow(row);
+        }
+    }
+        public void clearing_order(){
+            DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");
+            DBCursor finding_order_list = get_order_list.find();
+            while (finding_order_list.hasNext()) {
+                get_order_list.remove(finding_order_list.next());
+            }
+            clear_table((DefaultTableModel)order_table.getModel());
+        }
+//---------------------------Put Product Data into ModelTable--------------------------------------------
+    public void get_menu(DefaultTableModel table){
+        DefaultTableModel model = table;
+        Object[] row = new Object[3];
+        DBCollection product_collection  = db.getCollection("MS_MENU");
+        DBCursor product_finding = product_collection.find().sort(new BasicDBObject("MS_MENU_ID", 1));;
+        while(product_finding.hasNext()){
+            DBObject product_json = product_finding.next();
+            row[0] = (int)product_json.get("MS_MENU_ID");
+            row[1] = product_json.get("MS_MENU_NAME");
+            row[2] = product_json.get("MS_MENU_PRICE");
+            model.addRow(row);
+        }
+    }
+    
+//---------------------------Put Menu Data into --------------------------------------------
     public void get_product(DefaultTableModel table){
         DefaultTableModel model = table;
         Object[] row = new Object[4];
@@ -229,7 +272,25 @@ String menu_table_doubleclick = "";
             model.addRow(row);
         }
     }
-    
+//---------------------------Put Menu Data into --------------------------------------------
+    public void get_order_list(DefaultTableModel table){
+        DefaultTableModel model = table;
+        Object[] row = new Object[4];
+        DBCollection product_collection  = db.getCollection("TRAN_ORDER_LIST");
+        DBCursor product_finding = product_collection.find();
+        while(product_finding.hasNext()){
+            DBObject menu_json = product_finding.next();
+            int menu_id = (int)menu_json.get("MS_MENU_ID");
+            row[0] = (int)menu_json.get("TRAN_ORDER_LIST_ID");
+            row[1] = find_product_name(menu_id).get("MS_MENU_NAME");
+            //System.out.println(">>>>"+menu_json.get("TRAN_ORDER_LIST_PRICE"));
+            row[2] = menu_json.get("TRAN_ORDER_LIST_AMOUNT");
+            row[3] = menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");
+            
+            model.addRow(row);
+        }
+    }    
+        
 //---------------------------Find & Check-------------------------------
     public int find_partner(String name){
         int id = 0;
@@ -275,6 +336,41 @@ String menu_table_doubleclick = "";
             }
         return product_json;
     }
+        public DBObject find_product_name(int id){ //ค้นหารหัสของสินค้าจากชื่อ
+            DBCollection product = db.getCollection("MS_MENU");
+            BasicDBObject data = new BasicDBObject("MS_MENU_ID",id);
+            DBCursor find = product.find(data);
+            DBObject product_json = null;
+            //int productid = -1; //-1 = null
+            try{
+                product_json = find.next();
+                //System.out.println(product_json);
+                //productid = (int)product_json.get("MS_PRODUCT_ID");
+                //System.out.println(productid);
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");
+            }
+        return product_json;
+    }
+        
+        public int get_order_list_id(int menu_id){
+            DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");
+            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
+            DBCursor finding_order_list_id = get_order_list.find().sort(sortObject);
+              int order_list_id = -1;
+                if(finding_order_list_id.hasNext()==true){ //ถ้าหากว่ามีข้อมูลอยู่แล้ว
+                    DBObject data = finding_order_list_id.next();
+                    try{//ดักจับข้อผิดพลาดของตัวเลขโดยใช้ try-catch
+                    order_list_id = 1+(int)data.get("TRAN_ORDER_LIST_ID"); //นำค่าของPKมาบวกด้วย 1
+                    }catch(Exception e){
+                    double k = 1+(double)data.get("TRAN_ORDER_LIST_ID"); //นำค่าของPKมาบวกด้วย 1
+                    order_list_id = (int)k ;
+                    }
+                }else{
+                    order_list_id = 1;//สร้างPKของ MS_PRODUCT
+                }
+                return order_list_id;
+        }
 //------------------------logout-----------------------------------
     public void logout(){
             System.out.println("-----------logout----------------");
@@ -446,11 +542,11 @@ String menu_table_doubleclick = "";
         jButton18 = new javax.swing.JButton();
         order_panel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        order_table = new javax.swing.JTable();
         jButton2 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        menu_order_table = new javax.swing.JTable();
         jLabel35 = new javax.swing.JLabel();
         jLabel36 = new javax.swing.JLabel();
         jLabel37 = new javax.swing.JLabel();
@@ -1010,7 +1106,7 @@ String menu_table_doubleclick = "";
 
         order_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        order_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -1026,17 +1122,22 @@ String menu_table_doubleclick = "";
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setPreferredWidth(40);
-            jTable1.getColumnModel().getColumn(1).setPreferredWidth(200);
-            jTable1.getColumnModel().getColumn(2).setPreferredWidth(40);
-            jTable1.getColumnModel().getColumn(3).setPreferredWidth(40);
+        jScrollPane1.setViewportView(order_table);
+        if (order_table.getColumnModel().getColumnCount() > 0) {
+            order_table.getColumnModel().getColumn(0).setPreferredWidth(40);
+            order_table.getColumnModel().getColumn(1).setPreferredWidth(200);
+            order_table.getColumnModel().getColumn(2).setPreferredWidth(40);
+            order_table.getColumnModel().getColumn(3).setPreferredWidth(40);
         }
 
         order_panel.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 100, 380, 270));
 
         jButton2.setText("เคลียร์");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
         order_panel.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 420, 100, 30));
 
         jButton6.setText("สั่ง");
@@ -1047,7 +1148,7 @@ String menu_table_doubleclick = "";
         });
         order_panel.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 420, 100, 30));
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        menu_order_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -1063,7 +1164,12 @@ String menu_table_doubleclick = "";
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane3.setViewportView(jTable3);
+        menu_order_table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menu_order_tableMouseClicked(evt);
+            }
+        });
+        jScrollPane3.setViewportView(menu_order_table);
 
         order_panel.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 390, 270));
 
@@ -1092,6 +1198,11 @@ String menu_table_doubleclick = "";
         order_panel.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 380, -1, -1));
 
         jButton16.setText(">>");
+        jButton16.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton16ActionPerformed(evt);
+            }
+        });
         order_panel.add(jButton16, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 220, 60, -1));
 
         main_panel.add(order_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
@@ -1320,6 +1431,11 @@ String menu_table_doubleclick = "";
     private void order_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_order_btnActionPerformed
         disablepanel();
         order_panel.setVisible(true);
+        clear_table((DefaultTableModel)menu_order_table.getModel());
+        clear_table((DefaultTableModel)order_table.getModel());
+        get_menu((DefaultTableModel)menu_order_table.getModel());
+        set_order_table((DefaultTableModel)menu_product_table.getModel());
+        get_order_list((DefaultTableModel)order_table.getModel());
         this.setTitle("หน้าต่างการออเดอร์");
     }//GEN-LAST:event_order_btnActionPerformed
 
@@ -1822,7 +1938,7 @@ String menu_table_doubleclick = "";
                 }
             menu_json.put("MS_MENU_ID",menu_last_id);    
             menu_json.put("MS_MENU_NAME",menu_name);
-            menu_json.put("MS_MENU_PRICE",menu_price);
+            menu_json.put("MS_MENU_PRICE",(int)menu_price);
             menu_json.put("MS_PRODUCT",menu_component);
             get_menu.insert(menu_json);
             clear_table((DefaultTableModel)menu_product_table.getModel());
@@ -1905,6 +2021,75 @@ String menu_table_doubleclick = "";
             e.printStackTrace();
         }
     }//GEN-LAST:event_menu_product_tableMouseClicked
+
+    private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
+        if(add_order){
+         int menu_id = (int)menu_order_table.getModel().getValueAt(menu_order_table.getSelectedRow(),0);
+         //System.out.println(menu_id);
+            try{
+              DBCollection get_order = db.getCollection("TRAN_ORDER");
+              DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");
+              DBCollection get_menu = db.getCollection("MS_MENU");
+              BasicDBObject find_menu = new BasicDBObject("MS_MENU_ID",menu_id);
+              DBCursor finding_menu = get_menu.find(find_menu);
+              DBObject menu_json = null;
+              System.out.println(">>"+get_order_list_id(menu_id));
+              if(finding_menu.hasNext()){
+                  menu_json = finding_menu.next();
+                  menu_json.removeField("_id");
+            try{
+                int menu_amount = Integer.parseInt(JOptionPane.showInputDialog(null,""
+                     + "รายการเมนู\n"
+                     + "ชื่อเมนู: "+menu_json.get("MS_MENU_NAME")+"\n"
+                     + "ราคาต่อเมนู: "+menu_json.get("MS_MENU_PRICE")+"\n"
+                     + "\nกรุณากรอกจำนวนเมนูที่ต้องการค่ะ"
+                     + "\n(กรุณากรอกเป็นตัวเลขจำนวนเต็ม)"));
+                if(menu_amount<=0){
+                    throw new NumberFormatException();
+                }else{
+                  order_list_price = ((int)menu_json.get("MS_MENU_PRICE")*menu_amount);
+                  BasicDBObject insert_order_list = new BasicDBObject();
+                  insert_order_list.put("TRAN_ORDER_LIST_ID",get_order_list_id(menu_id));
+                  insert_order_list.put("TRAN_ORDER_LIST_AMOUNT",menu_amount);
+                  insert_order_list.put("TRAN_ORDER_LIST_TOTAL_PRICE",order_list_price);
+                  insert_order_list.put("MS_MENU_ID",(int)menu_json.get("MS_MENU_ID"));
+                  get_order_list.insert(insert_order_list);
+                  clear_table((DefaultTableModel)order_table.getModel());
+                  get_order_list((DefaultTableModel)order_table.getModel());
+                  System.out.println(menu_json.get("MS_MENU_ID"));
+                  System.err.println(order_list_price);
+                }
+            }catch(NumberFormatException e){
+                JOptionPane.showMessageDialog(null,"คุณกรอกจำนวนไม่ถูกต้อง\nกรุณาทำรายการใหม่","",ERROR_MESSAGE);
+                e.printStackTrace();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+              }else{
+                  throw new NullPointerException();
+              }
+            }catch(NullPointerException e){
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูล\nกรุณาทำรายการใหม่","",ERROR_MESSAGE);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }else{
+            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้เลือกเมนูในรายการ\nกรุณาทำรายการใหม่ครับ","",ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton16ActionPerformed
+
+    private void menu_order_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menu_order_tableMouseClicked
+      add_order = true;
+    }//GEN-LAST:event_menu_order_tableMouseClicked
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        menu_order_table.clearSelection();
+        add_order = false;
+        clearing_order();
+        clear_table((DefaultTableModel)order_table.getModel());
+        get_order_list((DefaultTableModel)order_table.getModel());
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -2063,20 +2248,20 @@ String menu_table_doubleclick = "";
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
-    private javax.swing.JTable jTable3;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JPanel main_panel;
     private javax.swing.JRadioButton man_radio;
     private javax.swing.JButton menu_btn;
     private javax.swing.JTextField menu_name_txt;
+    private javax.swing.JTable menu_order_table;
     private javax.swing.JPanel menu_panel;
     private javax.swing.JTextField menu_price_txt;
     private javax.swing.JTable menu_product_table;
     private javax.swing.JTable menu_table;
     private javax.swing.JButton order_btn;
     private javax.swing.JPanel order_panel;
+    private javax.swing.JTable order_table;
     private javax.swing.JButton partner_btn;
     private javax.swing.JComboBox<String> partner_combo;
     private javax.swing.JTextField partner_distict_txt;

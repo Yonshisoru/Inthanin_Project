@@ -5,6 +5,12 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +21,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import javax.swing.table.DefaultTableModel;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -26,6 +35,15 @@ import java.util.logging.Logger;
  * @author Yonshisoru
  */
 public class Order_confirm extends javax.swing.JFrame {
+    Variable v = new Variable();
+    boolean first_notification = false;
+    MongoClient mongo;
+    DB db;
+    DBCollection DBC;
+    DBObject dbo;
+    int sum_order_price = 0;
+    double total_order_price = 0;
+    int discount_price = 0;
     public void printInvoice(){
         String time = LocalTime.now().toString().substring(0,2)+"-"+LocalTime.now().toString().substring(3,5)+"-"+LocalTime.now().toString().substring(6,8);
         String filename = "$"+LocalDate.now()+"$"+time+"$"+/*t.getorderid()*/001+".pdf";
@@ -78,8 +96,64 @@ try{
      */
     public Order_confirm() {
         initComponents();
+        get_order_list((DefaultTableModel)order_table.getModel());
+        set_total_text();
     }
-
+    public void set_total_text(){
+        order_sum_txt.setText(""+sum_order_price);
+        order_total_txt.setText(""+total_order_price);
+    }
+    public void get_order_list(DefaultTableModel table){
+        db = v.getConnect();
+        DefaultTableModel model = table;
+        Object[] row = new Object[4];
+        DBCollection product_collection  = db.getCollection("TRAN_ORDER_LIST");
+        DBCursor product_finding = product_collection.find();
+        while(product_finding.hasNext()){
+            DBObject menu_json = product_finding.next();
+            int menu_id = (int)menu_json.get("MS_MENU_ID");
+            row[0] = (int)menu_json.get("TRAN_ORDER_LIST_ID");
+            row[1] = find_product_name(menu_id).get("MS_MENU_NAME");
+            //System.out.println(">>>>"+menu_json.get("TRAN_ORDER_LIST_PRICE"));
+            row[2] = menu_json.get("TRAN_ORDER_LIST_AMOUNT");
+            row[3] = menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");
+            sum_order_price += (int)menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");
+            model.addRow(row);
+        }
+        total_order_price = sum_order_price;
+    } 
+        public DBObject find_product_id(String name){ //ค้นหารหัสของสินค้าจากชื่อ
+            DBCollection product = db.getCollection("MS_PRODUCT");
+            BasicDBObject data = new BasicDBObject("MS_PRODUCT_NAME",name);
+            DBCursor find = product.find(data);
+            DBObject product_json = null;
+            //int productid = -1; //-1 = null
+            try{
+                product_json = find.next();
+                //System.out.println(product_json);
+                //productid = (int)product_json.get("MS_PRODUCT_ID");
+                //System.out.println(productid);
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");
+            }
+        return product_json;
+    }
+        public DBObject find_product_name(int id){ //ค้นหารหัสของสินค้าจากชื่อ
+            DBCollection product = db.getCollection("MS_MENU");
+            BasicDBObject data = new BasicDBObject("MS_MENU_ID",id);
+            DBCursor find = product.find(data);
+            DBObject product_json = null;
+            //int productid = -1; //-1 = null
+            try{
+                product_json = find.next();
+                //System.out.println(product_json);
+                //productid = (int)product_json.get("MS_PRODUCT_ID");
+                //System.out.println(productid);
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");
+            }
+        return product_json;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -91,7 +165,7 @@ try{
 
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        order_sum_txt = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
@@ -103,20 +177,26 @@ try{
         jTextField7 = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        jTextField8 = new javax.swing.JTextField();
+        order_discount_txt = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
-        jTextField9 = new javax.swing.JTextField();
+        order_total_txt = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        order_table = new javax.swing.JTable();
         jLabel36 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("หน้าต่างยืนยันการสั่ง");
         setMinimumSize(new java.awt.Dimension(800, 600));
         setPreferredSize(new java.awt.Dimension(915, 640));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowActivated(java.awt.event.WindowEvent evt) {
+                formWindowActivated(evt);
+            }
+        });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -126,12 +206,12 @@ try{
         jTextField1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         getContentPane().add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 50, 113, -1));
 
-        jTextField2.setEnabled(false);
-        getContentPane().add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 380, 113, -1));
+        order_sum_txt.setEnabled(false);
+        getContentPane().add(order_sum_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 380, 113, -1));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel2.setText("ราคารวม:");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 380, -1, -1));
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 380, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel3.setText("รหัสสมาชิก");
@@ -171,15 +251,21 @@ try{
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel8.setText("ส่วนลด:");
-        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 380, -1, -1));
-        getContentPane().add(jTextField8, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 380, 113, -1));
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 380, -1, -1));
+
+        order_discount_txt.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                order_discount_txtMouseClicked(evt);
+            }
+        });
+        getContentPane().add(order_discount_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 380, 113, -1));
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel9.setText("ราคาสุทธิ:");
-        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 420, -1, -1));
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 420, -1, -1));
 
-        jTextField9.setEnabled(false);
-        getContentPane().add(jTextField9, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 420, 113, -1));
+        order_total_txt.setEnabled(false);
+        getContentPane().add(order_total_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 420, 113, -1));
 
         jButton1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jButton1.setText("ยืนยัน");
@@ -196,9 +282,9 @@ try{
                 jButton3ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 460, 120, 40));
+        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 450, 120, 40));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        order_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -214,13 +300,21 @@ try{
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(order_table);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 80, 390, 290));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 80, 500, 290));
 
         jLabel36.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel36.setText("ตารางออเดอร์");
         getContentPane().add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 40, -1, -1));
+
+        jButton4.setText("ยืนยัน");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 380, 60, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -228,6 +322,31 @@ try{
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
          printInvoice();
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        try{
+        int discount = Integer.parseInt(order_discount_txt.getText());
+        total_order_price = sum_order_price-((sum_order_price*discount)/100);
+        set_total_text();
+        //order_discount_txt.setEnabled(false);
+        }catch(Exception e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,"คุณใส่จำนวนส่วนลดไม่ถูกต้อง\nกรุณากรอกเป็นจำนวนเต็มด้วยค่ะ","",ERROR_MESSAGE);
+            order_discount_txt.setText("");
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void order_discount_txtMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_order_discount_txtMouseClicked
+
+    }//GEN-LAST:event_order_discount_txtMouseClicked
+
+    private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
+       if(first_notification==false){
+        JOptionPane.showMessageDialog(null,"กรุณากรอกส่วนลดเป็นจำนวนเต็มด้วยค่ะ\nถ้าหากไม่มีส่วนลด กรุณากรอกเลข 0 หรือ ปล่อยช่องให้เว้นว่างไว้ค่ะ\nRange(1-100) หน่วย:เปอร์เซนต์");
+        first_notification = true;
+       }else{
+       }
+    }//GEN-LAST:event_formWindowActivated
 
     /**
      * @param args the command line arguments
@@ -268,6 +387,7 @@ try{
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -279,14 +399,14 @@ try{
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
+    private javax.swing.JTextField order_discount_txt;
+    private javax.swing.JTextField order_sum_txt;
+    private javax.swing.JTable order_table;
+    private javax.swing.JTextField order_total_txt;
     // End of variables declaration//GEN-END:variables
 }
