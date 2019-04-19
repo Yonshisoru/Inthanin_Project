@@ -53,6 +53,7 @@ List<DBObject>order_list = new ArrayList<>();
 String menu_table_doubleclick = "";
 //-------------------Order Variable--------------------------
 boolean add_order = false;
+boolean check_order_list = false;
 int total_price = -1;
 int order_list_price = -1;
 //----------------------------------------------------------
@@ -274,11 +275,14 @@ int order_list_price = -1;
     }
 //---------------------------Put Menu Data into --------------------------------------------
     public void get_order_list(DefaultTableModel table){
+        int total_price = 0;
         DefaultTableModel model = table;
         Object[] row = new Object[4];
         DBCollection product_collection  = db.getCollection("TRAN_ORDER_LIST");
         DBCursor product_finding = product_collection.find();
+        if(product_finding.hasNext()==true){
         while(product_finding.hasNext()){
+            check_order_list = true;
             DBObject menu_json = product_finding.next();
             int menu_id = (int)menu_json.get("MS_MENU_ID");
             row[0] = (int)menu_json.get("TRAN_ORDER_LIST_ID");
@@ -286,9 +290,13 @@ int order_list_price = -1;
             //System.out.println(">>>>"+menu_json.get("TRAN_ORDER_LIST_PRICE"));
             row[2] = menu_json.get("TRAN_ORDER_LIST_AMOUNT");
             row[3] = menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");
-            
+            total_price += (int)menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");
             model.addRow(row);
         }
+        }else{
+            check_order_list = false;
+        }
+        order_total_txt.setText(""+total_price);
     }    
         
 //---------------------------Find & Check-------------------------------
@@ -544,14 +552,14 @@ int order_list_price = -1;
         jScrollPane1 = new javax.swing.JScrollPane();
         order_table = new javax.swing.JTable();
         jButton2 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        ordering_btn = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         menu_order_table = new javax.swing.JTable();
         jLabel35 = new javax.swing.JLabel();
         jLabel36 = new javax.swing.JLabel();
         jLabel37 = new javax.swing.JLabel();
         jLabel38 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        order_total_txt = new javax.swing.JTextField();
         jLabel34 = new javax.swing.JLabel();
         jButton16 = new javax.swing.JButton();
         employee_panel = new javax.swing.JPanel();
@@ -1140,13 +1148,13 @@ int order_list_price = -1;
         });
         order_panel.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 420, 100, 30));
 
-        jButton6.setText("สั่ง");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
+        ordering_btn.setText("สั่ง");
+        ordering_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
+                ordering_btnActionPerformed(evt);
             }
         });
-        order_panel.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 420, 100, 30));
+        order_panel.add(ordering_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 420, 100, 30));
 
         menu_order_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1189,9 +1197,10 @@ int order_list_price = -1;
         jLabel38.setText("หน้าต่างการสั่งออเดอร์");
         order_panel.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 10, -1, -1));
 
-        jTextField2.setEditable(false);
-        jTextField2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        order_panel.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 380, 93, 30));
+        order_total_txt.setEditable(false);
+        order_total_txt.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        order_total_txt.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        order_panel.add(order_total_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 380, 93, 30));
 
         jLabel34.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel34.setText("ราคารวม");
@@ -1434,8 +1443,13 @@ int order_list_price = -1;
         clear_table((DefaultTableModel)menu_order_table.getModel());
         clear_table((DefaultTableModel)order_table.getModel());
         get_menu((DefaultTableModel)menu_order_table.getModel());
-        set_order_table((DefaultTableModel)menu_product_table.getModel());
         get_order_list((DefaultTableModel)order_table.getModel());
+        set_order_table((DefaultTableModel)menu_product_table.getModel());
+        if(check_order_list==true){
+            ordering_btn.setEnabled(true);
+        }else{
+            ordering_btn.setEnabled(false);
+        }
         this.setTitle("หน้าต่างการออเดอร์");
     }//GEN-LAST:event_order_btnActionPerformed
 
@@ -1511,15 +1525,24 @@ int order_list_price = -1;
                 BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
                 DBCursor cur = table.find().sort(sortObject);
                 //double n = (double)(cur.one().get("MS_CUSTOMER_ID"));
-                int id = 0;
+                String id = null;
                 DBCursor find = table.find();
                 System.out.println(find.hasNext());
                 if(find.hasNext()==true){
                     System.out.println("eiei");
-                    int k = (int)cur.one().get("MS_CUSTOMER_ID");
-                    id = k+1;
+                    //int k = (int)cur.one().get("MS_CUSTOMER_ID");
+                    System.out.println("OWIOA"+Integer.valueOf(cur.one().get("MS_CUSTOMER_ID").toString().substring(1,cur.one().get("MS_CUSTOMER_ID").toString().length())));
+                    int k = Integer.valueOf(cur.one().get("MS_CUSTOMER_ID").toString().substring(1,cur.one().get("MS_CUSTOMER_ID").toString().length()));
+                    k += 1;
+                    if(k>10){
+                        id = "C0"+k;
+                    }else if(k>100){
+                        id = "C"+k;
+                    }else{
+                        id = "C00"+k;
+                    }
                 }else{
-                    id = 1;
+                    id = "C00"+1;
                 }
                 System.out.println(id);
                 SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
@@ -1529,7 +1552,7 @@ int order_list_price = -1;
                 //String date = customer_birthdate_txt.getText().substring(customer_birthdate_txt.getText().length()-2,customer_birthdate_txt.getText().length());
                 BasicDBObject document = new BasicDBObject();
                 String birthdate = format.format(customer_birthdate_txt.getSelectedDate().getTime());
-                document.put("MS_CUSTOMER_ID",(int)id);
+                document.put("MS_CUSTOMER_ID",id);
                 document.put("MS_CUSTOMER_NAME",customer_prefix.getSelectedItem().toString()+" "+customer_name_txt.getText());
                 document.put("MS_CUSTOMER_PHONE",customer_phone_txt.getText());
                 document.put("MS_CUSTOMER_EMAIL",customer_email_txt.getText());
@@ -1559,10 +1582,10 @@ int order_list_price = -1;
         }
     }//GEN-LAST:event_jButton5ActionPerformed
 
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+    private void ordering_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ordering_btnActionPerformed
         Order_confirm o = new Order_confirm();
         o.setVisible(true);
-    }//GEN-LAST:event_jButton6ActionPerformed
+    }//GEN-LAST:event_ordering_btnActionPerformed
 
     private void history_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_history_btnActionPerformed
         disablepanel();
@@ -2058,6 +2081,11 @@ int order_list_price = -1;
                   get_order_list((DefaultTableModel)order_table.getModel());
                   System.out.println(menu_json.get("MS_MENU_ID"));
                   System.err.println(order_list_price);
+                  if(check_order_list==true){
+                    ordering_btn.setEnabled(true);
+                  }else{
+                    ordering_btn.setEnabled(false);
+                  }
                 }
             }catch(NumberFormatException e){
                 JOptionPane.showMessageDialog(null,"คุณกรอกจำนวนไม่ถูกต้อง\nกรุณาทำรายการใหม่","",ERROR_MESSAGE);
@@ -2089,6 +2117,7 @@ int order_list_price = -1;
         clearing_order();
         clear_table((DefaultTableModel)order_table.getModel());
         get_order_list((DefaultTableModel)order_table.getModel());
+        ordering_btn.setEnabled(false);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
@@ -2179,7 +2208,6 @@ int order_list_price = -1;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
@@ -2249,7 +2277,6 @@ int order_list_price = -1;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTable jTable2;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JPanel main_panel;
     private javax.swing.JRadioButton man_radio;
     private javax.swing.JButton menu_btn;
@@ -2262,6 +2289,8 @@ int order_list_price = -1;
     private javax.swing.JButton order_btn;
     private javax.swing.JPanel order_panel;
     private javax.swing.JTable order_table;
+    private javax.swing.JTextField order_total_txt;
+    private javax.swing.JButton ordering_btn;
     private javax.swing.JButton partner_btn;
     private javax.swing.JComboBox<String> partner_combo;
     private javax.swing.JTextField partner_distict_txt;
