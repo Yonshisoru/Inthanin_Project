@@ -18,6 +18,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.ParallelScanOptions;
 import com.mongodb.ServerAddress;
 import com.mongodb.MongoException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import javax.swing.DefaultListModel;
@@ -33,6 +34,7 @@ public class MyProjectMongo extends javax.swing.JFrame {
      */
     public MyProjectMongo() {
         initComponents();
+        System.out.println(LocalDate.now().toString());
     }
 
     /**

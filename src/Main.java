@@ -1,5 +1,6 @@
 import com.mongodb.*;
 import com.mongodb.util.JSON;
+import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -23,6 +24,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
 import javax.swing.table.DefaultTableModel;
@@ -51,6 +53,7 @@ List<DBObject>menu_component = new ArrayList<>();
 List<DBObject>order_list = new ArrayList<>();
 //-------------------Menu Panel Variable-----------------------
 String menu_table_doubleclick = "";
+String history_table_doubleclick = "";
 //-------------------Order Variable--------------------------
 boolean add_order = false;
 boolean check_order_list = false;
@@ -257,7 +260,27 @@ int order_list_price = -1;
             model.addRow(row);
         }
     }
-    
+//----------------------------History---------------------------------------------
+        public double get_history(String month){
+        double total_price = 0;
+        DefaultTableModel model = (DefaultTableModel)history_table.getModel();
+        Object[] row = new Object[4];
+        DBCollection get_history  = db.getCollection("TRAN_ORDER");
+        DBCursor order_finding = get_history.find();
+        while(order_finding.hasNext()){
+           DBObject order_json = order_finding.next();
+           if((order_json.get("TRAN_ORDER_DATE").toString().contains(month)&&order_json.get("TRAN_ORDER_DATE").toString().contains(LocalDate.now().toString().subSequence(0,4)))){
+               total_price += Double.parseDouble(order_json.get("TRAN_ORDER_TOTAL_PRICE").toString());
+             //System.out.println(order_json.get("TRAN_ORDER_DATE").toString());
+            row[0] = order_json.get("TRAN_ORDER_ID");
+            row[1] = order_json.get("TRAN_ORDER_TOTAL_PRICE");
+            row[2] = order_json.get("TRAN_ORDER_DATE");
+            row[3] = order_json.get("TRAN_ORDER_TIME");
+            model.addRow(row);
+           }
+        }
+        return total_price;
+    }
 //---------------------------Put Menu Data into --------------------------------------------
     public void get_product(DefaultTableModel table){
         DefaultTableModel model = table;
@@ -602,11 +625,13 @@ int order_list_price = -1;
         jLabel4 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
         history_panel = new javax.swing.JPanel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        history_combo = new javax.swing.JComboBox<>();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        history_table = new javax.swing.JTable();
         jLabel40 = new javax.swing.JLabel();
         jLabel41 = new javax.swing.JLabel();
+        total_price_txt = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("หน้าต่างหลัก");
@@ -1391,27 +1416,37 @@ int order_list_price = -1;
 
         history_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jComboBox1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกเดือน", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มีนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม" }));
-        history_panel.add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 20, 150, 30));
+        history_combo.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        history_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกเดือน", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มีนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม" }));
+        history_combo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                history_comboActionPerformed(evt);
+            }
+        });
+        history_panel.add(history_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 20, 150, 30));
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        history_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "วันที่", "รหัสลูกค้า", "สินค้า", "ราคา", "ราคารวม"
+                "รหัสออเดอร์", "ราคารวม", "วันที่", "เวลา"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane2.setViewportView(jTable2);
+        history_table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                history_tableMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(history_table);
 
         history_panel.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 70, 570, 330));
 
@@ -1422,6 +1457,14 @@ int order_list_price = -1;
         jLabel41.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel41.setText("เดือน:");
         history_panel.add(jLabel41, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 20, -1, -1));
+
+        total_price_txt.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        total_price_txt.setText("0.0");
+        history_panel.add(total_price_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 410, 90, 20));
+
+        jLabel1.setForeground(new java.awt.Color(255, 0, 0));
+        jLabel1.setText("*ดับเบิ้ลคลิ๊กเพื่อดูรายละเอียดของออเดอร์");
+        history_panel.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 400, 230, 20));
 
         main_panel.add(history_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
@@ -1534,11 +1577,11 @@ int order_list_price = -1;
                     System.out.println("OWIOA"+Integer.valueOf(cur.one().get("MS_CUSTOMER_ID").toString().substring(1,cur.one().get("MS_CUSTOMER_ID").toString().length())));
                     int k = Integer.valueOf(cur.one().get("MS_CUSTOMER_ID").toString().substring(1,cur.one().get("MS_CUSTOMER_ID").toString().length()));
                     k += 1;
-                    if(k>10){
+                    if(k>=10){
                         id = "C0"+k;
                     }else if(k>100){
                         id = "C"+k;
-                    }else{
+                    }else if(k<10){
                         id = "C00"+k;
                     }
                 }else{
@@ -1584,6 +1627,7 @@ int order_list_price = -1;
 
     private void ordering_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ordering_btnActionPerformed
         Order_confirm o = new Order_confirm();
+        this.setVisible(false);
         o.setVisible(true);
     }//GEN-LAST:event_ordering_btnActionPerformed
 
@@ -1900,9 +1944,9 @@ int order_list_price = -1;
                 month = v.month(Integer.parseInt(formattedDate.substring(4,6)));
                 year = formattedDate.substring(0,4);
                 date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());
+                System.out.println(month+" "+date+", "+year);
                 String birthdate = format.format(employee_birthdate_txt.getSelectedDate().getTime());
                 //System.out.println(formattedDate);
-                System.out.println(month+" "+date+", "+year);
                 System.out.println(birthdate);
                 /*format.parse(LocalDate.now().toString());
                 System.out.print(format.parse(LocalDate.now().toString()));*/
@@ -2120,6 +2164,48 @@ int order_list_price = -1;
         ordering_btn.setEnabled(false);
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void history_comboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_history_comboActionPerformed
+        clear_table((DefaultTableModel)history_table.getModel());
+        switch(history_combo.getSelectedIndex()){
+            case 1:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("January"));break;
+            case 2:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("February"));break;
+            case 3:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("March"));break;
+            case 4:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("April"));break;
+            case 5:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("May"));break;
+            case 6:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("June"));break;
+            case 7:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("July"));break;
+            case 8:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("Auguest"));break;
+            case 9:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("September"));break;
+            case 10:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("October"));break;
+            case 11:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("November"));break;
+            case 12:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("December"));break;
+            default:total_price_txt.setText("0.0");clear_table((DefaultTableModel)history_table.getModel());
+        }
+    }//GEN-LAST:event_history_comboActionPerformed
+
+    private void history_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_history_tableMouseClicked
+        String order_id = history_table.getModel().getValueAt(history_table.getSelectedRow(),0).toString();
+        if(history_table_doubleclick.equals(order_id)){
+            try{
+            String findpart = "./invoice/";
+            File file=new File(findpart);
+            File files[] = file.listFiles();
+            for(File f:files){
+                if(f.getName().contains(order_id)){
+                findpart = (f.getName());
+            }
+            }
+            Desktop.getDesktop().open(new File("./invoice/"+findpart));
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            history_table_doubleclick = "";
+        }else{
+            history_table_doubleclick = order_id;
+        }
+        System.out.println(order_id);
+    }//GEN-LAST:event_history_tableMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -2192,7 +2278,9 @@ int order_list_price = -1;
     private javax.swing.JTextField employee_user_txt;
     private javax.swing.JPanel first_panel;
     private javax.swing.JButton history_btn;
+    private javax.swing.JComboBox<String> history_combo;
     private javax.swing.JPanel history_panel;
+    private javax.swing.JTable history_table;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
@@ -2211,7 +2299,7 @@ int order_list_price = -1;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -2276,7 +2364,6 @@ int order_list_price = -1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JTable jTable2;
     private javax.swing.JPanel main_panel;
     private javax.swing.JRadioButton man_radio;
     private javax.swing.JButton menu_btn;
@@ -2317,6 +2404,7 @@ int order_list_price = -1;
     private javax.swing.JLabel title_name_txt;
     private javax.swing.JPanel title_panel;
     private javax.swing.JLabel title_position_txt;
+    private javax.swing.JLabel total_price_txt;
     private javax.swing.JRadioButton woman_radio;
     // End of variables declaration//GEN-END:variables
 }
