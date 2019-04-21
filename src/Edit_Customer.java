@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -61,6 +62,7 @@ public void getconnect(){ //เชื่อมต่อ Database
             customer_panel.setVisible(true); //หน้าต่างแก้ไขข้อมูลจะปรากฏขึ้น
             edit=true; //แก้ไขค่าตัวแปรedit ให้มีค่า true
             delete=false; //แก้ไขค่าตัวแปรdelete ให้มีค่า false
+            confirm_btn.setText("ยืนยันการแก้ไข"); //ตั้งการแสดงผลที่ปุ่ม
         }else if(delete_radio.isSelected()){//ถ้าหากว่าตัวเลือกลบได้ถูกเลือก
             customer_panel.setVisible(false); //หน้าต่างแก้ไขข้อมูลจะถูกซ่อน
             customer_table.clearSelection(); //ยกเลิกการเลือกในตารางลูกค้า
@@ -127,31 +129,35 @@ public void getconnect(){ //เชื่อมต่อ Database
         public void get_data_from_table(){
         DBCollection get_customer = db.getCollection("MS_CUSTOMER");
         BasicDBObject customer_data = new BasicDBObject("MS_CUSTOMER_ID",customer_table.getValueAt(customer_table.getSelectedRow(),0));//สร้างObjectชื่อ customer_data เพื่อเก็บข้อมูลที่จะนำไปค้นหา
-        DBCursor cursor = get_customer.find(customer_data);// ค้นหาข้อมูลในcollectionที่ตรงกับเงื่อนไขของ partner_data
+        DBCursor cursor = get_customer.find(customer_data);// ค้นหาข้อมูลในcollectionที่ตรงกับเงื่อนไขของ customer_data
         do{//สร้างลูป do-while
             try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
-                DBObject customer = cursor.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ partner
+                DBObject customer = cursor.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ customer
                 //System.out.println(customer);
                 try{ //สร้างลูป do-while
                 customer_id = customer.get("MS_CUSTOMER_ID").toString();
-                customer_name_txt.setText(customer.get("MS_CUSTOMER_NAME").toString()); //ใส่ข้อมูลของชื่อบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_name_txt
-                customer_phone_txt.setText(customer.get("MS_CUSTOMER_PHONE").toString()); //ใส่ข้อมูลของเบอร์โทรศัพท์บริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_phone_txt
-                customer_email_txt.setText(customer.get("MS_CUSTOMER_EMAIL").toString()); //ใส่ข้อมูลของอีเมลบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_email_txt
+                customer_name_txt.setText(customer.get("MS_CUSTOMER_NAME").toString()); //ใส่ข้อมูลของชื่อของลูกค้าในช่องข้อมูลที่ชื่อว่า customer_name_txt
+                customer_phone_txt.setText(customer.get("MS_CUSTOMER_PHONE").toString()); //ใส่ข้อมูลของเบอร์โทรศัพท์ของลูกค้าในช่องข้อมูลที่ชื่อว่า customer_phone_txt
+                customer_email_txt.setText(customer.get("MS_CUSTOMER_EMAIL").toString()); //ใส่ข้อมูลของอีเมลของลูกค้าในช่องข้อมูลที่ชื่อว่า customer_email_txt
+                //******************ตั้งค่าวันที่ใน customer_birthdate_txt*********************
+                SimpleDateFormat sdf = new SimpleDateFormat("MMMMM dd,yyyy"); //สร้างdateformatขึ้นมา
+                Date date = sdf.parse(customer.get("MS_CUSTOMER_BIRTHDATE").toString()); //สร้างตัวแปร date เพื่อเก็บข้อมูลวันเกิดมาแปลงให้เป็น format ที่สร้างก่อนหน้านี้
+                calendar.setTime(date); //ตั้งวันที่จากวันที่ ที่แปลงเรียบร้อยแล้ว
+                customer_birthdate_txt.setSelectedDate(calendar); //ตั้งช่องข้อมูลให้เป็นวันที่ ที่เรากำหนด
+                DBObject customer_address = (DBObject)customer.get("MS_CUSTOMER_ADDRESS"); //สร้างobjectที่ชื่อว่า customer_address โดยนำข้อมูลมาจาก MS_CUSTOMER_ADDRESS
+                customer_home_txt.setText(customer_address.get("บ้านเลขที่").toString()); //ใส่ข้อมูลของบ้านเลขที่ของลูกค้าในช่องข้อมูลที่ชื่อว่า customer_home_txt
+                customer_locality_txt.setText(customer_address.get("ตำบล").toString()); //ใส่ข้อมูลของตำบลของลูกค้าในช่องข้อมูลที่ชื่อว่า customer_locality_txt
+                customer_district_txt.setText(customer_address.get("อำเภอ").toString()); //ใส่ข้อมูลของอำเภอของลูกค้าในช่องข้อมูลที่ชื่อว่า customer_distict_txt
+                customer_province_txt.setText(customer_address.get("จังหวัด").toString()); //ใส่ข้อมูลของจังหวัดของลูกค้าในช่องข้อมูลที่ชื่อว่า customer_province_txt
+                customer_post_txt.setText(customer_address.get("รหัสไปรษณีย์").toString()); //ใส่ข้อมูลของรหัสไปรษณีย์ของลูกค้าในช่องข้อมูลที่ชื่อว่า customer_post_txt
+                /*
+                   0 = New Customer
+                   1 = Old Customer
+                */
                 
-                SimpleDateFormat sdf = new SimpleDateFormat("MMMMM dd,yyyy");
-                Date date = sdf.parse(customer.get("MS_CUSTOMER_BIRTHDATE").toString());
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(date);
-                customer_birthdate_txt.setSelectedDate(cal);
-                DBObject customer_address = (DBObject)customer.get("MS_CUSTOMER_ADDRESS"); //สร้างobjectที่ชื่อว่า partner_address โดยนำข้อมูลมาจาก MS_PARTNER_ADDRESS
-                customer_home_txt.setText(customer_address.get("บ้านเลขที่").toString()); //ใส่ข้อมูลของบ้านเลขที่บริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_home_txt
-                customer_locality_txt.setText(customer_address.get("ตำบล").toString()); //ใส่ข้อมูลของตำบลบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_locality_txt
-                customer_district_txt.setText(customer_address.get("อำเภอ").toString()); //ใส่ข้อมูลของอำเภอบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_distict_txt
-                customer_province_txt.setText(customer_address.get("จังหวัด").toString()); //ใส่ข้อมูลของจังหวัดบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_province_txt
-                customer_post_txt.setText(customer_address.get("รหัสไปรษณีย์").toString()); //ใส่ข้อมูลของรหัสไปรษณีย์บริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_post_txt
-                if(customer.get("MS_CUSTOMER_TYPE").toString().contains("New")){ //ตรวจสอบประเภทของบริษัทคู่ค้าประเภทเครื่องดื่ม
+                if(customer.get("MS_CUSTOMER_TYPE").toString().contains("New")){ //ตรวจสอบประเภทของลูกค้า
                     customer_type_combo.setSelectedIndex(0);
-                }else if(customer.get("MS_CUSTOMER_TYPE").toString().contains("Old")){//ตรวจสอบประเภทของบริษัทคู่ค้าประเภทเครื่องดื่ม
+                }else if(customer.get("MS_CUSTOMER_TYPE").toString().contains("Old")){ //ตรวจสอบประเภทของลูกค้า
                     customer_type_combo.setSelectedIndex(1);
                 }
                 }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
@@ -366,8 +372,12 @@ public void getconnect(){ //เชื่อมต่อ Database
     }// </editor-fold>//GEN-END:initComponents
 
     private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
-       DBCollection get_customer = db.getCollection("MS_CUSTOMER");
+       try{
+        DBCollection get_customer = db.getCollection("MS_CUSTOMER");
         if(edit==true){
+           if(customer_name_txt.getText().isEmpty()){
+               throw new NullPointerException();
+           }else{
            BasicDBObject searchFields = new BasicDBObject("MS_CUSTOMER_ID",customer_id);
            BasicDBObject updateFields = new BasicDBObject();
            BasicDBObject customer_address = new BasicDBObject();
@@ -396,14 +406,22 @@ public void getconnect(){ //เชื่อมต่อ Database
            System.out.println("Success");
            clear_table((DefaultTableModel)customer_table.getModel());
            get_collection_in_to_table();
+                       JOptionPane.showMessageDialog(null,"แก้ไขข้อมูลของลูกค้าเรียบร้อยแล้วค่ะ");
             }catch(Exception e){
                 e.printStackTrace();
             }
+           }
         }else if(delete==true){
             get_customer.remove(new BasicDBObject("MS_CUSTOMER_ID",customer_id));
             clear_table((DefaultTableModel)customer_table.getModel());
             get_collection_in_to_table();
+            JOptionPane.showMessageDialog(null,"ลบข้อมูลของลูกค้าเรียบร้อยแล้วค่ะ");
         }
+       }catch(NullPointerException e){
+           JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบถ้วน\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);
+       }catch(Exception e){
+           e.printStackTrace();
+       }
     }//GEN-LAST:event_confirm_btnActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -431,16 +449,16 @@ public void getconnect(){ //เชื่อมต่อ Database
     }//GEN-LAST:event_customer_home_txtActionPerformed
 
     private void customer_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_customer_tableMouseClicked
-        get_data_from_table();
+        get_data_from_table(); //ดึงข้อมูลจากตารางที่มาจาก(MS_CUSTOMER)ลงในหน้าต่างแก้ไข
     }//GEN-LAST:event_customer_tableMouseClicked
 
     private void edit_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_radioActionPerformed
-        check_function();
+        check_function(); //เช็คการทำงานในปัจจุบัน(ลบ/แก้ไขข้อมูล)
     }//GEN-LAST:event_edit_radioActionPerformed
 
     private void delete_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_radioActionPerformed
-        check_function();
-        clear_customer();
+        check_function(); //เช็คการทำงานในปัจจุบัน(ลบ/แก้ไขข้อมูล)
+        clear_customer(); //เคลียร์ข้อมูลทั้งหมดที่อยู่ในหน้าต่างแก้ไข
     }//GEN-LAST:event_delete_radioActionPerformed
 
     /**

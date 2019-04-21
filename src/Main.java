@@ -59,6 +59,8 @@ boolean add_order = false;
 boolean check_order_list = false;
 int total_price = -1;
 int order_list_price = -1;
+//---------------------Current date-------------------------
+        Calendar calendar = Calendar.getInstance();
 //----------------------------------------------------------
     /**
      * Creates new form Main
@@ -94,8 +96,20 @@ int order_list_price = -1;
             employee_panel.setVisible(false);
             history_panel.setVisible(false);
 }
-//-------------------------------------------------------------------
-
+//--------clear partner data--------------------------
+    public void clear_customer(){
+        customer_name_txt.setText("");
+        customer_phone_txt.setText("");
+        customer_email_txt.setText("");
+        customer_home_txt.setText("");
+        customer_locality_txt.setText("");
+        customer_district_txt.setText("");
+        customer_province_txt.setText("");
+        customer_post_txt.setText("");
+        customer_type_combo.setSelectedIndex(0);
+        customer_prefix.setSelectedIndex(0);
+        customer_birthdate_txt.setSelectedDate(calendar);
+    }
 //--------clear partner data--------------------------
     public void clear_partner(){
         partner_name_txt.setText("");
@@ -122,14 +136,13 @@ int order_list_price = -1;
     }
     
     public void clear_emp(){
-    Calendar calendar = Calendar.getInstance();
+    employee_birthdate_txt.setSelectedDate(calendar);
     //Date date =  calendar.getTime();
     //System.out.println(date); //15/10/2013
     employee_name_txt.setText("");
     employee_age_combo.setSelectedIndex(0);
     man_radio.setSelected(false);
     woman_radio.setSelected(false);
-    employee_birthdate_txt.setSelectedDate(calendar);
     employee_phone_txt.setText("");
     employee_id_txt.setText("");
     employee_home_txt.setText("");
@@ -269,7 +282,8 @@ int order_list_price = -1;
         DBCursor order_finding = get_history.find();
         while(order_finding.hasNext()){
            DBObject order_json = order_finding.next();
-           if((order_json.get("TRAN_ORDER_DATE").toString().contains(month)&&order_json.get("TRAN_ORDER_DATE").toString().contains(LocalDate.now().toString().subSequence(0,4)))){
+           if((order_json.get("TRAN_ORDER_DATE").toString().contains(month)&&order_json.get("TRAN_ORDER_DATE").toString()
+                                                           .contains(LocalDate.now().toString().subSequence(0,4)))){
                total_price += Double.parseDouble(order_json.get("TRAN_ORDER_TOTAL_PRICE").toString());
              //System.out.println(order_json.get("TRAN_ORDER_DATE").toString());
             row[0] = order_json.get("TRAN_ORDER_ID");
@@ -487,7 +501,7 @@ int order_list_price = -1;
         main_panel = new javax.swing.JPanel();
         first_panel = new javax.swing.JPanel();
         customer_panel = new javax.swing.JPanel();
-        customer_type_txt = new javax.swing.JComboBox<>();
+        customer_type_combo = new javax.swing.JComboBox<>();
         customer_prefix = new javax.swing.JComboBox<>();
         customer_name_txt = new javax.swing.JTextField();
         jLabel24 = new javax.swing.JLabel();
@@ -748,17 +762,17 @@ int order_list_price = -1;
 
         customer_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        customer_type_txt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ลูกค้าใหม่", "ลูกค้าขาจร" }));
-        customer_panel.add(customer_type_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 70, -1, -1));
+        customer_type_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ลูกค้าใหม่", "ลูกค้าขาจร" }));
+        customer_panel.add(customer_type_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 70, -1, -1));
 
         customer_prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นาง", "นางสาว", "เด็กชาย", "เด็กหญิง" }));
         customer_panel.add(customer_prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 110, -1, -1));
-        customer_panel.add(customer_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 110, 340, -1));
+        customer_panel.add(customer_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 110, 320, -1));
 
         jLabel24.setText("ประเภทลูกค้า:");
         customer_panel.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 70, -1, -1));
 
-        jLabel25.setText("ชื่อ:");
+        jLabel25.setText("ชื่อ-สกุล:");
         customer_panel.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 110, -1, -1));
 
         jLabel26.setText("เบอร์โทรศัพท์:");
@@ -837,6 +851,8 @@ int order_list_price = -1;
 
         jLabel33.setText("บ้านเลขที่:");
         customer_panel.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 230, -1, -1));
+
+        customer_birthdate_txt.setFormat(1);
         customer_panel.add(customer_birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 190, -1, 20));
 
         jLabel22.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
@@ -1557,7 +1573,7 @@ int order_list_price = -1;
     }//GEN-LAST:event_customer_province_txtActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        this.setVisible(false);
+        clear_customer();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
@@ -1588,15 +1604,15 @@ int order_list_price = -1;
                     id = "C00"+1;
                 }
                 System.out.println(id);
-                SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
+                //SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
                 //DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
                 //String month = v.month(Integer.parseInt(customer_birthdate_txt.getText().substring(4,6)));
                 //String year = customer_birthdate_txt.getText().substring(0,4);
                 //String date = customer_birthdate_txt.getText().substring(customer_birthdate_txt.getText().length()-2,customer_birthdate_txt.getText().length());
                 BasicDBObject document = new BasicDBObject();
-                String birthdate = format.format(customer_birthdate_txt.getSelectedDate().getTime());
+                String birthdate =customer_birthdate_txt.getText().toString();
                 document.put("MS_CUSTOMER_ID",id);
-                document.put("MS_CUSTOMER_NAME",customer_prefix.getSelectedItem().toString()+" "+customer_name_txt.getText());
+                document.put("MS_CUSTOMER_NAME",customer_prefix.getSelectedItem().toString()+customer_name_txt.getText());
                 document.put("MS_CUSTOMER_PHONE",customer_phone_txt.getText());
                 document.put("MS_CUSTOMER_EMAIL",customer_email_txt.getText());
                 BasicDBObject address = new BasicDBObject();
@@ -1607,13 +1623,13 @@ int order_list_price = -1;
                 address.put("รหัสไปรษณีย์", customer_post_txt.getText());
                 document.put("MS_CUSTOMER_ADDRESS",address);
                 document.put("MS_CUSTOMER_BIRTHDATE",birthdate);
-                if(customer_type_txt.getSelectedIndex()==0){
+                if(customer_type_combo.getSelectedIndex()==0){
                     document.put("MS_CUSTOMER_TYPE","New Customer");
-                }else if(customer_type_txt.getSelectedIndex()==1){
+                }else if(customer_type_combo.getSelectedIndex()==1){
                     document.put("MS_CUSTOMER_TYPE","Patron");
                 }
-                document.put("MS_CUSTOMER_POINTS",0);
                 table.insert(document);
+                clear_customer();
                 JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
                 //this.setVisible(false);
             }catch(Exception e){
@@ -1955,7 +1971,7 @@ int order_list_price = -1;
                 document.put("MS_EMPLOYEE_USERNAME",employee_user_txt.getText());
                 document.put("MS_EMPLOYEE_PWD",employee_pwd_txt.getText());
                 document.put("MS_EMPLOYEE_NAME",employee_prefix.getSelectedItem().toString()+" "+employee_name_txt.getText());
-                document.put("MS_EMPLOYEE_BIRTHDATE",birthdate);
+                document.put("MS_EMPLOYEE_BIRTHDATE",employee_birthdate_txt.getText());
                 document.put("MS_EMPLOYEE_EMAIL",employee_email_txt.getText());
                 document.put("MS_EMPLOYEE_PHONE",employee_phone_txt.getText());
                 BasicDBObject address = new BasicDBObject();
@@ -2050,12 +2066,6 @@ int order_list_price = -1;
             product_json.put("MS_PRODUCT_AMOUNT", menu_per_amount);
             product_json.removeField("_id");
             product_json.removeField("MS_PRODUCT_PRICE");
-            //System.out.println(product_json);
-            /*new_product_json.append("$set", new BasicDBObject().append("MS_PRODUCT_AMOUNT", menu_per_amount));
-            BasicDBObject searchQuery = (BasicDBObject)product_json;
-            searchQuery.*/
-            //product_json.update(new BasicDBObject("MS_PRODUCT_ID",Integer.parseInt(productid)));
-            //System.out.println(product_json);
             menu_component.add(product_json);
             System.out.println("***************************************");
             for(DBObject d:menu_component){
@@ -2066,9 +2076,7 @@ int order_list_price = -1;
             DefaultTableModel menu_model = (DefaultTableModel) menu_table.getModel();
             product_model.removeRow(menu_product_table.getSelectedRow());
             set_menu_table(menu_model);
-            //menu_product_table.remove(menu_product_table.getSelectedRow());
         }
-        //System.out.println(menu_product_table.getModel().getValueAt(menu_product_table.getSelectedRow(),0));
         menu_table_doubleclick = "";
         }
         }
@@ -2077,7 +2085,6 @@ int order_list_price = -1;
             menu_table_doubleclick = "";
         }catch(NullPointerException e){
             menu_table_doubleclick = ""; 
-        //JOptionPane.showMessageDialog(null,"คุณยังไม่ได้กรอกตัวเลขให้ถูกต้อง\nกรุณาทำรายการใหม่",null,ERROR_MESSAGE);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -2258,7 +2265,7 @@ int order_list_price = -1;
     private javax.swing.JTextField customer_post_txt;
     private javax.swing.JComboBox<String> customer_prefix;
     private javax.swing.JTextField customer_province_txt;
-    private javax.swing.JComboBox<String> customer_type_txt;
+    private javax.swing.JComboBox<String> customer_type_combo;
     private javax.swing.JComboBox<String> employee_age_combo;
     private datechooser.beans.DateChooserCombo employee_birthdate_txt;
     private javax.swing.JButton employee_btn;

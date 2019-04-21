@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 /*
@@ -41,6 +42,7 @@ Variable v = new Variable();
             partner_txt_panel.setVisible(true);
             edit=true;
             delete=false;
+            confirm_btn.setText("ยืนยันการแก้ไข"); //ตั้งการแสดงผลที่ปุ่ม
         }else if(delete_radio.isSelected()){
             partner_txt_panel.setVisible(false);
             confirm_btn.setText("ยืนยันการลบ");
@@ -385,7 +387,11 @@ Variable v = new Variable();
     }//GEN-LAST:event_exit_btnActionPerformed
 
     private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
-        if(edit==true){   
+        try{
+        if(edit==true){
+        if(partner_name_txt.getText().isEmpty()){
+            throw new NullPointerException();
+        }else{
         BasicDBObject searchFields = new BasicDBObject("MS_PARTNER_ID",partner_id);
            BasicDBObject updateFields = new BasicDBObject();
            BasicDBObject partner_address = new BasicDBObject();
@@ -414,14 +420,22 @@ Variable v = new Variable();
            System.out.println("Success");
            remove_data_in_table();
            get_collection_in_to_table();
-           
+           JOptionPane.showMessageDialog(null,"แก้ไขข้อมูลของบริษัทคู่ค้าเรียบร้อยแล้วค่ะ");
             }catch(Exception e){
                 e.printStackTrace();
             }
+        }
         }else if(delete==true){
             DBC.remove(new BasicDBObject("MS_PARTNER_ID",partner_id));
             remove_data_in_table();
             get_collection_in_to_table();
+            JOptionPane.showMessageDialog(null,"ลบข้อมูลของบริษัทคู่ค้าเรียบร้อยแล้วค่ะ");
+        }
+        }catch(NullPointerException e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบถ้วน\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }//GEN-LAST:event_confirm_btnActionPerformed
 
@@ -472,7 +486,7 @@ Variable v = new Variable();
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
