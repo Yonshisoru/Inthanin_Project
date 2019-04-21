@@ -8,7 +8,10 @@ import com.mongodb.MongoClient;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -21,25 +24,145 @@ import javax.swing.JOptionPane;
  * @author Yonshisoru
  */
 public class Edit_Customer extends javax.swing.JFrame {
-Variable v = new Variable();
-    MongoClient mongo;
-    DB db;
-    DBCollection DBC;
+Variable v = new Variable(); //สร้าง Object ใหม่จาก Variable Class เพื่อดึง Method มาใช้
+//--------------------------MongoDB variable-------------------------------
+MongoClient mongo; //กำหนดตัวแปรประเภท MongoClient
+DB db; //กำหนดตัวแปรประเภท DB
+DBCollection DBC; //กำหนดตัวแปรประเภท DBCollection
+//---------------------Current date-------------------------
+        Calendar calendar = Calendar.getInstance(); //สร้างตัวแปร Calender ในวันที่ปัจจุบัน
+//---------------------Boolean------------------------------
+        boolean edit = true;    //|--สร้างตัวแปร edit เพื่อเช็คการทำงาน
+        boolean delete = false; //|--สร้างตัวแปร delete เพื่อเช็คการทำงาน
+//---------------------String--------------------------------
+        String customer_id = null; //สร้างตัวแปร customer_id เพื่อเก็บรหัสลูกค้า
     /**
+     *
      * Creates new form Customer
      */
     public Edit_Customer() {
         initComponents();
-        getconnect();
+        getconnect(); //เชื่อมต่อ Database |Line 48|
+        get_collection_in_to_table(); //ดึงข้อมูลจาก database ลงใน Table |Line 95|
     }
-public void getconnect(){
-    try{
-        mongo = new MongoClient("localhost",27017);
-        db = mongo.getDB("InthaninDB");
-    }catch(Exception e){
-        System.out.println(e);
-    }
+public void getconnect(){ //เชื่อมต่อ Database
+    try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+      	MongoClient mongo = new MongoClient("localhost", 27017); //เชื่อมต่อ Database Mongodb IP:localhost Port:27017
+        db = mongo.getDB(("InthaninDB")); //ดึงข้อมูลจากดาต้าเบสที่ชื่อ InthaninDB
+        DBC = db.getCollection("MS_CUSTOMER"); // ดึงข้อมูลจาก collection ที่ชื่อ MS_CUSTOMER
+        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+            e.printStackTrace(); //แสดงออกการผิดพลาดทางหน้าจอ
+            System.exit(0);//ถ้าหากว่ามีการทำงานผิดพลาด ให้ออกจากโปรแกรม
+        }
 }
+
+    public void check_function(){ //เช็คการทำงานในขณะนี้ (ลบ/แก้ไข)
+        if(edit_radio.isSelected()){ //ถ้าหากว่าตัวเลือกแก้ไขได้ถูกเลือก
+            customer_panel.setVisible(true); //หน้าต่างแก้ไขข้อมูลจะปรากฏขึ้น
+            edit=true; //แก้ไขค่าตัวแปรedit ให้มีค่า true
+            delete=false; //แก้ไขค่าตัวแปรdelete ให้มีค่า false
+        }else if(delete_radio.isSelected()){//ถ้าหากว่าตัวเลือกลบได้ถูกเลือก
+            customer_panel.setVisible(false); //หน้าต่างแก้ไขข้อมูลจะถูกซ่อน
+            customer_table.clearSelection(); //ยกเลิกการเลือกในตารางลูกค้า
+            confirm_btn.setText("ยืนยันการลบ"); //ตั้งการแสดงผลที่ปุ่ม
+            delete=true; //แก้ไขค่าตัวแปรdelete ให้มีค่า true
+            edit=false; //แก้ไขค่าตัวแปรedit ให้มีค่า false
+            clear_customer(); //ลบข้อมูลทั้งหมดที่กรอกในหน้าต่างแก้ไขข้อมูล
+        }
+    }
+
+    public void clear_table(DefaultTableModel table){ //ลบข้อมูลทั้งหมดในตาราง
+        while(table.getRowCount()>0){ //สร้างลูป while โดยมีเงื่อนไขคือ จำนวนแถวในตารางจะต้องมากกว่า 0
+            table.removeRow(0); //ลบข้อมูลในแถวที่ 1
+        }
+    }
+    
+    public void clear_customer(){ //ลบข้อมูลในหน้าต่างแก้ไข
+        customer_type_combo.setSelectedIndex(0); //ประเภทลูกค้า
+        customer_prefix.setSelectedIndex(0); //คำนำหน้า
+        customer_name_txt.setText(""); //ชื่อลูกค้า
+        customer_phone_txt.setText(""); //เบอร์โทรศัพท์
+        customer_email_txt.setText(""); //อีเมล
+        customer_birthdate_txt.setSelectedDate(calendar); //วันเกิด
+        customer_home_txt.setText(""); //บ้านเลขที่
+        customer_locality_txt.setText(""); //ตำบล
+        customer_district_txt.setText(""); //อำเภอ
+        customer_province_txt.setText(""); //จังหวัด
+        customer_post_txt.setText(""); //รหัสไปรษณีย์
+        
+    }
+    
+     public void get_collection_in_to_table(){ //เพิ่มข้อมูลจาก Database มาเพิ่มในตารางลูกค้า
+        DefaultTableModel table = (DefaultTableModel)customer_table.getModel(); //ดึงข้อมูลตารางจากตารางชื่อ customer_table มาเก็บไว้ในตัวแปร
+        String[] row = new String[3]; // สร้างอาเรย์ Object ชื่อว่า row ขนาด 6 ช่อง
+        DBCursor cursor = DBC.find(); // ค้นหาข้อมูลในcollection(MS_CUSTOMER)ทั้งหมด
+        do{ //สร้างลูป do-while
+            try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                DBObject customer_json = cursor.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ customer
+                //System.out.println(partner.get("MS_CUSTOMER_NAME"));
+                try{ //สร้างลูป do-while
+                row[0] = customer_json.get("MS_CUSTOMER_ID").toString(); //Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสลูกค้า
+                row[1] = customer_json.get("MS_CUSTOMER_NAME").toString(); //Object อาเรย์ ช่องที่ 2 เก็บข้อมูลของชื่อลูกค้า
+                String customer_type = customer_json.get("MS_CUSTOMER_TYPE").toString(); //เก็บข้อมูลของประเภทลูกค้า
+                //Object อาเรย์ ช่องที่ 3 เก็บข้อมูลของประเภทลูกค้า
+                
+                
+                //*เช็คว่าเป็นลูกค้าใหม่หรือลูกค้าเก่าเพิ่อแสดงผลบนตาราง*//
+                if(customer_type.contains("Old")){ //ถ้าดึงข้อมูลจาก MS_CUSTOMER_TYPE แล้วมีคำว่า Old อยู่ในนั้น ให้แสดงผลเป็นลูกค้าขาจร
+                    row[2] = "ลูกค้าขาจร"; 
+                }else if(customer_type.contains("New")){ //ถ้าดึงข้อมูลจาก MS_CUSTOMER_TYPE แล้วมีคำว่า New อยู่ในนั้น ให้แสดงผลเป็นลูกค้าใหม่
+                    row[2] = "ลูกค้าใหม่"; 
+                }
+                
+                table.addRow(row); //เพิ่มแถวข้อมูลของตาราง customer_table โดยนำข้อมูลมาจาก อาเรย์ของObject ที่ชื่อว่า row
+                }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                   e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+                }
+            //table.addRow(row);*/
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
+        }while(cursor.hasNext()); //จะจบการทำงานเมื่อเงื่อนไขเป็น false (ไม่มีข้อมูลตัวถัดไป)
+    }
+        public void get_data_from_table(){
+        DBCollection get_customer = db.getCollection("MS_CUSTOMER");
+        BasicDBObject customer_data = new BasicDBObject("MS_CUSTOMER_ID",customer_table.getValueAt(customer_table.getSelectedRow(),0));//สร้างObjectชื่อ customer_data เพื่อเก็บข้อมูลที่จะนำไปค้นหา
+        DBCursor cursor = get_customer.find(customer_data);// ค้นหาข้อมูลในcollectionที่ตรงกับเงื่อนไขของ partner_data
+        do{//สร้างลูป do-while
+            try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                DBObject customer = cursor.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ partner
+                //System.out.println(customer);
+                try{ //สร้างลูป do-while
+                customer_id = customer.get("MS_CUSTOMER_ID").toString();
+                customer_name_txt.setText(customer.get("MS_CUSTOMER_NAME").toString()); //ใส่ข้อมูลของชื่อบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_name_txt
+                customer_phone_txt.setText(customer.get("MS_CUSTOMER_PHONE").toString()); //ใส่ข้อมูลของเบอร์โทรศัพท์บริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_phone_txt
+                customer_email_txt.setText(customer.get("MS_CUSTOMER_EMAIL").toString()); //ใส่ข้อมูลของอีเมลบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_email_txt
+                
+                SimpleDateFormat sdf = new SimpleDateFormat("MMMMM dd,yyyy");
+                Date date = sdf.parse(customer.get("MS_CUSTOMER_BIRTHDATE").toString());
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                customer_birthdate_txt.setSelectedDate(cal);
+                DBObject customer_address = (DBObject)customer.get("MS_CUSTOMER_ADDRESS"); //สร้างobjectที่ชื่อว่า partner_address โดยนำข้อมูลมาจาก MS_PARTNER_ADDRESS
+                customer_home_txt.setText(customer_address.get("บ้านเลขที่").toString()); //ใส่ข้อมูลของบ้านเลขที่บริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_home_txt
+                customer_locality_txt.setText(customer_address.get("ตำบล").toString()); //ใส่ข้อมูลของตำบลบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_locality_txt
+                customer_district_txt.setText(customer_address.get("อำเภอ").toString()); //ใส่ข้อมูลของอำเภอบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_distict_txt
+                customer_province_txt.setText(customer_address.get("จังหวัด").toString()); //ใส่ข้อมูลของจังหวัดบริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_province_txt
+                customer_post_txt.setText(customer_address.get("รหัสไปรษณีย์").toString()); //ใส่ข้อมูลของรหัสไปรษณีย์บริษัทคู่ค้าในช่องข้อมูลที่ชื่อว่า partner_post_txt
+                if(customer.get("MS_CUSTOMER_TYPE").toString().contains("New")){ //ตรวจสอบประเภทของบริษัทคู่ค้าประเภทเครื่องดื่ม
+                    customer_type_combo.setSelectedIndex(0);
+                }else if(customer.get("MS_CUSTOMER_TYPE").toString().contains("Old")){//ตรวจสอบประเภทของบริษัทคู่ค้าประเภทเครื่องดื่ม
+                    customer_type_combo.setSelectedIndex(1);
+                }
+                }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                   e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+                }
+            //table.addRow(row);
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
+        }while(cursor.hasNext());//จะจบการทำงานเมื่อเงื่อนไขเป็น false (ไม่มีข้อมูลตัวถัดไป)
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -49,37 +172,37 @@ public void getconnect(){
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        type_txt = new javax.swing.JComboBox<>();
-        prefix = new javax.swing.JComboBox<>();
-        lname_txt = new javax.swing.JTextField();
-        fname_txt = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        phone_txt = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
-        email_txt = new javax.swing.JTextField();
-        jLabel11 = new javax.swing.JLabel();
-        home_txt = new javax.swing.JTextField();
-        locality_txt = new javax.swing.JTextField();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        district_txt = new javax.swing.JTextField();
-        post_txt = new javax.swing.JTextField();
-        jLabel18 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        province_txt = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jLabel13 = new javax.swing.JLabel();
-        birthdate_txt = new datechooser.beans.DateChooserCombo();
+        confirm_btn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
+        customer_table = new javax.swing.JTable();
+        delete_radio = new javax.swing.JRadioButton();
+        edit_radio = new javax.swing.JRadioButton();
+        customer_panel = new javax.swing.JPanel();
+        customer_home_txt = new javax.swing.JTextField();
+        customer_phone_txt = new javax.swing.JTextField();
+        customer_birthdate_txt = new datechooser.beans.DateChooserCombo();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        customer_prefix = new javax.swing.JComboBox<>();
+        customer_locality_txt = new javax.swing.JTextField();
+        customer_name_txt = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        customer_province_txt = new javax.swing.JTextField();
+        customer_email_txt = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
+        customer_district_txt = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        customer_type_combo = new javax.swing.JComboBox<>();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        customer_post_txt = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("หน้าต่างแก้ไขข้อมูลลูกค้า");
@@ -98,81 +221,6 @@ public void getconnect(){
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 30));
 
-        jLabel2.setText("นามสกุล:");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 120, -1, -1));
-
-        type_txt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ลูกค้าใหม่", "ลูกค้าขาจร" }));
-        getContentPane().add(type_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 70, -1, -1));
-
-        prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นาง", "นางสาว", "เด็กชาย", "เด็กหญิง" }));
-        getContentPane().add(prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 80, -1, -1));
-        getContentPane().add(lname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 120, 150, -1));
-        getContentPane().add(fname_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 120, 120, -1));
-
-        jLabel3.setText("ประเภทลูกค้า:");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 70, -1, -1));
-
-        jLabel4.setText("ชื่อ:");
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 120, -1, -1));
-
-        jLabel5.setText("เบอร์โทรศัพท์:");
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 160, -1, -1));
-        getContentPane().add(phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 160, 120, -1));
-
-        jLabel6.setText("อีเมลล์:");
-        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 160, -1, -1));
-        getContentPane().add(email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 160, 150, -1));
-
-        jLabel11.setText("วันเกิด:");
-        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 200, -1, -1));
-
-        home_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                home_txtActionPerformed(evt);
-            }
-        });
-        getContentPane().add(home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 240, 50, 20));
-
-        locality_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                locality_txtActionPerformed(evt);
-            }
-        });
-        getContentPane().add(locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 240, 50, 20));
-
-        jLabel10.setText("ตำบล:");
-        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 240, -1, -1));
-
-        jLabel9.setText("อำเภอ:");
-        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 240, -1, -1));
-
-        district_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                district_txtActionPerformed(evt);
-            }
-        });
-        getContentPane().add(district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 240, 50, 20));
-
-        post_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                post_txtActionPerformed(evt);
-            }
-        });
-        getContentPane().add(post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 280, 50, 20));
-
-        jLabel18.setText("รหัสไปรษณีย์:");
-        getContentPane().add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 280, -1, -1));
-
-        jLabel12.setText("จังหวัด:");
-        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 280, -1, -1));
-
-        province_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                province_txtActionPerformed(evt);
-            }
-        });
-        getContentPane().add(province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 280, 140, 20));
-
         jButton3.setText("ยกเลิก");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -181,108 +229,219 @@ public void getconnect(){
         });
         getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 520, 110, 50));
 
-        jButton4.setText("ยืนยันการแก้ไข");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        confirm_btn.setText("ยืนยันการแก้ไข");
+        confirm_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                confirm_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 520, 110, 50));
+        getContentPane().add(confirm_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 520, 110, 50));
 
-        jLabel13.setText("บ้านเลขที่:");
-        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 240, -1, -1));
-
-        birthdate_txt.setFormat(1);
-        getContentPane().add(birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 200, -1, 20));
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        customer_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "รหัสสมาชิก", "ชื่อ-สกุล"
+                "รหัสสมาชิก", "ชื่อ-สกุล", "ประเภทลูกค้า"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        customer_table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                customer_tableMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(customer_table);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 97, -1, 360));
 
-        jRadioButton1.setText("ลบข้อมูลพนักงาน");
-        getContentPane().add(jRadioButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 60, -1, -1));
+        buttonGroup1.add(delete_radio);
+        delete_radio.setText("ลบข้อมูลลูกค้า");
+        delete_radio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                delete_radioActionPerformed(evt);
+            }
+        });
+        getContentPane().add(delete_radio, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 60, -1, -1));
 
-        jRadioButton2.setText("แก้ไขข้อมูลพนักงาน");
-        getContentPane().add(jRadioButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, -1, -1));
+        buttonGroup1.add(edit_radio);
+        edit_radio.setSelected(true);
+        edit_radio.setText("แก้ไขข้อมูลลูกค้า");
+        edit_radio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                edit_radioActionPerformed(evt);
+            }
+        });
+        getContentPane().add(edit_radio, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, -1, -1));
+
+        customer_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        customer_home_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customer_home_txtActionPerformed(evt);
+            }
+        });
+        customer_panel.add(customer_home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, 50, -1));
+        customer_panel.add(customer_phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 120, 120, -1));
+
+        customer_birthdate_txt.setFormat(1);
+        customer_panel.add(customer_birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 160, -1, -1));
+
+        jLabel11.setText("วันเกิด:");
+        customer_panel.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, -1, -1));
+
+        jLabel3.setText("ประเภทลูกค้า:");
+        customer_panel.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 30, -1, -1));
+
+        customer_prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นาง", "นางสาว", "เด็กชาย", "เด็กหญิง" }));
+        customer_panel.add(customer_prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, -1, -1));
+
+        customer_locality_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customer_locality_txtActionPerformed(evt);
+            }
+        });
+        customer_panel.add(customer_locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 200, 50, -1));
+        customer_panel.add(customer_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 80, 250, -1));
+
+        jLabel13.setText("บ้านเลขที่:");
+        customer_panel.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 200, -1, -1));
+
+        jLabel5.setText("เบอร์โทรศัพท์:");
+        customer_panel.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, -1, -1));
+
+        customer_province_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customer_province_txtActionPerformed(evt);
+            }
+        });
+        customer_panel.add(customer_province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 240, 140, -1));
+        customer_panel.add(customer_email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 120, 150, -1));
+
+        jLabel4.setText("ชื่อ-สกุล:");
+        customer_panel.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 80, -1, -1));
+
+        jLabel18.setText("รหัสไปรษณีย์:");
+        customer_panel.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 240, -1, -1));
+
+        customer_district_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customer_district_txtActionPerformed(evt);
+            }
+        });
+        customer_panel.add(customer_district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 200, 50, -1));
+
+        jLabel10.setText("ตำบล:");
+        customer_panel.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 200, -1, -1));
+
+        customer_type_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ลูกค้าใหม่", "ลูกค้าขาจร" }));
+        customer_panel.add(customer_type_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 30, -1, -1));
+
+        jLabel12.setText("จังหวัด:");
+        customer_panel.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 240, -1, -1));
+
+        jLabel6.setText("อีเมลล์:");
+        customer_panel.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 120, -1, -1));
+
+        customer_post_txt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customer_post_txtActionPerformed(evt);
+            }
+        });
+        customer_panel.add(customer_post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 240, 50, -1));
+
+        jLabel9.setText("อำเภอ:");
+        customer_panel.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 200, -1, -1));
+
+        getContentPane().add(customer_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 50, 430, 410));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
+       DBCollection get_customer = db.getCollection("MS_CUSTOMER");
+        if(edit==true){
+           BasicDBObject searchFields = new BasicDBObject("MS_CUSTOMER_ID",customer_id);
+           BasicDBObject updateFields = new BasicDBObject();
+           BasicDBObject customer_address = new BasicDBObject();
+           BasicDBObject setQuery = new BasicDBObject();
+           String type = null;
         try{
-           try{
-             DBCollection table = db.getCollection("MS_CUSTOMER");
-             BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-             DBCursor cur = table.find().sort(sortObject);
-             //double n = (double)(cur.one().get("MS_CUSTOMER_ID"));
-            int id = 0;
-            DBCursor find = table.find();
-            System.out.println(find.hasNext());
-            if(find.hasNext()==true){
-            System.out.println("eiei");
-            int k = (int)cur.one().get("MS_CUSTOMER_ID");
-            id = k+1;
-            }else{
-            id = 1; 
+           customer_address.append("บ้านเลขที่",customer_home_txt.getText());
+           customer_address.append("ตำบล",customer_locality_txt.getText());
+           customer_address.append("อำเภอ",customer_district_txt.getText());
+           customer_address.append("จังหวัด",customer_province_txt.getText());
+           customer_address.append("รหัสไปรษณีย์",customer_post_txt.getText());
+           updateFields.append("MS_CUSTOMER_NAME",customer_prefix.getSelectedItem().toString()+customer_name_txt.getText().substring(3));
+           updateFields.append("MS_CUSTOMER_PHONE",customer_phone_txt.getText());
+           updateFields.append("MS_CUSTOMER_EMAIL",customer_email_txt.getText());
+           updateFields.append("MS_CUSTOMER_ADDRESS",customer_address);
+           updateFields.append("MS_CUSTOMER_BIRTHDATE",customer_birthdate_txt.getText());
+           String customer_type = null;
+                if(customer_type_combo.getSelectedIndex()==0){
+                    customer_type = "New Customer";
+                }else if(customer_type_combo.getSelectedIndex()==1){
+                    customer_type = "Old Customer";
+                }
+           setQuery.append("$set", updateFields);
+           updateFields.append("MS_CUSTOMER_TYPE",customer_type);
+           get_customer.update(searchFields,setQuery);
+           System.out.println("Success");
+           clear_table((DefaultTableModel)customer_table.getModel());
+           get_collection_in_to_table();
+            }catch(Exception e){
+                e.printStackTrace();
             }
-            System.out.println(id);
-             BasicDBObject document = new BasicDBObject();
-             document.put("MS_CUSTOMER_ID",(int)id);
-             document.put("MS_CUSTOMER_NAME",prefix.getSelectedItem().toString()+" "+fname_txt.getText()+" "+lname_txt.getText());
-             document.put("MS_CUSTOMER_PHONE",phone_txt.getText());
-             document.put("MS_CUSTOMER_EMAIL",email_txt.getText());
-             BasicDBObject address = new BasicDBObject();
-             address.put("บ้านเลขที่", home_txt.getText());
-             address.put("ตำบล", locality_txt.getText());
-             address.put("อำเภอ", district_txt.getText());
-             address.put("จังหวัด", province_txt.getText());
-             address.put("รหัสไปรษณีย์", post_txt.getText());
-             document.put("MS_CUSTOMER_ADDRESS",address);
-             document.put("MS_CUSTOMER_BIRTHDATE",birthdate_txt.getText());
-             document.put("MS_CUSTOMER_TYPE",type_txt.getSelectedItem().toString());
-             document.put("MS_CUSTOMER_POINTS",0);
-             table.insert(document);
-             JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
-             //this.setVisible(false);
-           }catch(Exception e){
-               e.printStackTrace();
-           }
-        }catch(Exception e){
-            
+        }else if(delete==true){
+            get_customer.remove(new BasicDBObject("MS_CUSTOMER_ID",customer_id));
+            clear_table((DefaultTableModel)customer_table.getModel());
+            get_collection_in_to_table();
         }
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_confirm_btnActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
             this.setVisible(false);
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_province_txtActionPerformed
+    private void customer_province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_province_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_province_txtActionPerformed
+    }//GEN-LAST:event_customer_province_txtActionPerformed
 
-    private void post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_post_txtActionPerformed
+    private void customer_post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_post_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_post_txtActionPerformed
+    }//GEN-LAST:event_customer_post_txtActionPerformed
 
-    private void district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_district_txtActionPerformed
+    private void customer_district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_district_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_district_txtActionPerformed
+    }//GEN-LAST:event_customer_district_txtActionPerformed
 
-    private void locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_locality_txtActionPerformed
+    private void customer_locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_locality_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_locality_txtActionPerformed
+    }//GEN-LAST:event_customer_locality_txtActionPerformed
 
-    private void home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_home_txtActionPerformed
+    private void customer_home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_home_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_home_txtActionPerformed
+    }//GEN-LAST:event_customer_home_txtActionPerformed
+
+    private void customer_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_customer_tableMouseClicked
+        get_data_from_table();
+    }//GEN-LAST:event_customer_tableMouseClicked
+
+    private void edit_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_radioActionPerformed
+        check_function();
+    }//GEN-LAST:event_edit_radioActionPerformed
+
+    private void delete_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_radioActionPerformed
+        check_function();
+        clear_customer();
+    }//GEN-LAST:event_delete_radioActionPerformed
 
     /**
      * @param args the command line arguments
@@ -291,7 +450,7 @@ public void getconnect(){
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -323,36 +482,36 @@ public void getconnect(){
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private datechooser.beans.DateChooserCombo birthdate_txt;
-    private javax.swing.JTextField district_txt;
-    private javax.swing.JTextField email_txt;
-    private javax.swing.JTextField fname_txt;
-    private javax.swing.JTextField home_txt;
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton confirm_btn;
+    private datechooser.beans.DateChooserCombo customer_birthdate_txt;
+    private javax.swing.JTextField customer_district_txt;
+    private javax.swing.JTextField customer_email_txt;
+    private javax.swing.JTextField customer_home_txt;
+    private javax.swing.JTextField customer_locality_txt;
+    private javax.swing.JTextField customer_name_txt;
+    private javax.swing.JPanel customer_panel;
+    private javax.swing.JTextField customer_phone_txt;
+    private javax.swing.JTextField customer_post_txt;
+    private javax.swing.JComboBox<String> customer_prefix;
+    private javax.swing.JTextField customer_province_txt;
+    private javax.swing.JTable customer_table;
+    private javax.swing.JComboBox<String> customer_type_combo;
+    private javax.swing.JRadioButton delete_radio;
+    private javax.swing.JRadioButton edit_radio;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField lname_txt;
-    private javax.swing.JTextField locality_txt;
-    private javax.swing.JTextField phone_txt;
-    private javax.swing.JTextField post_txt;
-    private javax.swing.JComboBox<String> prefix;
-    private javax.swing.JTextField province_txt;
-    private javax.swing.JComboBox<String> type_txt;
     // End of variables declaration//GEN-END:variables
 }
