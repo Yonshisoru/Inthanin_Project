@@ -41,14 +41,14 @@ Variable v = new Variable();
      */
     public Edit_Employee() {
         initComponents();
-        get_connect();
-        get_collection_in_to_table();
+        get_connect(); //รับการเชื่อมต่อเข้าฐานข้อมูล
+        get_collection_in_to_table(); //เพิ่มข้อมูลเข้าสู่ตารางพนักงาน
     }
     public void get_connect(){
         try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
       	MongoClient mongo = new MongoClient("localhost", 27017); //เชื่อมต่อ Database Mongodb IP:localhost Port:27017
         db = mongo.getDB(("InthaninDB")); //ดึงข้อมูลจากดาต้าเบสที่ชื่อ InthaninDB
-        DBC = db.getCollection("MS_EMPLOYEE"); // ดึงข้อมูลจาก collection ที่ชื่อ MS_EMPLOYEE
+        DBC = db.getCollection("MS_EMPLOYEE"); // ดึงข้อมูลของพนักงานจาก collection ที่ชื่อ MS_EMPLOYEE
         }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
             e.printStackTrace(); //แสดงออกการผิดพลาดทางหน้าจอ
             System.exit(0);//ถ้าหากว่ามีการทำงานผิดพลาด ให้ออกจากโปรแกรม
@@ -126,7 +126,7 @@ Variable v = new Variable();
             try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
                 DBObject employee = cursor.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ employee
                 System.out.println(employee);
-                try{ //สร้างลูป do-while
+                try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
                 employee_id = employee.get("MS_EMPLOYEE_ID").toString();
                 if(employee.get("MS_EMPLOYEE_NAME").toString().contains("นาย")){
                     employee_prefix.setSelectedIndex(0);
@@ -474,68 +474,71 @@ Variable v = new Variable();
     }//GEN-LAST:event_employee_tableMouseClicked
 
     private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
-        try{
-            DBCollection get_employee = db.getCollection("MS_EMPLOYEE");
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+            DBCollection get_employee = db.getCollection("MS_EMPLOYEE");//ดึงข้อมูลจากCollectionของลูกค้ามาใส่ในตัวแปร
            if(edit==true){
-               if(employee_name_txt.getText().isEmpty()){
-                    throw new NullPointerException();
+               if(employee_table.getSelectionModel().isSelectionEmpty()){ //เช็คว่าตารางลูกค้าถูกเลือกหรือไม่
+                    throw new NullPointerException();//แสดงข้อผิดพลาดเมื่อตารางลูกค้าไม่ถูกเลือก
                }else{
-           BasicDBObject searchFields = new BasicDBObject("MS_EMPLOYEE_ID",Integer.parseInt(employee_id));
-           BasicDBObject updateFields = new BasicDBObject();
-           BasicDBObject employee_address = new BasicDBObject();
-           BasicDBObject setQuery = new BasicDBObject();
-           String type = null;
-           employee_address.append("บ้านเลขที่",employee_home_txt.getText());
-           employee_address.append("ตำบล",employee_locality_txt.getText());
-           employee_address.append("อำเภอ",employee_district_txt.getText());
-           employee_address.append("จังหวัด",employee_province_txt.getText());
-           employee_address.append("รหัสไปรษณีย์",employee_post_txt.getText());
-           updateFields.append("MS_EMPLOYEE_NAME",employee_prefix.getSelectedItem().toString()+employee_name_txt.getText().substring(3));
-           updateFields.append("MS_EMPLOYEE_PHONE",employee_phone_txt.getText());
-           updateFields.append("MS_EMPLOYEE_EMAIL",employee_email_txt.getText());
-           updateFields.append("MS_EMPLOYEE_ADDRESS",employee_address);
-           updateFields.append("MS_EMPLOYEE_BIRTHDATE",employee_birthdate_txt.getText());
-           updateFields.append("MS_EMPLOYEE_USERNAME",employee_user_txt.getText());
-           updateFields.append("MS_EMPLOYEE_PWD",employee_pwd_txt.getText());
+           BasicDBObject searchFields = new BasicDBObject("MS_EMPLOYEE_ID",Integer.parseInt(employee_id)); //ค้นหาข้อมูลจากรหัสพนักงาน
+           BasicDBObject updateFields = new BasicDBObject();//ข้อมูลที่จะแก้ไขของลูกค้า
+           BasicDBObject employee_address = new BasicDBObject(); //ที่อยู่พนักงาน
+           BasicDBObject setQuery = new BasicDBObject();//ตั้งค่าregexเมื่อส่งข้อมูลเข้าสู่ Database
+           employee_address.append("บ้านเลขที่",employee_home_txt.getText()); //บ้านเลขที่ของพนักงาน
+           employee_address.append("ตำบล",employee_locality_txt.getText()); //ตำบลพนักงาน
+           employee_address.append("อำเภอ",employee_district_txt.getText()); //อำเภอพนักงาน
+           employee_address.append("จังหวัด",employee_province_txt.getText()); //จังหวัดพนักงาน
+           employee_address.append("รหัสไปรษณีย์",employee_post_txt.getText()); //รหัสไปรษณีย์ของพนักงาน
+           updateFields.append("MS_EMPLOYEE_NAME",employee_prefix.getSelectedItem().toString()+employee_name_txt.getText().substring(3)); //(คำนำหน้า + ชื่อ)ชื่อลูกค้า
+           updateFields.append("MS_EMPLOYEE_PHONE",employee_phone_txt.getText()); //โทรศัพท์ของพนักงาน
+           updateFields.append("MS_EMPLOYEE_EMAIL",employee_email_txt.getText()); //อีเมลของพนักงาน
+           updateFields.append("MS_EMPLOYEE_ADDRESS",employee_address); //นำข้อมูลทั้งหมดมาบีบอัดให้เป็นObjectก่อนจะยัดเข้าฐานข้อมูล
+           updateFields.append("MS_EMPLOYEE_BIRTHDATE",employee_birthdate_txt.getText()); //วันเกิดพนักงาน
+           updateFields.append("MS_EMPLOYEE_USERNAME",employee_user_txt.getText()); //ชื่อผู้ใช้งานของพนักงาน
+           updateFields.append("MS_EMPLOYEE_PWD",employee_pwd_txt.getText()); //รหัสของพนักงาน
            String employee_type = null;
-                if(employee_position_combo.getSelectedIndex()==1){
+           /*  เช็คประเภทของพนักงาน
+                1 = Employee
+                2 = Owner
+           */
+                if(employee_position_combo.getSelectedIndex()==1){ 
                     employee_type = "Employee";
                 }else if(employee_position_combo.getSelectedIndex()==2){
                     employee_type = "Owner";
                 }
-           setQuery.append("$set", updateFields);
-           updateFields.append("MS_EMPLOYEE_TYPE",employee_type);
-           get_employee.update(searchFields,setQuery);
-           System.out.println("Success");
-           clear_table((DefaultTableModel)employee_table.getModel());
-           get_collection_in_to_table();
-            JOptionPane.showMessageDialog(null,"แก้ไขข้อมูลของพนักงานเรียบร้อยแล้วค่ะ");
-           clear_employee();
+           updateFields.append("MS_EMPLOYEE_TYPE",employee_type); //ประเภทพนักงาน
+           setQuery.append("$set", updateFields); //ตั้งค่าให้queryให้เป็นการแก้ไขจากข้อมูลเดิม
+           get_employee.update(searchFields,setQuery);//อัพเดทข้อมูลใหม่ในฐานข้อมูล
+           //System.out.println("Success");
+           clear_table((DefaultTableModel)employee_table.getModel()); //ลบข้อมูลในตารางพนักงาน
+           get_collection_in_to_table(); //เรียกข้อมูลในตารางพนักงานจากฐานข้อมูล
+           JOptionPane.showMessageDialog(null,"แก้ไขข้อมูลของพนักงานเรียบร้อยแล้วค่ะ");
+           clear_employee(); //ลบข้อมูลที่อยู่ในฟิลด์ต่างๆของหน้าต่างนี้
                }
-        }else if(delete==true){
-            get_employee.remove(new BasicDBObject("MS_EMPLOYEE_ID",Integer.parseInt(employee_id)));
-            clear_table((DefaultTableModel)employee_table.getModel());
-            get_collection_in_to_table();
-            JOptionPane.showMessageDialog(null,"ลบข้อมูลของพนักงานเรียบร้อยแล้วค่ะ");
+        }else if(delete==true){ //ถ้าหากว่าอยู่ในโหมดลบ
+            get_employee.remove(new BasicDBObject("MS_EMPLOYEE_ID",Integer.parseInt(employee_id)));//ลบข้อมูลจากฐานข้อมูลโดยค้นหาจากรหัสพนักงาน
+            clear_table((DefaultTableModel)employee_table.getModel());//ลบข้อมูลในตารางพนักงาน
+            get_collection_in_to_table();//เรียกข้อมูลในตารางพนักงานจากฐานข้อมูล
+            JOptionPane.showMessageDialog(null,"ลบข้อมูลของพนักงานเรียบร้อยแล้วค่ะ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
         }               
-        }catch(NullPointerException e){
-           JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบถ้วน\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(NullPointerException e){ //ถ้าหากว่าข้อมูลไม่ถูกต้อง หรือ ไม่พบข้อมูล
+           JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบถ้วน\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
 
     }//GEN-LAST:event_confirm_btnActionPerformed
 
     private void edit_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_radioActionPerformed
-       check_function();
+       check_function(); //เช็คสถานะการทำงาน
     }//GEN-LAST:event_edit_radioActionPerformed
 
     private void delete_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_radioActionPerformed
-       check_function();
+       check_function(); //เช็คสถานะการทำงาน
     }//GEN-LAST:event_delete_radioActionPerformed
 
     private void cancel_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancel_btnActionPerformed
-        this.setVisible(false);
+        this.setVisible(false); //ปิดหน้าต่างนี้
     }//GEN-LAST:event_cancel_btnActionPerformed
 
     /**

@@ -23,15 +23,16 @@ import javax.swing.table.DefaultTableModel;
  * @author Yonshisoru
  */
 public class Edit_Product extends javax.swing.JFrame {
-Variable v = new Variable();
-    MongoClient mongo;
-    DB db;
-    DBCollection DBC;
+Variable v = new Variable();//สร้าง Object ใหม่จาก Variable Class เพื่อดึง Method มาใช้
+//--------------------------MongoDB variable-------------------------------
+    MongoClient mongo; //กำหนดตัวแปรประเภท MongoClient
+    DB db; //กำหนดตัวแปรประเภท DB
+    DBCollection DBC; //กำหนดตัวแปรประเภท DBCollection
 //---------------------Boolean------------------------------
         boolean edit = true;    //|--สร้างตัวแปร edit เพื่อเช็คการทำงาน
         boolean delete = false; //|--สร้างตัวแปร delete เพื่อเช็คการทำงาน
-//------------------------------------------------------------
-        int product_id = 0;
+//---------------------Integer-------------------------
+        int product_id = 0; //ตัวแปรที่ใช้เก็บรหัสของสินค้า
     /**
      * Creates new form Customer
      */
@@ -50,15 +51,47 @@ Variable v = new Variable();
             System.exit(0);//ถ้าหากว่ามีการทำงานผิดพลาด ให้ออกจากโปรแกรม
         }
     }
-    public void set_productcombo(int k){
-         product_partner_combo.removeAllItems();
-         product_partner_combo.addItem("เลือกบริษัทคู่ค้า");
-        try{
-        DBCollection table = db.getCollection("MS_PARTNER");
-        DBCursor cur = table.find();
-        while(cur.hasNext()){
-            DBObject kk = cur.next();
-            if(k==0){
+    
+        public void clear_product(){ //ลบข้อมูลในหน้าต่างแก้ไข
+        product_name_txt.setText(""); //ชื่อคู่ค้า
+        product_price_txt.setText(""); //เบอร์โทรศัพท์
+        product_amount_txt.setText(""); //อีเมล
+        product_type_combo.setSelectedIndex(0); //ประเภทของสินค้า
+        product_partner_combo.setSelectedIndex(0); //ประเภทของคู่ค้าของสินค้าชนิดนี้
+        product_table.clearSelection(); //ยกเลิกการเลือกในตารางลูกค้า
+        
+    }
+    public void check_function(){ //เช็คการทำงานในขณะนี้ (ลบ/แก้ไข)
+        if(edit_radio.isSelected()){ //ถ้าหากว่าตัวเลือกแก้ไขได้ถูกเลือก
+            product_panel.setVisible(true); //หน้าต่างแก้ไขข้อมูลจะปรากฏขึ้น
+            edit=true; //แก้ไขค่าตัวแปรedit ให้มีค่า true
+            delete=false; //แก้ไขค่าตัวแปรdelete ให้มีค่า false
+            confirm_btn.setText("ยืนยันการแก้ไข"); //ตั้งการแสดงผลที่ปุ่ม
+        }else if(delete_radio.isSelected()){//ถ้าหากว่าตัวเลือกลบได้ถูกเลือก
+            product_panel.setVisible(false); //หน้าต่างแก้ไขข้อมูลจะถูกซ่อน
+            product_table.clearSelection(); //ยกเลิกการเลือกในตารางลูกค้า
+            confirm_btn.setText("ยืนยันการลบ"); //ตั้งการแสดงผลที่ปุ่ม
+            delete=true; //แก้ไขค่าตัวแปรdelete ให้มีค่า true
+            edit=false; //แก้ไขค่าตัวแปรedit ให้มีค่า false
+            clear_product(); //ลบข้อมูลทั้งหมดที่กรอกในหน้าต่างแก้ไขข้อมูล
+        }
+    }
+    
+    
+    public void set_parnter_combo(int k){ //ฟังก์ชั่นการดึงข้อมูลคู่ค้าที่เลือกมาใส่ในปุ่มตัวเลือก
+        product_partner_combo.removeAllItems(); //ลบข้อมูลเก่าทั้งหมดของปุ่มตัวเลือก
+        product_partner_combo.addItem("เลือกบริษัทคู่ค้า"); //เพิ่มข้อมูลแถวบนสุด
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        DBCollection table = db.getCollection("MS_PARTNER");//ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
+        DBCursor cur = table.find(); // ค้นหาข้อมูลในcollection(MS_PARTNER)
+        while(cur.hasNext()){ //สร้างลูป while ที่จะหยุดทำงานต่อเมื่อไม่มีข้อมูลในCollection MS_PARTNER
+            DBObject kk = cur.next();//ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ kk
+            if(k==0){ //ถ้าหากว่าข้อมูลของ parameter(Index ประเภทของสินค้า)
+            /*
+                0 - จะเพิ่มคู่ค้าที่เป็นประเภทของเครื่องดื่ม
+                1 - จะเพิ่มคู่ค้าที่เป็นประเภทของของหวาน
+                2 - จะเพิ่มคู่ค้าที่เป็นประเภทของของคาว
+            */     
                 if(kk.get("MS_PARTNER_TYPE").toString().contains("Drink")){
                 product_partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
                 }
@@ -72,42 +105,25 @@ Variable v = new Variable();
                 }
             }
         }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        //partner_combo
-    }
-    public void check_function(){ //เช็คการทำงานในขณะนี้ (ลบ/แก้ไข)
-        if(edit_radio.isSelected()){ //ถ้าหากว่าตัวเลือกแก้ไขได้ถูกเลือก
-            product_panel.setVisible(true); //หน้าต่างแก้ไขข้อมูลจะปรากฏขึ้น
-            edit=true; //แก้ไขค่าตัวแปรedit ให้มีค่า true
-            delete=false; //แก้ไขค่าตัวแปรdelete ให้มีค่า false
-            product_btn.setText("ยืนยันการแก้ไข"); //ตั้งการแสดงผลที่ปุ่ม
-        }else if(delete_radio.isSelected()){//ถ้าหากว่าตัวเลือกลบได้ถูกเลือก
-            product_panel.setVisible(false); //หน้าต่างแก้ไขข้อมูลจะถูกซ่อน
-            product_table.clearSelection(); //ยกเลิกการเลือกในตารางลูกค้า
-            product_btn.setText("ยืนยันการลบ"); //ตั้งการแสดงผลที่ปุ่ม
-            delete=true; //แก้ไขค่าตัวแปรdelete ให้มีค่า true
-            edit=false; //แก้ไขค่าตัวแปรedit ให้มีค่า false
-            clear_product(); //ลบข้อมูลทั้งหมดที่กรอกในหน้าต่างแก้ไขข้อมูล
-        }
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
     }
     
-     public int find_partner(String name){
-        int id = 0;
-        try{
-        DBCollection table = db.getCollection("MS_PARTNER");
-        BasicDBObject partner = new BasicDBObject("MS_PARTNER_NAME",name);
-        DBCursor cur = table.find(partner);
-        while(cur.hasNext()){
-            DBObject kk = cur.next();
-            id = (int)kk.get("MS_PARTNER_ID");
+     public int find_partner(String name){ //ฟังก์ชั่นการค้นหารหัสของคู่ค้าจากชื่อ
+        int partner_id = 0; //กำหนดตัวแปรเพื่อใช้เก็บรหัสของคู่ค้า
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        DBCollection table = db.getCollection("MS_PARTNER");// ดึงข้อมูลของคู่ค้าจาก collection ที่ชื่อ MS_PARTNER
+        BasicDBObject partner_finding = new BasicDBObject("MS_PARTNER_NAME",name); //สร้างObjectชื่อ partner_finding เพื่อเก็บข้อมูลที่จะนำไปค้นหาจาก Database
+        DBCursor cur = table.find(partner_finding); // ค้นหาข้อมูลของคู่ค้าในcollection(MS_PARTNER)ทั้งหมด
+        while(cur.hasNext()){//สร้างลูป while โดยมีเงื่อนไขคือ จำนวนแถวในตารางจะต้องมากกว่า 0
+            DBObject kk = cur.next(); //ดึงข้อมูลนั้นๆของคู่ค้ามาเก็บใส่ตัวแปรใหม่เพื่อป้องกันข้อผิดพลาด
+            partner_id = (int)kk.get("MS_PARTNER_ID"); //กำหนดาให้ตัวแปร partner_id มีค่าเดียวกับรหัสของคู่ค้า
         }
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+            e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
-        return id;
-        //partner_combo
+        return partner_id; //คืนคืาเป็นรหัสของคู่ค้า
     }
     
 public void clear_table(DefaultTableModel table){ //ลบข้อมูลทั้งหมดในตาราง
@@ -116,13 +132,6 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
         }
     }
     
-    public void clear_product(){ //ลบข้อมูลในหน้าต่างแก้ไข
-        product_type_combo.setSelectedIndex(0); //ประเภทลูกค้า
-        product_partner_combo.setSelectedIndex(0); //คำนำหน้า
-        product_name_txt.setText(""); //ชื่อลูกค้า
-        product_price_txt.setText(""); //เบอร์โทรศัพท์
-        product_amount_txt.setText(""); //อีเมล
-    }
     
      public void get_collection_in_to_table(){ //เพิ่มข้อมูลจาก Database มาเพิ่มในตารางลูกค้า
         DefaultTableModel table = (DefaultTableModel)product_table.getModel(); //ดึงข้อมูลตารางจากตารางชื่อ product_table มาเก็บไว้ในตัวแปร
@@ -147,20 +156,24 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
         }while(cursor.hasNext()); //จะจบการทำงานเมื่อเงื่อนไขเป็น false (ไม่มีข้อมูลตัวถัดไป)
     }
      
-        public void get_data_from_table(){
-        DBCollection get_product = db.getCollection("MS_PRODUCT");
+        public void get_data_from_table(){ //ฟังก์ชั่นการดึงข้อมูลจาก Collection MS_Product ใน Database ลงในตาราง
+        DBCollection get_product = db.getCollection("MS_PRODUCT"); //ดึงข้อมูลจากCollectionของสินค้ามาใส่ในตัวแปร
         BasicDBObject product_data = new BasicDBObject("MS_PRODUCT_ID",Integer.parseInt(product_table.getValueAt(product_table.getSelectedRow(),0).toString()));//สร้างObjectชื่อ product_data เพื่อเก็บข้อมูลที่จะนำไปค้นหา
         DBCursor cursor = get_product.find(product_data);// ค้นหาข้อมูลในcollectionที่ตรงกับเงื่อนไขของ product_data
         do{//สร้างลูป do-while
             try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
                 DBObject product = cursor.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ product
                 System.out.println(product);
-//System.out.println(product);
                 try{ //สร้างลูป do-while
                 product_id = Integer.parseInt(product.get("MS_PRODUCT_ID").toString());
                 product_name_txt.setText(product.get("MS_PRODUCT_NAME").toString()); //ใส่ข้อมูลของชื่อของสินค้าในช่องข้อมูลที่ชื่อว่า product_name_txt
                 product_price_txt.setText(product.get("MS_PRODUCT_PRICE").toString()); //ใส่ข้อมูลของราคาของสินค้าในช่องข้อมูลที่ชื่อว่า product_price_txt
                 product_amount_txt.setText(product.get("MS_PRODUCT_AMOUNT").toString()); //ใส่ข้อมูลของจำนวนของสินค้าในช่องข้อมูลที่ชื่อว่า product_amount_txt
+            /*
+                0 - จะเพิ่มคู่ค้าที่เป็นประเภทของเครื่องดื่ม
+                1 - จะเพิ่มคู่ค้าที่เป็นประเภทของของหวาน
+                2 - จะเพิ่มคู่ค้าที่เป็นประเภทของของคาว
+            */     
                 if(product.get("MS_PRODUCT_TYPE").equals("Drink")){
                     product_type_combo.setSelectedIndex(0);
                 }else if(product.get("MS_PRODUCT_TYPE").equals("Bakery")){
@@ -168,7 +181,7 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
                 }else if(product.get("MS_PRODUCT_TYPE").equals("Meal")){
                     product_type_combo.setSelectedIndex(2);
                 }
-                set_productcombo(product_type_combo.getSelectedIndex());
+                set_parnter_combo(product_type_combo.getSelectedIndex());
                 DBCollection get_partner = db.getCollection("MS_PARTNER");
                 BasicDBObject find_partner = new BasicDBObject("MS_PARTNER_ID",(int)product.get("MS_PARTNER_ID"));
                 DBCursor finding_partner = get_partner.find(find_partner);
@@ -200,7 +213,7 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
-        product_btn = new javax.swing.JButton();
+        confirm_btn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         product_table = new javax.swing.JTable();
         delete_radio = new javax.swing.JRadioButton();
@@ -243,13 +256,13 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
         });
         getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 520, 110, 50));
 
-        product_btn.setText("ยืนยันการแก้ไข");
-        product_btn.addActionListener(new java.awt.event.ActionListener() {
+        confirm_btn.setText("ยืนยันการแก้ไข");
+        confirm_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                product_btnActionPerformed(evt);
+                confirm_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(product_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 520, 110, 50));
+        getContentPane().add(confirm_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 520, 110, 50));
 
         product_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -331,7 +344,7 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void product_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_product_btnActionPerformed
+    private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
         try{
            DBCollection get_product = db.getCollection("MS_PRODUCT");
         if(edit==true){  
@@ -386,7 +399,7 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
         }catch(Exception e){
             e.printStackTrace();
         }
-    }//GEN-LAST:event_product_btnActionPerformed
+    }//GEN-LAST:event_confirm_btnActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
             this.setVisible(false);
@@ -397,7 +410,7 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
     }//GEN-LAST:event_product_tableMouseClicked
 
     private void product_type_comboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_product_type_comboActionPerformed
-            set_productcombo(product_type_combo.getSelectedIndex());
+            set_parnter_combo(product_type_combo.getSelectedIndex());
     }//GEN-LAST:event_product_type_comboActionPerformed
 
     private void delete_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_radioActionPerformed
@@ -448,6 +461,7 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton confirm_btn;
     private javax.swing.JRadioButton delete_radio;
     private javax.swing.JRadioButton edit_radio;
     private javax.swing.JButton jButton3;
@@ -460,7 +474,6 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField product_amount_txt;
-    private javax.swing.JButton product_btn;
     private javax.swing.JTextField product_name_txt;
     private javax.swing.JPanel product_panel;
     private javax.swing.JComboBox<String> product_partner_combo;

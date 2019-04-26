@@ -43,17 +43,16 @@ DBCollection DBC; //กำหนดตัวแปรประเภท DBCollec
      */
     public Edit_Customer() {
         initComponents();
-        getconnect(); //เชื่อมต่อ Database |Line 48|
-        get_collection_in_to_table(); //ดึงข้อมูลจาก database ลงใน Table |Line 95|
+        getconnect(); //เชื่อมต่อ Database
+        get_collection_in_to_table(); //ดึงข้อมูลจาก database ลงใน Table
     }
 public void getconnect(){ //เชื่อมต่อ Database
     try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
       	MongoClient mongo = new MongoClient("localhost", 27017); //เชื่อมต่อ Database Mongodb IP:localhost Port:27017
-        db = mongo.getDB(("InthaninDB")); //ดึงข้อมูลจากดาต้าเบสที่ชื่อ InthaninDB
+        db = mongo.getDB(("InthaninDB")); //เชื่อมต่อ Database Mongodb IP:localhost Port:27017
         DBC = db.getCollection("MS_CUSTOMER"); // ดึงข้อมูลจาก collection ที่ชื่อ MS_CUSTOMER
         }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
             e.printStackTrace(); //แสดงออกการผิดพลาดทางหน้าจอ
-            System.exit(0);//ถ้าหากว่ามีการทำงานผิดพลาด ให้ออกจากโปรแกรม
         }
 }
 
@@ -127,7 +126,7 @@ public void getconnect(){ //เชื่อมต่อ Database
         }while(cursor.hasNext()); //จะจบการทำงานเมื่อเงื่อนไขเป็น false (ไม่มีข้อมูลตัวถัดไป)
     }
         public void get_data_from_table(){
-        DBCollection get_customer = db.getCollection("MS_CUSTOMER");
+        DBCollection get_customer = db.getCollection("MS_CUSTOMER"); //ดึงข้อมูลจากCollectionของลูกค้ามาใส่ในตัวแปร
         BasicDBObject customer_data = new BasicDBObject("MS_CUSTOMER_ID",customer_table.getValueAt(customer_table.getSelectedRow(),0));//สร้างObjectชื่อ customer_data เพื่อเก็บข้อมูลที่จะนำไปค้นหา
         DBCursor cursor = get_customer.find(customer_data);// ค้นหาข้อมูลในcollectionที่ตรงกับเงื่อนไขของ customer_data
         do{//สร้างลูป do-while
@@ -372,60 +371,63 @@ public void getconnect(){ //เชื่อมต่อ Database
     }// </editor-fold>//GEN-END:initComponents
 
     private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
-       try{
-        DBCollection get_customer = db.getCollection("MS_CUSTOMER");
-        if(edit==true){
-           if(customer_name_txt.getText().isEmpty()){
-               throw new NullPointerException();
+       try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        DBCollection get_customer = db.getCollection("MS_CUSTOMER"); //ดึงข้อมูลจากCollectionของลูกค้ามาใส่ในตัวแปร
+        if(edit==true){ //ถ้าหากว่าอยู่ในโหมดแก้ไข
+           if(customer_table.getSelectionModel().isSelectionEmpty()){ //เช็คว่าตารางลูกค้าถูกเลือกหรือไม่
+               throw new NullPointerException(); //แสดงข้อผิดพลาดเมื่อตารางลูกค้าไม่ถูกเลือก
            }else{
-           BasicDBObject searchFields = new BasicDBObject("MS_CUSTOMER_ID",customer_id);
-           BasicDBObject updateFields = new BasicDBObject();
-           BasicDBObject customer_address = new BasicDBObject();
-           BasicDBObject setQuery = new BasicDBObject();
-           String type = null;
+           BasicDBObject searchFields = new BasicDBObject("MS_CUSTOMER_ID",customer_id); //ค้นหาข้อมูลจากรหัสลูกค้า
+           BasicDBObject updateFields = new BasicDBObject(); //ข้อมูลที่จะแก้ไขของลูกค้า
+           BasicDBObject customer_address = new BasicDBObject(); //ที่อยู่ลูกค้า
+           BasicDBObject setQuery = new BasicDBObject();  //ตั้งค่าregexเมื่อส่งข้อมูลเข้าสู่ Database
         try{
-           customer_address.append("บ้านเลขที่",customer_home_txt.getText());
-           customer_address.append("ตำบล",customer_locality_txt.getText());
-           customer_address.append("อำเภอ",customer_district_txt.getText());
-           customer_address.append("จังหวัด",customer_province_txt.getText());
-           customer_address.append("รหัสไปรษณีย์",customer_post_txt.getText());
-           updateFields.append("MS_CUSTOMER_NAME",customer_prefix.getSelectedItem().toString()+customer_name_txt.getText().substring(3));
-           updateFields.append("MS_CUSTOMER_PHONE",customer_phone_txt.getText());
-           updateFields.append("MS_CUSTOMER_EMAIL",customer_email_txt.getText());
-           updateFields.append("MS_CUSTOMER_ADDRESS",customer_address);
-           updateFields.append("MS_CUSTOMER_BIRTHDATE",customer_birthdate_txt.getText());
-           String customer_type = null;
+           customer_address.append("บ้านเลขที่",customer_home_txt.getText()); //ที่อยู่ลูกค้า
+           customer_address.append("ตำบล",customer_locality_txt.getText()); //ตำบลลูกค้า
+           customer_address.append("อำเภอ",customer_district_txt.getText()); //อำเภอลูกค้า
+           customer_address.append("จังหวัด",customer_province_txt.getText()); //จังหวัดของลูกค้า
+           customer_address.append("รหัสไปรษณีย์",customer_post_txt.getText()); //รหัสไปรษณีย์ของลูกค้า
+           updateFields.append("MS_CUSTOMER_ADDRESS",customer_address); //นำข้อมูลทั้งหมดมาบีบอัดให้เป็นObjectก่อนจะยัดเข้าฐานข้อมูล
+           updateFields.append("MS_CUSTOMER_NAME",customer_prefix.getSelectedItem().toString()+customer_name_txt.getText().substring(3)); //ชื่อลูกค้า
+           updateFields.append("MS_CUSTOMER_PHONE",customer_phone_txt.getText()); //เบอร์โทรศัพท์ลูกค้า
+           updateFields.append("MS_CUSTOMER_EMAIL",customer_email_txt.getText()); //อีเมลลูกค้า
+           updateFields.append("MS_CUSTOMER_BIRTHDATE",customer_birthdate_txt.getText()); //วันเกิดลูกค้า
+           String customer_type = null; //ประเภทของลูกค้า
+           /* เช็คประเภทของลูกค้า
+                0 = New Customer
+                1 = Old Customer
+           */
                 if(customer_type_combo.getSelectedIndex()==0){
                     customer_type = "New Customer";
                 }else if(customer_type_combo.getSelectedIndex()==1){
                     customer_type = "Old Customer";
                 }
-           setQuery.append("$set", updateFields);
-           updateFields.append("MS_CUSTOMER_TYPE",customer_type);
-           get_customer.update(searchFields,setQuery);
-           System.out.println("Success");
-           clear_table((DefaultTableModel)customer_table.getModel());
-           get_collection_in_to_table();
+           updateFields.append("MS_CUSTOMER_TYPE",customer_type);  //ประเภทลูกค้า
+           setQuery.append("$set", updateFields); //ตั้งค่าให้queryให้เป็นการแก้ไขจากข้อมูลเดิม
+           get_customer.update(searchFields,setQuery); //อัพเดทข้อมูลใหม่ในฐานข้อมูล
+           //System.out.println("Success");
+           clear_table((DefaultTableModel)customer_table.getModel()); //ลบข้อมูลในตารางลูกค้า
+           get_collection_in_to_table(); //เรียกข้อมูลในตารางลูกค้าจากฐานข้อมูล
                        JOptionPane.showMessageDialog(null,"แก้ไขข้อมูลของลูกค้าเรียบร้อยแล้วค่ะ");
-            }catch(Exception e){
-                e.printStackTrace();
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
            }
-        }else if(delete==true){
-            get_customer.remove(new BasicDBObject("MS_CUSTOMER_ID",customer_id));
-            clear_table((DefaultTableModel)customer_table.getModel());
-            get_collection_in_to_table();
+        }else if(delete==true){ //ถ้าหากว่าอยู่ในโหมดลบ
+            get_customer.remove(new BasicDBObject("MS_CUSTOMER_ID",customer_id)); //ลบข้อมูลจากฐานข้อมูลโดยค้นหาจากรหัสลูกค้า
+            clear_table((DefaultTableModel)customer_table.getModel()); //ลบข้อมูลในตารางลูกค้า
+            get_collection_in_to_table();//เรียกข้อมูลในตารางลูกค้าจากฐานข้อมูล
             JOptionPane.showMessageDialog(null,"ลบข้อมูลของลูกค้าเรียบร้อยแล้วค่ะ");
         }
        }catch(NullPointerException e){
            JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบถ้วน\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);
-       }catch(Exception e){
-           e.printStackTrace();
+       }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
        }
     }//GEN-LAST:event_confirm_btnActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-            this.setVisible(false);
+            this.setVisible(false); //ปิดการทำงานของหน้าจอนี้
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void customer_province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_province_txtActionPerformed

@@ -89,12 +89,12 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="product_btn">
+    <Component class="javax.swing.JButton" name="confirm_btn">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#xe22;&#xe37;&#xe19;&#xe22;&#xe31;&#xe19;&#xe01;&#xe32;&#xe23;&#xe41;&#xe01;&#xe49;&#xe44;&#xe02;"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="product_btnActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="confirm_btnActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">

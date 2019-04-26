@@ -22,13 +22,16 @@ import javax.swing.text.Document;
  * @author informatics
  */
 public class Edit_Partner extends javax.swing.JFrame {
-Variable v = new Variable();
-    MongoClient mongo;
-    DB db;
-    DBCollection DBC;
-    int partner_id = 0;
-    boolean edit = true;
-    boolean delete = false;
+Variable v = new Variable(); //สร้าง Object ใหม่จาก Variable Class เพื่อดึง Method มาใช้
+//--------------------------MongoDB variable-------------------------------
+MongoClient mongo; //กำหนดตัวแปรประเภท MongoClient
+DB db; //กำหนดตัวแปรประเภท DB
+DBCollection DBC; //กำหนดตัวแปรประเภท DBCollection
+//---------------------Integer-------------------------
+        int partner_id = 0; //ตัวแปรที่ใช้เก็บรหัสของคู่ค้า
+//---------------------Boolean------------------------------
+        boolean edit = true;    //|--สร้างตัวแปร edit เพื่อเช็คการทำงาน
+        boolean delete = false; //|--สร้างตัวแปร delete เพื่อเช็คการทำงาน
     /**
      * Creates new form Edit_Partner
      */
@@ -37,19 +40,34 @@ Variable v = new Variable();
         get_connect(); //เชื่อมต่อdatabase
         get_collection_in_to_table();//ดึงข้อมูลจากcollectionใส่ตาราง
     }
-    public void check_function(){
-        if(edit_radio.isSelected()){
-            partner_txt_panel.setVisible(true);
-            edit=true;
-            delete=false;
+    
+    
+    public void clear_partner(){ //ลบข้อมูลในหน้าต่างแก้ไข
+        partner_name_txt.setText(""); //ชื่อคู่ค้า
+        partner_phone_txt.setText(""); //เบอร์โทรศัพท์
+        partner_email_txt.setText(""); //อีเมล
+        partner_home_txt.setText(""); //บ้านเลขที่
+        partner_locality_txt.setText(""); //ตำบล
+        partner_distict_txt.setText(""); //อำเภอ
+        partner_province_txt.setText(""); //จังหวัด
+        partner_post_txt.setText(""); //รหัสไปรษณีย์
+        partner_type_combo.setSelectedIndex(0);//ประเภทของคู่ค้า
+        
+    }
+    public void check_function(){ //เช็คการทำงานในขณะนี้ (ลบ/แก้ไข)
+        if(edit_radio.isSelected()){ //ถ้าหากว่าตัวเลือกแก้ไขได้ถูกเลือก
+            partner_panel.setVisible(true); //หน้าต่างแก้ไขข้อมูลจะปรากฏขึ้น
+            edit=true; //แก้ไขค่าตัวแปรedit ให้มีค่า true
+            delete=false; //แก้ไขค่าตัวแปรdelete ให้มีค่า false
             confirm_btn.setText("ยืนยันการแก้ไข"); //ตั้งการแสดงผลที่ปุ่ม
-        }else if(delete_radio.isSelected()){
-            partner_txt_panel.setVisible(false);
-            confirm_btn.setText("ยืนยันการลบ");
-            delete=true;
-            edit=false;
+        }else if(delete_radio.isSelected()){//ถ้าหากว่าตัวเลือกลบได้ถูกเลือก
+            partner_panel.setVisible(false); //หน้าต่างแก้ไขข้อมูลจะถูกซ่อน
+            partner_table.clearSelection(); //ยกเลิกการเลือกในตารางลูกค้า
+            confirm_btn.setText("ยืนยันการลบ"); //ตั้งการแสดงผลที่ปุ่ม
+            delete=true; //แก้ไขค่าตัวแปรdelete ให้มีค่า true
+            edit=false; //แก้ไขค่าตัวแปรedit ให้มีค่า false
+            clear_partner(); //ลบข้อมูลทั้งหมดที่กรอกในหน้าต่างแก้ไขข้อมูล
         }
-                System.out.println(delete);
     }
     public void get_connect(){
         try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
@@ -143,7 +161,7 @@ Variable v = new Variable();
         partner_table = new javax.swing.JTable();
         delete_radio = new javax.swing.JRadioButton();
         edit_radio = new javax.swing.JRadioButton();
-        partner_txt_panel = new javax.swing.JPanel();
+        partner_panel = new javax.swing.JPanel();
         jLabel44 = new javax.swing.JLabel();
         partner_phone_txt = new javax.swing.JTextField();
         jLabel45 = new javax.swing.JLabel();
@@ -289,36 +307,36 @@ Variable v = new Variable();
 
         jLabel43.setText("ชื่อบริษัท:");
 
-        javax.swing.GroupLayout partner_txt_panelLayout = new javax.swing.GroupLayout(partner_txt_panel);
-        partner_txt_panel.setLayout(partner_txt_panelLayout);
-        partner_txt_panelLayout.setHorizontalGroup(
-            partner_txt_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, partner_txt_panelLayout.createSequentialGroup()
+        javax.swing.GroupLayout partner_panelLayout = new javax.swing.GroupLayout(partner_panel);
+        partner_panel.setLayout(partner_panelLayout);
+        partner_panelLayout.setHorizontalGroup(
+            partner_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, partner_panelLayout.createSequentialGroup()
                 .addGap(0, 10, Short.MAX_VALUE)
-                .addGroup(partner_txt_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                .addGroup(partner_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addGap(30, 30, 30)
                         .addComponent(jLabel43))
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addComponent(jLabel44))
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addGap(30, 30, 30)
                         .addComponent(jLabel51))
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addGap(40, 40, 40)
                         .addComponent(jLabel50))
                     .addComponent(jLabel39))
                 .addGap(1, 1, 1)
-                .addGroup(partner_txt_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(partner_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(partner_name_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addComponent(partner_phone_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(30, 30, 30)
                         .addComponent(jLabel45)
                         .addGap(4, 4, 4)
                         .addComponent(partner_email_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addComponent(partner_home_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20)
                         .addComponent(jLabel47)
@@ -328,22 +346,22 @@ Variable v = new Variable();
                         .addComponent(jLabel48)
                         .addGap(6, 6, 6)
                         .addComponent(partner_distict_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addComponent(partner_province_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(30, 30, 30)
                         .addComponent(jLabel49)
                         .addGap(6, 6, 6)
                         .addComponent(partner_post_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addComponent(partner_type_combo, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
-        partner_txt_panelLayout.setVerticalGroup(
-            partner_txt_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(partner_txt_panelLayout.createSequentialGroup()
+        partner_panelLayout.setVerticalGroup(
+            partner_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(partner_panelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(partner_txt_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                .addGroup(partner_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addComponent(jLabel43)
                         .addGap(26, 26, 26)
                         .addComponent(jLabel44)
@@ -353,22 +371,22 @@ Variable v = new Variable();
                         .addComponent(jLabel50)
                         .addGap(36, 36, 36)
                         .addComponent(jLabel39))
-                    .addGroup(partner_txt_panelLayout.createSequentialGroup()
+                    .addGroup(partner_panelLayout.createSequentialGroup()
                         .addComponent(partner_name_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20)
-                        .addGroup(partner_txt_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(partner_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(partner_phone_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel45)
                             .addComponent(partner_email_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(20, 20, 20)
-                        .addGroup(partner_txt_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(partner_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(partner_home_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel47)
                             .addComponent(partner_locality_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel48)
                             .addComponent(partner_distict_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(20, 20, 20)
-                        .addGroup(partner_txt_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(partner_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(partner_province_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel49)
                             .addComponent(partner_post_txt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -377,7 +395,7 @@ Variable v = new Variable();
                 .addContainerGap(166, Short.MAX_VALUE))
         );
 
-        getContentPane().add(partner_txt_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 112, -1, -1));
+        getContentPane().add(partner_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 112, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -387,26 +405,37 @@ Variable v = new Variable();
     }//GEN-LAST:event_exit_btnActionPerformed
 
     private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
-        try{
-        if(edit==true){
-        if(partner_name_txt.getText().isEmpty()){
-            throw new NullPointerException();
-        }else{
-        BasicDBObject searchFields = new BasicDBObject("MS_PARTNER_ID",partner_id);
-           BasicDBObject updateFields = new BasicDBObject();
-           BasicDBObject partner_address = new BasicDBObject();
-           BasicDBObject setQuery = new BasicDBObject();
-           String type = null;
-        try{
+        try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        if(edit==true){ // ถ้าหากว่าใช้งานฟังก์ชั่นการแก้ไข
+        if(partner_name_txt.getText().isEmpty()){//เช็คว่าตารางเมนูถูกเลือกหรือไม่
+            throw new NullPointerException(); //ถ้าหากว่าไม่มีการเลือกให้คืนค่าการทำงานผิดพลาด
+        }else{ //ถ้าหากว่ามีการเลือกตารางนี้
+        BasicDBObject searchFields = new BasicDBObject("MS_PARTNER_ID",partner_id); //สร้างObjectชื่อ searchFields เพื่อเก็บข้อมูลที่จะนำไปค้นหา
+           BasicDBObject updateFields = new BasicDBObject();//สร้างObjectชื่อ updateFields เพื่อเก็บข้อมูลที่จะนำไปค้นหา
+           BasicDBObject partner_address = new BasicDBObject();//สร้างObjectชื่อ partner_address เพื่อเก็บข้อมูลที่อยู่ของคู่ค้า
+           BasicDBObject setQuery = new BasicDBObject();//สร้างObjectชื่อ setQuery เพื่อใช้ในการตั้งค่าเงื่อนไขในการแก้ไขข้อมูล
+           String type = null; //สร้างตัวแปรเพื่อใช้ในการเก็บประเภทของคู่ค้า
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+           //เพิ่มข้อมูลลงในpartner_address เพื่อเก็บข้อมูลที่อยู่ของคู่ค้า
            partner_address.append("บ้านเลขที่",partner_home_txt.getText());
            partner_address.append("ตำบล",partner_locality_txt.getText());
            partner_address.append("อำเภอ",partner_distict_txt.getText());
            partner_address.append("จังหวัด",partner_province_txt.getText());
            partner_address.append("รหัสไปรษณีย์",partner_post_txt.getText());
-           updateFields.append("MS_PARTNER_NAME",partner_name_txt.getText());
-           updateFields.append("MS_PARTNER_PHONE",partner_phone_txt.getText());
-           updateFields.append("MS_PARTNER_EMAIL",partner_email_txt.getText());
-           updateFields.append("MS_PARTNER_ADDRESS",partner_address);
+           
+           
+           updateFields.append("MS_PARTNER_NAME",partner_name_txt.getText()); //เพิ่มข้อมูลชื่อคู่ค้าที่จะแก้ไข
+           updateFields.append("MS_PARTNER_PHONE",partner_phone_txt.getText()); //เพิ่มข้อมูลเบอร์โทรศัพท์ที่จะแก้ไข
+           updateFields.append("MS_PARTNER_EMAIL",partner_email_txt.getText()); //เพิ่มข้อมูลอีเมลที่จะแก้ไข
+           updateFields.append("MS_PARTNER_ADDRESS",partner_address); //เพิ่มข้อมูลที่อยู่ที่จะแก้ไข
+           
+           /*
+           สร้างเงื่อนไขในการเช็คประเภทของคู่ค้า
+                0 - คู่ค้าเกี่ยวกับเครื่องดื่ม
+                1 - คู่ค้าเกี่ยวกับของหวาน
+                2 - คู่ค้าเกี่ยวกับของคาว
+           
+           */
            if(partner_type_combo.getSelectedIndex()==0){
            type = "Drink Partner";
            }else if(partner_type_combo.getSelectedIndex()==1){
@@ -414,28 +443,28 @@ Variable v = new Variable();
            }else if(partner_type_combo.getSelectedIndex()==2){
            type = "Meal Partner";    
            }
-           setQuery.append("$set", updateFields);
-           updateFields.append("MS_PARTNER_TYPE",type);
-           DBC.update(searchFields,setQuery);
-           System.out.println("Success");
-           remove_data_in_table();
-           get_collection_in_to_table();
-           JOptionPane.showMessageDialog(null,"แก้ไขข้อมูลของบริษัทคู่ค้าเรียบร้อยแล้วค่ะ");
-            }catch(Exception e){
-                e.printStackTrace();
-            }
+           updateFields.append("MS_PARTNER_TYPE",type);//เพิ่มข้อมูลประเภทของคู่ค้าจะแก้ไข
+           setQuery.append("$set", updateFields);//ตั้งค่าฟังก์ชั่นที่จะใช้กับข้อมูล
+           DBC.update(searchFields,setQuery);//ทำการอัพเดทข้อมูลที่ตรวจพบใน database
+           System.out.println("Success");//แสดงผลทางหน้าจอหลังทำรายการสำเร็จ
+           remove_data_in_table();//ลบข้อมูลของตารางคู่ค้า
+           get_collection_in_to_table();//ดึงข้อมูลของคู่ค้าจากDatabaseมาใส่ในตาราง
+           JOptionPane.showMessageDialog(null,"แก้ไขข้อมูลของบริษัทคู่ค้าเรียบร้อยแล้วค่ะ");//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+           }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+           }
+           }
+        }else if(delete==true){ //ถ้าหากว่าฟังก์ชั่นที่ใช้เป็นฟังก์ชั่นการลบ
+           DBC.remove(new BasicDBObject("MS_PARTNER_ID",partner_id));//ลบข้อมูลคู่ค้าในDatabaseโดยใช้รหัสของคู่ค้า
+           remove_data_in_table();//ลบข้อมูลของตารางคู่ค้า
+           get_collection_in_to_table();//ดึงข้อมูลของคู่ค้าจากDatabaseมาใส่ในตาราง
+           JOptionPane.showMessageDialog(null,"ลบข้อมูลของบริษัทคู่ค้าเรียบร้อยแล้วค่ะ");//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
         }
-        }else if(delete==true){
-            DBC.remove(new BasicDBObject("MS_PARTNER_ID",partner_id));
-            remove_data_in_table();
-            get_collection_in_to_table();
-            JOptionPane.showMessageDialog(null,"ลบข้อมูลของบริษัทคู่ค้าเรียบร้อยแล้วค่ะ");
-        }
-        }catch(NullPointerException e){
-            e.printStackTrace();
+        }catch(NullPointerException e){ //ถ้าหากว่าข้อมูลที่กรอกไม่ครบหรือขาดบางส่วนที่สำคัญ
+            e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบถ้วน\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+            e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
     }//GEN-LAST:event_confirm_btnActionPerformed
 
@@ -460,19 +489,19 @@ Variable v = new Variable();
     }//GEN-LAST:event_partner_province_txtActionPerformed
 
     private void partner_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_partner_tableMouseClicked
-    try{
-        get_data_from_table();
-    }catch(Exception e){
-        System.out.println(e);
+    try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        get_data_from_table(); //ใช้งาน Method เพื่อดึงข้อมูลจากตารางมากรอกใส่ในช่องกรอกข้อมูล
+    }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+        System.out.println(e);//แสดงออกการผิดพลาดทางหน้าจอ
     }
     }//GEN-LAST:event_partner_tableMouseClicked
 
     private void edit_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_radioActionPerformed
-        check_function();
+        check_function();//เช็คการทำงานในปัจจุบัน(ลบ/แก้ไขข้อมูล)
     }//GEN-LAST:event_edit_radioActionPerformed
 
     private void delete_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_radioActionPerformed
-        check_function();
+        check_function();//เช็คการทำงานในปัจจุบัน(ลบ/แก้ไขข้อมูล)
     }//GEN-LAST:event_delete_radioActionPerformed
 
     /**
@@ -533,11 +562,11 @@ Variable v = new Variable();
     private javax.swing.JTextField partner_home_txt;
     private javax.swing.JTextField partner_locality_txt;
     private javax.swing.JTextField partner_name_txt;
+    private javax.swing.JPanel partner_panel;
     private javax.swing.JTextField partner_phone_txt;
     private javax.swing.JTextField partner_post_txt;
     private javax.swing.JTextField partner_province_txt;
     private javax.swing.JTable partner_table;
-    private javax.swing.JPanel partner_txt_panel;
     private javax.swing.JComboBox<String> partner_type_combo;
     // End of variables declaration//GEN-END:variables
 }
