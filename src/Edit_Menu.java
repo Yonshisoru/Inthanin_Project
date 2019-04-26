@@ -169,7 +169,7 @@ Variable v = new Variable();//สร้าง Object ใหม่จาก Varia
        DBObject menu_json = null; //สร้างตัวแปรเปล่าของข้อมูลเพื่อใช้ในการเก็บข้อมูลเมนู
       try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
           DBCollection get_menu = db.getCollection("MS_MENU");//ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
-          BasicDBObject find_menu = new BasicDBObject("MS_MENU_ID",id);
+          BasicDBObject find_menu = new BasicDBObject("MS_MENU_ID",id);//สร้างObjectชื่อ find_menu เพื่อเก็บข้อมูลที่จะนำไปค้นหา
           DBCursor finding_menu = get_menu.find(find_menu); // ค้นหาข้อมูลในcollection(MS_MENU)จากรหัสเมนู
           while(finding_menu.hasNext()){
               menu_json = finding_menu.next(); //ดึงข้อมูลjsonจากการค้นหามาใส่ตัวแปร DBObject ชื่อ menu_json

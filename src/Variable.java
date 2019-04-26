@@ -21,14 +21,28 @@ public class Variable {
     static public int id; //ัตัวแปรรหัสของพนักงานแบบ static
     static public int status; //ตัวแปรสถานะของพนักงานแบบ static
     
-    public void getConnect(){ //ฟังก์ชั่นการเชื่อมต่อ
+    public DB getConnect(){ //ฟังก์ชั่นการเชื่อมต่อ
     try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
         MongoClient mongo = new MongoClient("localhost",27017);//เชื่อมต่อ Database Mongodb IP:localhost Port:27017
         db = mongo.getDB("InthaninDB");//ดึงข้อมูลฐานข้อมูล
     }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
             e.printStackTrace(); //แสดงออกการผิดพลาดทางหน้าจอ
     }
+     return db;
 }
+    
+    public int getid(){
+        return this.id;
+    }
+    public int getstatus(){
+        return this.status;
+    }
+    public void setid(int id){
+        this.id = id;
+    }
+    public void setstatus(int status){
+        this.status = status;
+    }
     public String month(int month){ //ฟังก์ชั่นเปลี่ยนลำดับเดือนเป็นชื่อเดือน
     String output=""; //ตัวแปร Stringเพื่อใช้เก็บผลลัพธ์
     switch(month){

@@ -40,437 +40,427 @@ import javax.swing.table.DefaultTableModel;
  * @author Yonshisoru
  */
 public class Main extends javax.swing.JFrame {
-Variable v = new Variable();
-MongoClient mongo;
-DB db;
-DBCollection DBC;
-DBObject dbo;
-boolean showpwd = false;
-static String username;
-static String position;
+Variable v = new Variable();//สร้าง Object ใหม่จาก Variable Class เพื่อดึง Method มาใช้
+//--------------------------MongoDB variable-------------------------------
+    MongoClient mongo; //กำหนดตัวแปรประเภท MongoClient
+    DB db; //กำหนดตัวแปรประเภท DB
+    DBCollection DBC; //กำหนดตัวแปรประเภท DBCollection
+    boolean showpwd = false; //กำหนดตัวแปรเพื่อเช็คการแสดงรหัสผ่านในหน้าจอของพนักงาน
+    static String username; //ตัวแปรของชื่อของผู้ใช้งาน   
+    static String position; //ตัวแปรของตำแหน่ง
 //-----------------------List / ArrayList -------------------------------------
-List<DBObject>menu_component = new ArrayList<>();
-List<DBObject>order_list = new ArrayList<>();
+List<DBObject>menu_component = new ArrayList<>(); //ลิสต์ของส่วนประกอบของเมนู
+List<DBObject>order_list = new ArrayList<>(); //ลิสต์ของออเดอร์
 //-------------------Menu Panel Variable-----------------------
-String menu_table_doubleclick = "";
-String history_table_doubleclick = "";
+String menu_table_doubleclick = ""; //ตัวแปรที่ใช้เช็คดับเบิ้ลคลิ๊กของตารางเมนู
+String history_table_doubleclick = ""; //ตัวแปรใช้เช็คดับเบิ้ลคลิ๊กของตารางประวัติออเดอร์
 //-------------------Order Variable--------------------------
-boolean add_order = false;
+boolean add_order = false; //
 boolean check_order_list = false;
-int total_price = -1;
-int order_list_price = -1;
+int total_price = -1; //ราคาทั้งหมดของออเดอร์
+int order_list_price = -1; //ราคาของแต่ละรายการของออเดอร์
 //---------------------Current date-------------------------
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(); //ตัวแปรเก็บข้อมูลวันที่ปัจจุบัน
 //----------------------------------------------------------
     /**
      * Creates new form Main
      */
     public Main() {
         initComponents();
-        set_logo();
-        this.setLocationRelativeTo(null);
-        disablepanel();
-        sessionnow();
-        System.out.println(v.getstatus());
+        set_logo(); //ฟังก์ชั่นในการแสดงรูปไอค่อน
+        this.setLocationRelativeTo(null); //ตั้งค่าการแสดงผลให้อยู่กลางหน้าจอ
+        disablepanel(); //ซ่อนหน้าต่างทุกหน้าต่าง
+        sessionnow(); //การใช้งานปัจจุบัน
+        System.out.println(v.getstatus()); //แสดงสถานะของพนักงานปัจจุบัน
     }
     
 //---------------------Initilization-----------------------------
-        public void set_logo(){
-        try{
-        ImageIcon imageIcon = new ImageIcon ("./image/main_icon.png");
-        picture_label.setIcon(imageIcon);
-                }catch(Exception e){
-                    System.out.println(e);
-                }
-        //picture_label.setIcon(new ImageIcon("./image/Untitled-3.png"));
+        public void set_logo(){ //ฟังก์ชั่นในการแสดงรูปไอค่อน
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        ImageIcon imageIcon = new ImageIcon ("./image/main_icon.png"); //สร้างตัวแปรเพื่อเก็บรูปภาพจากปลายทาง 
+        picture_label.setIcon(imageIcon);//ตั้งค่าไอค่อนของ label ให้เป็นรูปภาพ
+        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+            e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+        }
     }
         
-        public void disablepanel(){
-            first_panel.setVisible(false);
-            order_panel.setVisible(false);
-            customer_panel.setVisible(false);
-            product_panel.setVisible(false);
-            stock_panel.setVisible(false);
-            menu_panel.setVisible(false);
-            partner_panel.setVisible(false);
-            employee_panel.setVisible(false);
-            history_panel.setVisible(false);
+        public void disablepanel(){//ซ่อนหน้าต่างทั้งหมด
+            first_panel.setVisible(false);//หน้าต่างแรก
+            order_panel.setVisible(false);//หน้าต่างออเดอร์
+            customer_panel.setVisible(false);//หน้าต่างลูกค้า
+            product_panel.setVisible(false);//หน้าต่างสินค้า
+            stock_panel.setVisible(false);//หน้าต่างการเพิ่มจำนวนสินค้า
+            menu_panel.setVisible(false);//หน้าต่างเมนู
+            partner_panel.setVisible(false);//หน้าต่างบริษัทคู่ค้า
+            employee_panel.setVisible(false);//หน้าต่างพนักงาน
+            history_panel.setVisible(false);//หน้าต่างประวัติออเดอร์
 }
 //--------clear partner data--------------------------
-    public void clear_customer(){
-        customer_name_txt.setText("");
-        customer_phone_txt.setText("");
-        customer_email_txt.setText("");
-        customer_home_txt.setText("");
-        customer_locality_txt.setText("");
-        customer_district_txt.setText("");
-        customer_province_txt.setText("");
-        customer_post_txt.setText("");
-        customer_type_combo.setSelectedIndex(0);
-        customer_prefix.setSelectedIndex(0);
-        customer_birthdate_txt.setSelectedDate(calendar);
+    public void clear_customer(){ //ฟังก์ชั่นการเคลียร์ข้อมูลของลูกค้า
+        customer_name_txt.setText(""); //ชื่อของลูกค้า
+        customer_phone_txt.setText(""); //เบอร์โทรศัพท์ลูกค้า
+        customer_email_txt.setText(""); //อีเมลลูกค้า
+        customer_home_txt.setText(""); //บ้านเลขที่
+        customer_locality_txt.setText(""); //ตำบล
+        customer_district_txt.setText(""); //อำเภอ
+        customer_province_txt.setText(""); //จังหวัด
+        customer_post_txt.setText(""); //รหัสไปรษณีย์
+        customer_type_combo.setSelectedIndex(0); //ปุ่มตัวเลือกประเภทลูกค้า
+        customer_prefix.setSelectedIndex(0); //คำนำหน้าลูกค้า
+        customer_birthdate_txt.setSelectedDate(calendar); //ปุ่มเลือกวันที่
     }
 //--------clear partner data--------------------------
-    public void clear_partner(){
-        partner_name_txt.setText("");
-        partner_phone_txt.setText("");
-        partner_email_txt.setText("");
-        partner_home_txt.setText("");
-        partner_locality_txt.setText("");
-        partner_distict_txt.setText("");
-        partner_province_txt.setText("");
-        partner_post_txt.setText("");
-        partner_type_combo.setSelectedIndex(0);
+    public void clear_partner(){ //ฟังก์ชั่นการเคลียร์ข้อมูลของบริษัทคู่ค้า
+        partner_name_txt.setText(""); //ชื่อคู่ค้า
+        partner_phone_txt.setText(""); //เบอร์โทรศัพท์คู่ค้า
+        partner_email_txt.setText(""); //อีเมลคู่ค้า
+        partner_home_txt.setText(""); //บ้านเลขที่
+        partner_locality_txt.setText(""); //ตำบล
+        partner_distict_txt.setText(""); //อำเภอ
+        partner_province_txt.setText(""); //จังหวัด
+        partner_post_txt.setText(""); //รหัสไปรษณีย์
+        partner_type_combo.setSelectedIndex(0); //ปุ่มตัวเลือกประเภทคู่ค้า
     }
 
-    public void clear_product(){
-        pro_name_txt.setText("");
-        pro_price_txt.setText("");
-        pro_type_combo.setSelectedIndex(0);
-        partner_combo.setSelectedIndex(0);
+    public void clear_product(){ //ฟังก์ชั่นการเคลียร์ข้อมูลสินค้า
+        pro_name_txt.setText(""); //ชื่อสินค้า
+        pro_price_txt.setText(""); //ราคาสินค้า
+        pro_type_combo.setSelectedIndex(0); //ปุ่มเลือกประเภทสินค้า
+        partner_combo.setSelectedIndex(0); //ปุ่มตัวเลือกประเภทของคู่ค้า
     }
     
-    public void clear_stock(){
-        stock_combo.setSelectedIndex(0);
-        stock_amount.setText("");
+    public void clear_stock(){ //ฟังก์ชั่นการเคลียร์ข้อมูลการเพิ่มจำนวนสินค้า
+        stock_combo.setSelectedIndex(0); //ปุ่มตัวเลือกสินค้า
+        stock_amount.setText(""); //จำนวนของสินค้า
     }
     
-    public void clear_emp(){
-    employee_birthdate_txt.setSelectedDate(calendar);
-    //Date date =  calendar.getTime();
-    //System.out.println(date); //15/10/2013
-    employee_name_txt.setText("");
-    employee_age_combo.setSelectedIndex(0);
-    man_radio.setSelected(false);
-    woman_radio.setSelected(false);
-    employee_phone_txt.setText("");
-    employee_id_txt.setText("");
-    employee_home_txt.setText("");
-    employee_locality_txt.setText("");
-    employee_district_txt.setText("");
-    employee_province_txt.setText("");
-    employee_email_txt.setText("");
-    employee_position_combo.setSelectedIndex(0);
-    employee_user_txt.setText("");
-    employee_pwd_txt.setText("");
-    showpwd_check.setSelected(false);
-    showpwd = false;
-    confirm.setSelected(false);
-    employee_prefix.setSelectedIndex(0);
+    public void clear_emp(){ //ฟังก์ชั่นการเคลียร์ข้อมูลของพนักงาน
+    employee_birthdate_txt.setSelectedDate(calendar);//วันเกิดของพนักงาน
+    employee_name_txt.setText(""); //ชื่อของพนักงาน
+    employee_age_combo.setSelectedIndex(0); //อายุของพนักงาน
+    man_radio.setSelected(false); //ปุ่มเลือกเพศผู้ชาย
+    woman_radio.setSelected(false); //ปุ่มเลือกเพศผู้หญิง
+    employee_phone_txt.setText(""); //เบอร์โทรศัพท์พนักงาน
+    employee_home_txt.setText("");//บ้านเลขที่
+    employee_locality_txt.setText("");//ตำบล
+    employee_district_txt.setText("");//อำเภอ
+    employee_province_txt.setText("");//จังหวัด
+    employee_email_txt.setText("");//อีเมลของพนักงาน
+    employee_position_combo.setSelectedIndex(0);//ปุ่มตัวเลือกตำแหน่งของพนักงาน
+    employee_user_txt.setText("");//รหัสผู้ใช้งานของพนักงาน
+    employee_pwd_txt.setText("");//รหัสผ่านของพนักงาน
+    showpwd_check.setSelected(false); //ปุ่มแสดงรหัสผ่าน
+    showpwd = false;//ตัวแปรแสดงรหัสผ่านให้มีค่าเป็น false
+    confirm.setSelected(false); //ยกเลิกการยืนยันข้อมูล
+    employee_prefix.setSelectedIndex(0); //ปุ่มตัวเลือกคำนำหน้า
 }
     
-    public void clear_table(DefaultTableModel table){
-        while(table.getRowCount()>0){
-            table.removeRow(0);
+    public void clear_table(DefaultTableModel table){ //ฟังก์ชั่นการลบข้อมูลในตาราง
+        while(table.getRowCount()>0){ //สร้างฟังก์ชั่น while โดยมีเงื่อนไขการหยุดทำงานคือจำนวนแถวของตารางเท่ากับ 0
+            table.removeRow(0);//ลบข้อมูลแถวบนสุด
         }
     }
     
-    public void clear_menu(){
-        menu_name_txt.setText("");
-        menu_price_txt.setText("");
+    public void clear_menu(){ //ฟังก์ชั่นการเคลียร์ข้อมูลเมนู
+        menu_name_txt.setText(""); //ชื่อเมนู
+        menu_price_txt.setText("");//ราคาของเมนู
     }
     //-------------------------Partner--------------------------------------//
-    public void set_productcombo(int k){
-         partner_combo.removeAllItems();
-         partner_combo.addItem("เลือกบริษัทคู่ค้า");
-        try{
-        DBCollection table = db.getCollection("MS_PARTNER");
-        DBCursor cur = table.find();
-        while(cur.hasNext()){
-            DBObject kk = cur.next();
-            if(k==1){
-                if(kk.get("MS_PARTNER_TYPE").toString().contains("Drink")){
-                partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
-                }
-            }else if(k==2){
-                if(kk.get("MS_PARTNER_TYPE").toString().contains("Bakery")){
-                partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
-                }
-            }else if(k==3){
-                if(kk.get("MS_PARTNER_TYPE").toString().contains("Meal")){
-                partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
-                }
+    public void set_parnter_combo(int k){ //ฟังก์ชั่นการเพิ่มข้อมูลตามสินค้า
+       partner_combo.removeAllItems(); //ลบข้อมูลเก่าทั้งหมดของปุ่มตัวเลือก
+        partner_combo.addItem("เลือกบริษัทคู่ค้า"); //เพิ่มข้อมูลแถวบนสุด
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        DBCollection table = db.getCollection("MS_PARTNER");//ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
+        DBCursor cur = table.find(); // ค้นหาข้อมูลในcollection(MS_PARTNER)
+        while(cur.hasNext()){ //สร้างลูป while ที่จะหยุดทำงานต่อเมื่อไม่มีข้อมูลในCollection MS_PARTNER
+            DBObject kk = cur.next();///ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ kk
+            switch (k) {
+                case 1:
+                    //ถ้าหากว่าข้อมูลของ parameter(Index ประเภทของสินค้า)
+                    /*
+                    1 - จะเพิ่มคู่ค้าที่เป็นประเภทของเครื่องดื่ม
+                    2 - จะเพิ่มคู่ค้าที่เป็นประเภทของของหวาน
+                    3 - จะเพิ่มคู่ค้าที่เป็นประเภทของของคาว
+                    */
+                    if(kk.get("MS_PARTNER_TYPE").toString().contains("Drink")){
+                        partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
+                    }   break;
+                case 2:
+                    if(kk.get("MS_PARTNER_TYPE").toString().contains("Bakery")){
+                        partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
+                    }   break;
+                case 3:
+                    if(kk.get("MS_PARTNER_TYPE").toString().contains("Meal")){
+                        partner_combo.addItem(kk.get("MS_PARTNER_NAME").toString());
+                    }   break;
+                default:
+                    break;
             }
         }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        //partner_combo
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
     }
 
 
 //----------------------Employee---------------------------
-    public void emp_age_combo(){
-        for(int i =15;i<60;i++){
+    public void emp_age_combo(){ //ฟังก์ชั่นเพิ่มอายุในปุ่มเลือกอายุ
+        for(int i =15;i<60;i++){ //สร้างลูป for เพิ่มอายุตั้งแต่ 15-60ในปุ่มเลือกอายุ
             employee_age_combo.addItem(""+i);
         }
     }
 //----------------------Stocking-------------------
     public void set_stocking_product_combo(){ //เพิ่มข้อมูลรายการสินค้าในแท็บเลือก
-         stock_combo.removeAllItems();
-         stock_combo.addItem("เลือกสินค้า");
-        try{
-        DBCollection table = db.getCollection("MS_PRODUCT");
-        DBCursor cur = table.find();
-        while(cur.hasNext()){
-            DBObject kk = cur.next();
-            stock_combo.addItem(kk.get("MS_PRODUCT_NAME").toString());
-        }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        //partner_combo
+         stock_combo.removeAllItems(); //ลบข้อมูลทั้งหมดในปุ่มเลือก
+         stock_combo.addItem("เลือกสินค้า"); //เพิ่มข้อมูลตัวแรก
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        DBCollection table = db.getCollection("MS_PRODUCT");//ดึงข้อมูลจากCollectionของสินค้ามาใส่ในตัวแปร
+        DBCursor cur = table.find();// ค้นหาข้อมูลของสินค้าทั้งหมดในcollection(MS_PRODUCT)
+        while(cur.hasNext()){//สร้างลูป while ที่จะหยุดทำงานต่อเมื่อไม่มีข้อมูลในCollection MS_PRODUCT
+            DBObject kk = cur.next(); ///ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ kk
+            stock_combo.addItem(kk.get("MS_PRODUCT_NAME").toString());//เพิ่มชื่อของสินค้าลงในปุ่มตัวเลือก
+            }
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
     }
 //-----------------------------Menu---------------------------------------------------------
-    public void set_menu_table(DefaultTableModel table){
-        DefaultTableModel model = table;
-        while(model.getRowCount()>0){
-            model.removeRow(0);
-        }
-        Object[] row = new Object[3];
-        for(DBObject e:menu_component){
-            DBObject product = e;
-            row[0] = product.get("MS_PRODUCT_ID");
-            row[1] = product.get("MS_PRODUCT_NAME");
-            row[2] = product.get("MS_PRODUCT_AMOUNT");
-            model.addRow(row);
+    public void set_menu_table(DefaultTableModel table){ //ฟังก์ชั่นการเพิ่มข้อมูลลงในตารางเมนู
+        DefaultTableModel model = table; //ดึงข้อมูลตารางของ parameter มาเก็บไว้ในตัวแปร
+        clear_table(model);//ฟังก์ชั่นการลบข้อมูลในตาราง
+        Object[] row = new Object[3]; // สร้างอาเรย์ Object ชื่อว่า row ขนาด 3 ช่อง
+        for(DBObject e:menu_component){ //สร้างลูป foreach ของ List ของส่วนประกอบของเมนู
+            DBObject product = e; ///ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ product
+            row[0] = product.get("MS_PRODUCT_ID"); //Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสของสินค้า
+            row[1] = product.get("MS_PRODUCT_NAME");//Object อาเรย์ ช่องที่ 2 เก็บข้อมูลของชื่อของสินค้า
+            row[2] = product.get("MS_PRODUCT_AMOUNT"); //Object อาเรย์ ช่องที่ 3 เก็บข้อมูลของจำนวนของสินค้า
+            model.addRow(row);//เพิ่มแถวข้อมูลของตารางtable โดยนำข้อมูลมาจาก อาเรย์ของObject ที่ชื่อว่า row
         }
     }
 //-------------------------------Ordering--------------------------------------------
-        public void set_order_table(DefaultTableModel table){
-        DefaultTableModel model = table;
-        while(model.getRowCount()>0){
-            model.removeRow(0);
-        }
-        Object[] row = new Object[3];
-        for(DBObject e:menu_component){
-            DBObject product = e;
-            row[0] = product.get("MS_MENU_ID");
-            row[1] = product.get("MS_MENU_NAME");
-            row[2] = product.get("MS_MENU_PRICE");
-            model.addRow(row);
+        public void set_order_table(DefaultTableModel table){//ฟังก์ชั่นการเพิ่มข้อมูลลงในตารางเมนู
+        DefaultTableModel model = table; //ดึงข้อมูลตารางของ parameter มาเก็บไว้ในตัวแปร
+        clear_table(model);//ฟังก์ชั่นการลบข้อมูลในตาราง
+        Object[] row = new Object[3]; // สร้างอาเรย์ Object ชื่อว่า row ขนาด 3 ช่อง
+        for(DBObject e:menu_component){//สร้างลูป foreach ของ List ของส่วนประกอบของเมนู
+            DBObject product = e;///ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ product
+            row[0] = product.get("MS_MENU_ID");//Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสของเมนู
+            row[1] = product.get("MS_MENU_NAME");//Object อาเรย์ ช่องที่ 2 เก็บข้อมูลของชื่อของเมนู
+            row[2] = product.get("MS_MENU_PRICE");//Object อาเรย์ ช่องที่ 3 เก็บข้อมูลของราคาของเมนู
+            model.addRow(row);//เพิ่มแถวข้อมูลของตาราง table โดยนำข้อมูลมาจาก อาเรย์ของObject ที่ชื่อว่า row
         }
     }
-        public void clearing_order(){
-            DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");
-            DBCursor finding_order_list = get_order_list.find();
-            while (finding_order_list.hasNext()) {
-                get_order_list.remove(finding_order_list.next());
+        public void clearing_order(){ //ฟังก์ชั่นการเคลียร์รายการออเดอร์
+            DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");// ดึงข้อมูลของรายการออเดอร์จาก collection ที่ชื่อ TRAN_ORDER_LIST
+            DBCursor finding_order_list = get_order_list.find();// ค้นหาข้อมูลของรายการออเดอร์ในcollection(TRAN_ORDER_LIST)ทั้งหมด
+            while (finding_order_list.hasNext()) {//สร้างลูป while โดยมีเงื่อนไขคือจะต้องไม่มีข้อมูลตัวถัดไปในTRAN_ORDER_LIST
+                get_order_list.remove(finding_order_list.next()); //ลบข้อมูลล่าสุดของรายการออเดอร์ใน TRAN_ORDER_LIST
             }
-            clear_table((DefaultTableModel)order_table.getModel());
+            clear_table((DefaultTableModel)order_table.getModel()); //ลบข้อมูลในตารางการออเดอร์
         }
 //---------------------------Put Product Data into ModelTable--------------------------------------------
-    public void get_menu(DefaultTableModel table){
-        DefaultTableModel model = table;
-        Object[] row = new Object[3];
-        DBCollection product_collection  = db.getCollection("MS_MENU");
-        DBCursor product_finding = product_collection.find().sort(new BasicDBObject("MS_MENU_ID", 1));;
-        while(product_finding.hasNext()){
-            DBObject product_json = product_finding.next();
-            row[0] = (int)product_json.get("MS_MENU_ID");
-            row[1] = product_json.get("MS_MENU_NAME");
-            row[2] = product_json.get("MS_MENU_PRICE");
-            model.addRow(row);
+    public void get_menu(DefaultTableModel table){ //ฟังก์ชั่นการเพิ่มข้อมูลเมนูลงตาราง
+        DefaultTableModel model = table;//ดึงข้อมูลตารางของ parameter มาเก็บไว้ในตัวแปร
+        Object[] row = new Object[3];// สร้างอาเรย์ Object ชื่อว่า row ขนาด 3 ช่อง
+        DBCollection menu_collection  = db.getCollection("MS_MENU");// ดึงข้อมูลของเมนูจาก collection ที่ชื่อ MS_MENU
+        DBCursor menu_finding = menu_collection.find().sort(new BasicDBObject("MS_MENU_ID", 1));; // ค้นหาข้อมูลของคู่ค้าในcollection(MS_MENU)ทั้งหมดโดยเรียงตามรหัสของเมนู
+        while(menu_finding.hasNext()){//สร้างลูป while โดยมีเงื่อนไขคือจะต้องไม่มีข้อมูลตัวถัดไปในMS_MENU
+            DBObject menu_json = menu_finding.next();///ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ product
+            row[0] = (int)menu_json.get("MS_MENU_ID");//Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสของเมนู
+            row[1] = menu_json.get("MS_MENU_NAME");//Object อาเรย์ ช่องที่ 2 เก็บข้อมูลของชื่อของเมนู
+            row[2] = menu_json.get("MS_MENU_PRICE");//Object อาเรย์ ช่องที่ 3 เก็บข้อมูลของราคาของเมนู
+            model.addRow(row);//เพิ่มแถวข้อมูลของตาราง table โดยนำข้อมูลมาจาก อาเรย์ของObject ที่ชื่อว่า row
         }
     }
 //----------------------------History---------------------------------------------
-        public double get_history(String month){
-        double total_price = 0;
-        DefaultTableModel model = (DefaultTableModel)history_table.getModel();
-        Object[] row = new Object[4];
-        DBCollection get_history  = db.getCollection("TRAN_ORDER");
-        DBCursor order_finding = get_history.find();
-        while(order_finding.hasNext()){
-           DBObject order_json = order_finding.next();
+        public double get_history(String month){ //ฟังก์ชั่นการเพิ่มข้อมูลในตารางประวัติออเดอร์
+        double total_price = 0; //ตัวแปรเก็บราคารวม
+        DefaultTableModel model = (DefaultTableModel)history_table.getModel(); //ดึงข้อมูลของตารางประวัติออเดอร์มาใส่ไว้ในตัวแปร
+        Object[] row = new Object[4];// สร้างอาเรย์ Object ชื่อว่า row ขนาด 4 ช่อง
+        DBCollection get_history  = db.getCollection("TRAN_ORDER");// ดึงข้อมูลของออเดอร์จาก collection ที่ชื่อ TRAN_ORDER
+        DBCursor order_finding = get_history.find();// ค้นหาข้อมูลของออเดอร์ในcollection(TRAN_ORDER)ทั้งหมด
+        while(order_finding.hasNext()){//สร้างลูป while โดยมีเงื่อนไขคือจะต้องไม่มีข้อมูลตัวถัดไปในTRAN_ORDER
+           DBObject order_json = order_finding.next();///ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ order_json
            if((order_json.get("TRAN_ORDER_DATE").toString().contains(month)&&order_json.get("TRAN_ORDER_DATE").toString()
                                                            .contains(LocalDate.now().toString().subSequence(0,4)))){
-               total_price += Double.parseDouble(order_json.get("TRAN_ORDER_TOTAL_PRICE").toString());
+               /*
+               ค้นหาประวัติออเดอร์โดยแยกประเภทตามเดือน โดยใช้การค้นหาจากวันที่ของออเดอร์นั้นๆ และมาเทียบกับเดือนโดยใช้ฟังก์ชั่นเปลี่ยนลำดับเดือนให้เป็นชื่อเดือนเต็ม
+               */
+               total_price += Double.parseDouble(order_json.get("TRAN_ORDER_TOTAL_PRICE").toString());//เพิ่มราคาของออเดอร์ไปในราคารวม
              //System.out.println(order_json.get("TRAN_ORDER_DATE").toString());
-            row[0] = order_json.get("TRAN_ORDER_ID");
-            row[1] = order_json.get("TRAN_ORDER_TOTAL_PRICE");
-            row[2] = order_json.get("TRAN_ORDER_DATE");
-            row[3] = order_json.get("TRAN_ORDER_TIME");
-            model.addRow(row);
+            row[0] = order_json.get("TRAN_ORDER_ID");//Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสของออเดอร์
+            row[1] = order_json.get("TRAN_ORDER_TOTAL_PRICE");//Object อาเรย์ ช่องที่ 2 เก็บข้อมูลของราคารวมของออเดอร์
+            row[2] = order_json.get("TRAN_ORDER_DATE");//Object อาเรย์ ช่องที่ 3 เก็บข้อมูลของวันที่ของออเดอร์
+            row[3] = order_json.get("TRAN_ORDER_TIME");//Object อาเรย์ ช่องที่ 4 เก็บข้อมูลของเวลาของออเดอร์
+            model.addRow(row);//เพิ่มแถวข้อมูลของตาราง history_table โดยนำข้อมูลมาจาก อาเรย์ของObject ที่ชื่อว่า row
            }
         }
-        return total_price;
+        return total_price; //คืนค่าราคารวมทั้งหมดของการขายเดือนนั้นๆ
     }
-//---------------------------Put Menu Data into --------------------------------------------
-    public void get_product(DefaultTableModel table){
-        DefaultTableModel model = table;
-        Object[] row = new Object[4];
-        DBCollection product_collection  = db.getCollection("MS_PRODUCT");
-        DBCursor product_finding = product_collection.find();
-        while(product_finding.hasNext()){
-            DBObject product_json = product_finding.next();
-            row[0] = (int)product_json.get("MS_PRODUCT_ID");
-            row[1] = product_json.get("MS_PRODUCT_NAME");
-            row[2] = product_json.get("MS_PRODUCT_PRICE");
-            row[3] = product_json.get("MS_PRODUCT_AMOUNT");
-            model.addRow(row);
+//---------------------------Put Product Data into --------------------------------------------
+    public void get_product(DefaultTableModel table){ //ฟังก์ชั่นการเพิ่มข้อมูลสินค้าลงในตาราง
+        DefaultTableModel model = table;//ดึงข้อมูลตารางของ parameter มาเก็บไว้ในตัวแปร
+        Object[] row = new Object[4];// สร้างอาเรย์ Object ชื่อว่า row ขนาด 4 ช่อง
+        DBCollection product_collection  = db.getCollection("MS_PRODUCT");// ดึงข้อมูลของสินค้าจาก collection ที่ชื่อ MS_PRODUCT
+        DBCursor product_finding = product_collection.find();// ค้นหาข้อมูลของสินค้าในcollection(MS_PRODUCT)ทั้งหมด
+        while(product_finding.hasNext()){//สร้างลูป while โดยมีเงื่อนไขคือจะต้องไม่มีข้อมูลตัวถัดไปในMS_PRODUCT
+            DBObject product_json = product_finding.next();///ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ product_json
+            row[0] = (int)product_json.get("MS_PRODUCT_ID");//Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสของสินค้า
+            row[1] = product_json.get("MS_PRODUCT_NAME");//Object อาเรย์ ช่องที่ 2 เก็บข้อมูลของชื่อของสินค้า
+            row[2] = product_json.get("MS_PRODUCT_PRICE");//Object อาเรย์ ช่องที่ 3 เก็บข้อมูลของราคาของสินค้า
+            row[3] = product_json.get("MS_PRODUCT_AMOUNT");//Object อาเรย์ ช่องที่ 4 เก็บข้อมูลของจำนวนของสินค้า
+            model.addRow(row);//เพิ่มแถวข้อมูลของตาราง product_table โดยนำข้อมูลมาจาก อาเรย์ของObject ที่ชื่อว่า row
         }
     }
 //---------------------------Put Menu Data into --------------------------------------------
-    public void get_order_list(DefaultTableModel table){
-        int total_price = 0;
-        DefaultTableModel model = table;
-        Object[] row = new Object[4];
-        DBCollection product_collection  = db.getCollection("TRAN_ORDER_LIST");
-        DBCursor product_finding = product_collection.find();
-        if(product_finding.hasNext()==true){
-        while(product_finding.hasNext()){
-            check_order_list = true;
-            DBObject menu_json = product_finding.next();
-            int menu_id = (int)menu_json.get("MS_MENU_ID");
-            row[0] = (int)menu_json.get("TRAN_ORDER_LIST_ID");
-            row[1] = find_product_name(menu_id).get("MS_MENU_NAME");
+    public void get_order_list(DefaultTableModel table){ //ฟังก์ชั่นการเพิ่มข้อมูลออเดอร์ลงในตาราง
+        int total_price = 0; //ตัวแปรเก็บราคารวม
+        DefaultTableModel model = table;//ดึงข้อมูลตารางของ parameter มาเก็บไว้ในตัวแปร
+        Object[] row = new Object[4];// สร้างอาเรย์ Object ชื่อว่า row ขนาด 4 ช่อง
+        DBCollection product_collection  = db.getCollection("TRAN_ORDER_LIST");// ดึงข้อมูลของรายการออเดอร์จาก collection ที่ชื่อ TRAN_ORDER_LIST
+        DBCursor product_finding = product_collection.find();// ค้นหาข้อมูลรายการออเดอร์ในcollection(TRAN_ORDER_LIST)ทั้งหมด
+        if(product_finding.hasNext()==true){ //ถ้าหากว่ามีข้อมูลของรายการออเดอร์
+        while(product_finding.hasNext()){//สร้างลูป while โดยมีเงื่อนไขคือจะต้องไม่มีข้อมูลตัวถัดไปในTRAN_ORDER_LIST
+            check_order_list = true; //มีข้อมูลการสั่ง
+            DBObject menu_json = product_finding.next();///ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ menu_json
+            int menu_id = (int)menu_json.get("MS_MENU_ID"); //เก็บข้อมูลรหัสเมนูในตัวแปร
+            row[0] = (int)menu_json.get("TRAN_ORDER_LIST_ID");//Object อาเรย์ ช่องที่ 1 เก็บข้อมูลของรหัสของรายการออเดอร์
+            row[1] = find_menu_name(menu_id).get("MS_MENU_NAME");//Object อาเรย์ ช่องที่ 2 เก็บข้อมูลของชื่อเมนู
             //System.out.println(">>>>"+menu_json.get("TRAN_ORDER_LIST_PRICE"));
-            row[2] = menu_json.get("TRAN_ORDER_LIST_AMOUNT");
-            row[3] = menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");
-            total_price += (int)menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");
-            model.addRow(row);
+            row[2] = menu_json.get("TRAN_ORDER_LIST_AMOUNT");//Object อาเรย์ ช่องที่ 3 เก็บข้อมูลของราคาของรายการออเดอร์
+            row[3] = menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");//Object อาเรย์ ช่องที่ 4 เก็บข้อมูลของราคารวมของรายการออเดอร์
+            total_price += (int)menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE"); //เพิ่มค่าของราคารวมทั้งหมด
+            model.addRow(row);//เพิ่มแถวข้อมูลของตาราง product_table โดยนำข้อมูลมาจาก อาเรย์ของObject ที่ชื่อว่า row
         }
-        }else{
-            check_order_list = false;
+        }else{//ถ้าหากว่าไม่มีข้อมูลของรายการออเดอร์
+            check_order_list = false; //ไม่มีข้อมูลการสั่ง
         }
-        order_total_txt.setText(""+total_price);
+        order_total_txt.setText(""+total_price); //แสดงราคารวมทางหน้าจอ
     }    
         
 //---------------------------Find & Check-------------------------------
-    public int find_partner(String name){
-        int id = 0;
-        try{
-        DBCollection table = db.getCollection("MS_PARTNER");
-        BasicDBObject partner = new BasicDBObject("MS_PARTNER_NAME",name);
-        DBCursor cur = table.find(partner);
-        while(cur.hasNext()){
-            DBObject kk = cur.next();
-            id = (int)kk.get("MS_PARTNER_ID");
+    public int find_partner(String name){ //ฟังก์ชั่นค้นหารหัสบริษัทคู่ค้าจากชื่อ
+        int id = 0; //ตัวแปรเก็บรหัสคู่ค้า
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        DBCollection table = db.getCollection("MS_PARTNER");//ดึงข้อมูลจากCollectionของบริษัทคู่ค้ามาใส่ในตัวแปร
+        BasicDBObject partner = new BasicDBObject("MS_PARTNER_NAME",name); //สร้างObjectชื่อ partner เพื่อเก็บข้อมูลที่จะนำไปค้นหา
+        DBCursor cur = table.find(partner); // ค้นหาข้อมูลในcollection(MS_PARTNER)จากชื่อของบริษัท
+        while(cur.hasNext()){ //สร้างลูป while โดยมีเงื่อนไขคือจะต้องไม่มีข้อมูลตัวถัดไปในMS_PARTNER
+            DBObject kk = cur.next();//ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ kk
+            id = (int)kk.get("MS_PARTNER_ID"); //เก็บรหัสของบริษัทคู่ค้าใส่ในตัวแปร
         }
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+               e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
-        return id;
-        //partner_combo
+        return id; //คืนค่ารหัสบริษัทคู่ค้า
     }
     
-    public boolean checkpartnerid(int id){
-        DBCollection partnerdata = db.getCollection("MS_PARNTER");
-        BasicDBObject data = new BasicDBObject("MS_PARTNER_ID",id);
-        DBCursor find = partnerdata.find(data);
-        if(find.hasNext()){
-            return true;
-        }else{
-            return false;
+    public boolean checkpartnerid(int id){//ฟังก์ชั่นหาชื่อของบริษัทคู่ค้าจากรหัส
+        DBCollection partnerdata = db.getCollection("MS_PARNTER");//ดึงข้อมูลจากCollectionของบริษัทคู่ค้ามาใส่ในตัวแปร
+        BasicDBObject data = new BasicDBObject("MS_PARTNER_ID",id);//สร้างObjectชื่อ data เพื่อเก็บข้อมูลที่จะนำไปค้นหา
+        DBCursor find = partnerdata.find(data);// ค้นหาข้อมูลในcollection(MS_PARTNER)จากชื่อของบริษัท
+        if(find.hasNext()){ //ถ้าหากว่ามีข้อมูล
+            return true; //คืนค่าจริง
+        }else{//ถ้าหากว่าไม่มีข้อมูล
+            return false; //ค่าค่าเทจ
         }
     }
     
         public DBObject find_product_id(String name){ //ค้นหารหัสของสินค้าจากชื่อ
-            DBCollection product = db.getCollection("MS_PRODUCT");
-            BasicDBObject data = new BasicDBObject("MS_PRODUCT_NAME",name);
-            DBCursor find = product.find(data);
-            DBObject product_json = null;
-            //int productid = -1; //-1 = null
-            try{
-                product_json = find.next();
-                //System.out.println(product_json);
-                //productid = (int)product_json.get("MS_PRODUCT_ID");
-                //System.out.println(productid);
-            }catch(Exception e){
-                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");
+            DBCollection product = db.getCollection("MS_PRODUCT");//ดึงข้อมูลจากCollectionของสินค้ามาใส่ในตัวแปร
+            BasicDBObject data = new BasicDBObject("MS_PRODUCT_NAME",name);//สร้างObjectชื่อ data เพื่อเก็บข้อมูลที่จะนำไปค้นหา
+            DBCursor find = product.find(data);// ค้นหาข้อมูลในcollection(MS_MENU)จากชื่อของเมนู
+            DBObject product_json = null; //สร้างตัวแปรเปล่าเพื่อใช้ในการเตรียมเก็บข้อมูลของสินค้า
+            try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                product_json = find.next(); //ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ product_json
+            }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
             }
-        return product_json;
+        return product_json; //คืนค่าข้อมูลของสินค้า
     }
-        public DBObject find_product_name(int id){ //ค้นหารหัสของสินค้าจากชื่อ
-            DBCollection product = db.getCollection("MS_MENU");
-            BasicDBObject data = new BasicDBObject("MS_MENU_ID",id);
-            DBCursor find = product.find(data);
-            DBObject product_json = null;
-            //int productid = -1; //-1 = null
-            try{
-                product_json = find.next();
-                //System.out.println(product_json);
-                //productid = (int)product_json.get("MS_PRODUCT_ID");
-                //System.out.println(productid);
-            }catch(Exception e){
-                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");
+        public DBObject find_menu_name(int id){ //ค้นหาชื่อของเมนูจากรหัสเมนู
+            DBCollection get_menu = db.getCollection("MS_MENU");//ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
+            BasicDBObject data = new BasicDBObject("MS_MENU_ID",id);//สร้างObjectชื่อ data เพื่อเก็บข้อมูลที่จะนำไปค้นหา
+            DBCursor find = get_menu.find(data);// ค้นหาข้อมูลในcollection(MS_MENU)จากชื่อของเมนู
+            DBObject menu_json = null;//สร้างตัวแปรเปล่าเพื่อใช้ในการเตรียมเก็บข้อมูลของเมนู
+            try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                menu_json = find.next();//ดึงข้อมูลObjectจากการค้นหามาใส่ตัวแปร DBObject ชื่อ menu_json
+            }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
             }
-        return product_json;
+        return menu_json; //คืนค่าข้อมูลของเมนู
     }
         
-        public int get_order_list_id(int menu_id){
-            DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");
-            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-            DBCursor finding_order_list_id = get_order_list.find().sort(sortObject);
-              int order_list_id = -1;
+        public int get_order_list_id(int menu_id){ //ฟังก์ชั่นการค้นหารหัสรายการออเดอร์
+            DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");//ดึงข้อมูลจากCollectionของรายการออเดอร์มาใส่ในตัวแปร
+            BasicDBObject sortObject = new BasicDBObject().append("_id", -1); //สร้างObjectชื่อ data เพื่อเก็บข้อมูลที่จะนำไปค้นหาข้อมูลตัวสุดท้าย
+            DBCursor finding_order_list_id = get_order_list.find().sort(sortObject); // ค้นหาข้อมูลในcollection(MS_MENU)ตัวสุดท้าย
+              int order_list_id = -1; //ตัวแปรเก็บรหัสรายการออเดอร์
                 if(finding_order_list_id.hasNext()==true){ //ถ้าหากว่ามีข้อมูลอยู่แล้ว
-                    DBObject data = finding_order_list_id.next();
-                    try{//ดักจับข้อผิดพลาดของตัวเลขโดยใช้ try-catch
+                    DBObject data = finding_order_list_id.next();//สร้างตัวแปรเปล่าเพื่อใช้ในการเตรียมเก็บข้อมูลของรายการออเดอร์
                     order_list_id = 1+(int)data.get("TRAN_ORDER_LIST_ID"); //นำค่าของPKมาบวกด้วย 1
-                    }catch(Exception e){
-                    double k = 1+(double)data.get("TRAN_ORDER_LIST_ID"); //นำค่าของPKมาบวกด้วย 1
-                    order_list_id = (int)k ;
-                    }
-                }else{
-                    order_list_id = 1;//สร้างPKของ MS_PRODUCT
+                }else{ 
+                    order_list_id = 1;//สร้างPKของ MS_PRODUCT (ตัวแรก)
                 }
-                return order_list_id;
+                return order_list_id; //คืนค่าข้อมูลรหัสรายการออเดอร์
         }
 //------------------------logout-----------------------------------
-    public void logout(){
-            System.out.println("-----------logout----------------");
-            DBCollection table = db.getCollection("TRAN_LOG");
-            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-            DBCursor cur = table.find().sort(sortObject);
-            int id = 0;
-            DBCursor find = table.find();
-            System.out.println(find.hasNext());
-            if(find.hasNext()==true){
-            System.out.println("eiei");
-            int n = (int)cur.one().get("TRAN_LOG_ID");
-            id = n+1;
+    public void logout(){//ฟังก์ชั่นออกจากระบบ
+            //System.out.println("-----------logout----------------");
+            DBCollection table = db.getCollection("TRAN_LOG");//ดึงข้อมูลจากCollectionของประวัติการใช้งานมาใส่ในตัวแปร
+            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);//สร้างObjectชื่อ data เพื่อเก็บข้อมูลที่จะนำไปค้นหาข้อมูลตัวสุดท้าย
+            DBCursor cur = table.find().sort(sortObject);// ค้นหาข้อมูลในcollection(TRAN_LOG)ตัวสุดท้าย
+            int id = 0; //สร้างตัวแปรเพื่อใช้เก็บรหัสของประวัติการใช้
+            DBCursor find = table.find();// ค้นหาข้อมูลของประวัติการใช้ในcollection(TRAN_LOG)ตัวสุดท้าย
+            //System.out.println(find.hasNext());
+            if(find.hasNext()==true){ //ถ้าหากว่ามีข้อมูลอยู่แล้ว
+            //System.out.println("eiei");
+            int n = (int)cur.one().get("TRAN_LOG_ID");//นำข้อมูลของรหัสประวัติการใช้มาใส่ในตัวแปร
+            id = n+1;//นำค่าของPKมาบวกด้วย 1
             }else{
-            id = 1;
+            id = 1;//ให้รหัสประวัติการใช้มีค่าเป็น 1
             }
-            DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
-            String formattedDate = formatter.format(LocalDate.now());
-            String month = v.month(Integer.parseInt(formattedDate.substring(4,6)));
-            String year = formattedDate.substring(0,4);
-            String date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());
-            BasicDBObject document = new BasicDBObject();
+            DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE; //สร้างตัวแปรในการกำหนดฟอร์แมทของวันที่
+            String formattedDate = formatter.format(LocalDate.now()); //สร้างตัวแปรในการเก็บวันที่ปัจจุบันตามฟอร์แมทของ formatter
+            String month = v.month(Integer.parseInt(formattedDate.substring(4,6))); //ใช้งานฟังก์ชั่นแปลงลำดับของเดือนเป็นชื่อเดือน
+            String year = formattedDate.substring(0,4); //ปีปัจจุบัน
+            String date = formattedDate.substring(formattedDate.length()-2,formattedDate.length()); //วันที่ปัจจุบัน
+            BasicDBObject document = new BasicDBObject(); //สร้าง Object เพื่อใช้เก็บข้อมูลที่จะเพิ่มเข้าไปใน collection
             //-----------------------------------------------
-            document.put("TRAN_LOG_ID",id);
-            document.put("TRAN_LOG_DATE",month+" "+date+", "+year);
-            document.put("TRAN_LOG_TIME",LocalTime.now().toString().substring(0,8));
-            document.put("TRAN_LOG_TYPE","Logout");
-            document.put("MS_EMPLOYEE_ID",v.getid());
-            //-----------------------------------------------
-            table.insert(document);
-            System.out.println("เพิ่มประวัติการเข้าใช้เรียบร้อยแล้ว");
+            document.put("TRAN_LOG_ID",id); //รหัสของประวัติการใช้งาน
+            document.put("TRAN_LOG_DATE",month+" "+date+", "+year);//วันที่ที่ใช้งาน
+            document.put("TRAN_LOG_TIME",LocalTime.now().toString().substring(0,8)); //เวลที่ใช้งาน
+            document.put("TRAN_LOG_TYPE","Logout"); //สถานะการใช้งาน
+            document.put("MS_EMPLOYEE_ID",v.getid()); //รหัสของพนักงาน
+            //----------------------------------------------- 
+            table.insert(document); //เพิ่มข้อมูลเข้าไปใน collection
+            System.out.println("เพิ่มประวัติการเข้าใช้เรียบร้อยแล้ว"); //แสดงข้อความ
     }
     
 //-----------------------------Check last session in system-----------------------------------------
-    public void sessionnow(){
-            db = v.getConnect();
-            DBCollection log = db.getCollection("TRAN_LOG");
-            DBCollection employee = db.getCollection("MS_EMPLOYEE");
-            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-            DBCursor cur = log.find().sort(sortObject);
-            int emp_id = (int)cur.one().get("MS_EMPLOYEE_ID");
-            BasicDBObject search = new BasicDBObject();
+    public void sessionnow(){ //ฟังก์ชั่นการใช้งานปัจจุบัน
+            db = v.getConnect(); //ใช้งาน Method การเชื่อมต่อ
+            DBCollection log = db.getCollection("TRAN_LOG"); //ดึงข้อมูลจาก Collection ของประวัติการใช้งานมาใส่ในตัวแปร
+            DBCollection employee = db.getCollection("MS_EMPLOYEE"); //ดึงข้อมูลจาก Collection ของพนักงานมาใส่ในตัวแปร
+            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);//สร้างObjectชื่อ search เพื่อใช้เก็บข้อมูลที่ใช้ค้นหาตัวสุดท้าย
+            DBCursor cur = log.find().sort(sortObject);//ค้นหาข้อมูลทั้งหมดของประวัติการใช้งาน (TRAN_LOG)ตัวสุดท้าย
+            int emp_id = (int)cur.one().get("MS_EMPLOYEE_ID"); //กำหนดตัวแปรเพื่อเก็บข้อมูลรหัสของพนักงาน
+            BasicDBObject search = new BasicDBObject(); ////สร้างObjectชื่อ search เพื่อใช้เก็บข้อมูลที่ใช้ค้นหาจากรหัสพนักงาน
             search.put("MS_EMPLOYEE_ID",emp_id);
-            DBObject findemp = employee.findOne(search);
-            title_name_txt.setText(" "+findemp.get("MS_EMPLOYEE_NAME").toString());
-            if(findemp.get("MS_EMPLOYEE_TYPE").toString().equals("Owner")){
+            DBObject findemp = employee.findOne(search); //สร้างตัวแปรเพื่อเก็บการค้นหาข้อมูลพนักงาน
+            title_name_txt.setText(" "+findemp.get("MS_EMPLOYEE_NAME").toString()); //แสดงชื่อของพนักงานที่ใช้งานอยู่ขณะนี้
+            if(findemp.get("MS_EMPLOYEE_TYPE").toString().equals("Owner")){//ถ้าหากว่าเป็นเจ้าของร้าน
+                //แสดงสถานะเจ้าของร้าน
                 title_position_txt.setText(" เจ้าของร้าน");
-            }else{
+            }else{//ถ้าหากไม่ใช่
+                //แสดงสถานะพนักงานและซ่อนฟังก์ชั่นที่ไม่เกี่ยวข้อง
                 title_position_txt.setText(" พนักงาน");
-                product_btn.setVisible(false);
-                stock_btn.setVisible(false);
-                menu_btn.setVisible(false);
-                partner_btn.setVisible(false);
-                employee_btn.setVisible(false);
-                history_btn.setVisible(false);
+                product_btn.setVisible(false);//ซ่อนฟังก์ชั่นสินค้า
+                stock_btn.setVisible(false);//ซ่อนฟังก์ชั่นการเพิ่มจำนวนสินค้า
+                menu_btn.setVisible(false);//ซ่อนฟังก์ชั่นเมนู
+                partner_btn.setVisible(false);//ซ่อนฟังก์ชั่นบริษัทคู่ค้า
+                employee_btn.setVisible(false);//ซ่อนฟังก์ชั่นพนักงาน
+                history_btn.setVisible(false);//ซ่อนฟังก์ชั่นประวัติการขาย
             }
     }
     /**
@@ -520,31 +510,31 @@ int order_list_price = -1;
         jLabel31 = new javax.swing.JLabel();
         jLabel32 = new javax.swing.JLabel();
         customer_province_txt = new javax.swing.JTextField();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        customer_clear_btn = new javax.swing.JButton();
+        customer_commit_btn = new javax.swing.JButton();
         jLabel33 = new javax.swing.JLabel();
         customer_birthdate_txt = new datechooser.beans.DateChooserCombo();
         jLabel22 = new javax.swing.JLabel();
-        jButton17 = new javax.swing.JButton();
+        edit_customer_btn = new javax.swing.JButton();
         product_panel = new javax.swing.JPanel();
         pro_name_txt = new javax.swing.JTextField();
         jLabel46 = new javax.swing.JLabel();
         jLabel53 = new javax.swing.JLabel();
         pro_price_txt = new javax.swing.JTextField();
-        jButton9 = new javax.swing.JButton();
-        jButton10 = new javax.swing.JButton();
+        product_clear_btn = new javax.swing.JButton();
+        product_commit_btn = new javax.swing.JButton();
         jLabel60 = new javax.swing.JLabel();
         jLabel42 = new javax.swing.JLabel();
         pro_type_combo = new javax.swing.JComboBox<>();
         partner_combo = new javax.swing.JComboBox<>();
         jLabel63 = new javax.swing.JLabel();
-        jButton19 = new javax.swing.JButton();
+        edit_product_btn = new javax.swing.JButton();
         stock_panel = new javax.swing.JPanel();
         jLabel54 = new javax.swing.JLabel();
         jLabel55 = new javax.swing.JLabel();
         stock_amount = new javax.swing.JTextField();
-        jButton11 = new javax.swing.JButton();
-        jButton12 = new javax.swing.JButton();
+        stock_clear_btn = new javax.swing.JButton();
+        stock_commit_btn = new javax.swing.JButton();
         jLabel61 = new javax.swing.JLabel();
         stock_combo = new javax.swing.JComboBox<>();
         menu_panel = new javax.swing.JPanel();
@@ -557,9 +547,9 @@ int order_list_price = -1;
         jLabel62 = new javax.swing.JLabel();
         menu_price_txt = new javax.swing.JTextField();
         menu_name_txt = new javax.swing.JTextField();
-        jButton13 = new javax.swing.JButton();
-        jButton14 = new javax.swing.JButton();
-        jButton15 = new javax.swing.JButton();
+        menu_clear_btn = new javax.swing.JButton();
+        menu_commit_btn = new javax.swing.JButton();
+        edit_menu_btn = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
         menu_product_table = new javax.swing.JTable();
         partner_panel = new javax.swing.JPanel();
@@ -578,17 +568,17 @@ int order_list_price = -1;
         jLabel49 = new javax.swing.JLabel();
         jLabel50 = new javax.swing.JLabel();
         partner_province_txt = new javax.swing.JTextField();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
+        partner_clear_btn = new javax.swing.JButton();
+        partner_commit_btn = new javax.swing.JButton();
         jLabel51 = new javax.swing.JLabel();
         jLabel52 = new javax.swing.JLabel();
         jLabel39 = new javax.swing.JLabel();
         partner_type_combo = new javax.swing.JComboBox<>();
-        jButton18 = new javax.swing.JButton();
+        edit_partner_btn = new javax.swing.JButton();
         order_panel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         order_table = new javax.swing.JTable();
-        jButton2 = new javax.swing.JButton();
+        order_clear_btn = new javax.swing.JButton();
         ordering_btn = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         menu_order_table = new javax.swing.JTable();
@@ -598,14 +588,13 @@ int order_list_price = -1;
         jLabel38 = new javax.swing.JLabel();
         order_total_txt = new javax.swing.JTextField();
         jLabel34 = new javax.swing.JLabel();
-        jButton16 = new javax.swing.JButton();
+        adding_order_btn = new javax.swing.JButton();
         employee_panel = new javax.swing.JPanel();
         confirm = new javax.swing.JCheckBox();
-        clear_btn = new javax.swing.JButton();
-        confirm_btn = new javax.swing.JButton();
+        employee_clear_btn = new javax.swing.JButton();
+        employee_commit_btn = new javax.swing.JButton();
         showpwd_check = new javax.swing.JCheckBox();
         employee_district_txt = new javax.swing.JTextField();
-        employee_id_txt = new javax.swing.JTextField();
         employee_age_combo = new javax.swing.JComboBox<>();
         man_radio = new javax.swing.JRadioButton();
         woman_radio = new javax.swing.JRadioButton();
@@ -614,7 +603,6 @@ int order_list_price = -1;
         employee_birthdate_txt = new datechooser.beans.DateChooserCombo();
         jLabel7 = new javax.swing.JLabel();
         employee_prefix = new javax.swing.JComboBox<>();
-        jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         employee_name_txt = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
@@ -637,7 +625,7 @@ int order_list_price = -1;
         jLabel20 = new javax.swing.JLabel();
         employee_pwd_txt = new javax.swing.JPasswordField();
         jLabel4 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
+        edit_employee_btn = new javax.swing.JButton();
         history_panel = new javax.swing.JPanel();
         history_combo = new javax.swing.JComboBox<>();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -785,19 +773,7 @@ int order_list_price = -1;
 
         jLabel28.setText("วันเกิด:");
         customer_panel.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 190, -1, -1));
-
-        customer_home_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customer_home_txtActionPerformed(evt);
-            }
-        });
         customer_panel.add(customer_home_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 230, 50, 20));
-
-        customer_locality_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customer_locality_txtActionPerformed(evt);
-            }
-        });
         customer_panel.add(customer_locality_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 230, 50, 20));
 
         jLabel29.setText("ตำบล:");
@@ -805,19 +781,7 @@ int order_list_price = -1;
 
         jLabel30.setText("อำเภอ:");
         customer_panel.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 230, -1, -1));
-
-        customer_district_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customer_district_txtActionPerformed(evt);
-            }
-        });
         customer_panel.add(customer_district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 230, 50, 20));
-
-        customer_post_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customer_post_txtActionPerformed(evt);
-            }
-        });
         customer_panel.add(customer_post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 270, 50, 20));
 
         jLabel31.setText("รหัสไปรษณีย์:");
@@ -825,29 +789,23 @@ int order_list_price = -1;
 
         jLabel32.setText("จังหวัด:");
         customer_panel.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 270, -1, -1));
-
-        customer_province_txt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customer_province_txtActionPerformed(evt);
-            }
-        });
         customer_panel.add(customer_province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 270, 140, 20));
 
-        jButton4.setText("ล้างข้อมูล");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        customer_clear_btn.setText("ล้างข้อมูล");
+        customer_clear_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                customer_clear_btnActionPerformed(evt);
             }
         });
-        customer_panel.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 320, 110, 50));
+        customer_panel.add(customer_clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 320, 110, 50));
 
-        jButton5.setText("บันทึก");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        customer_commit_btn.setText("บันทึก");
+        customer_commit_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                customer_commit_btnActionPerformed(evt);
             }
         });
-        customer_panel.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 320, 110, 50));
+        customer_panel.add(customer_commit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 320, 110, 50));
 
         jLabel33.setText("บ้านเลขที่:");
         customer_panel.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 230, -1, -1));
@@ -859,13 +817,13 @@ int order_list_price = -1;
         jLabel22.setText("เพิ่มข้อมูลลูกค้า");
         customer_panel.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 30, -1, -1));
 
-        jButton17.setText("แก้ไขข้อมูลลูกค้า");
-        jButton17.addActionListener(new java.awt.event.ActionListener() {
+        edit_customer_btn.setText("แก้ไขข้อมูลลูกค้า");
+        edit_customer_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton17ActionPerformed(evt);
+                edit_customer_btnActionPerformed(evt);
             }
         });
-        customer_panel.add(jButton17, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, -1, -1));
+        customer_panel.add(edit_customer_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, -1, -1));
 
         main_panel.add(customer_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
@@ -879,21 +837,21 @@ int order_list_price = -1;
         product_panel.add(jLabel53, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 160, -1, -1));
         product_panel.add(pro_price_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 160, 70, -1));
 
-        jButton9.setText("ล้างข้อมูล");
-        jButton9.addActionListener(new java.awt.event.ActionListener() {
+        product_clear_btn.setText("ล้างข้อมูล");
+        product_clear_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton9ActionPerformed(evt);
+                product_clear_btnActionPerformed(evt);
             }
         });
-        product_panel.add(jButton9, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 320, 110, 50));
+        product_panel.add(product_clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 320, 110, 50));
 
-        jButton10.setText("บันทึก");
-        jButton10.addActionListener(new java.awt.event.ActionListener() {
+        product_commit_btn.setText("บันทึก");
+        product_commit_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton10ActionPerformed(evt);
+                product_commit_btnActionPerformed(evt);
             }
         });
-        product_panel.add(jButton10, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 320, 110, 50));
+        product_panel.add(product_commit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 320, 110, 50));
 
         jLabel60.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel60.setText("เพิ่มข้อมูลสินค้า");
@@ -916,13 +874,13 @@ int order_list_price = -1;
         jLabel63.setText("บริษัทคู่ค้า:");
         product_panel.add(jLabel63, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 260, -1, -1));
 
-        jButton19.setText("แก้ไขข้อมูลสินค้า");
-        jButton19.addActionListener(new java.awt.event.ActionListener() {
+        edit_product_btn.setText("แก้ไขข้อมูลสินค้า");
+        edit_product_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton19ActionPerformed(evt);
+                edit_product_btnActionPerformed(evt);
             }
         });
-        product_panel.add(jButton19, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 10, -1, -1));
+        product_panel.add(edit_product_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 10, -1, -1));
 
         main_panel.add(product_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
@@ -935,21 +893,21 @@ int order_list_price = -1;
         stock_panel.add(jLabel55, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 190, -1, 20));
         stock_panel.add(stock_amount, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 190, 70, -1));
 
-        jButton11.setText("ล้างข้อมูล");
-        jButton11.addActionListener(new java.awt.event.ActionListener() {
+        stock_clear_btn.setText("ล้างข้อมูล");
+        stock_clear_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton11ActionPerformed(evt);
+                stock_clear_btnActionPerformed(evt);
             }
         });
-        stock_panel.add(jButton11, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 240, 110, 50));
+        stock_panel.add(stock_clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 240, 110, 50));
 
-        jButton12.setText("บันทึก");
-        jButton12.addActionListener(new java.awt.event.ActionListener() {
+        stock_commit_btn.setText("บันทึก");
+        stock_commit_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton12ActionPerformed(evt);
+                stock_commit_btnActionPerformed(evt);
             }
         });
-        stock_panel.add(jButton12, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 240, 110, 50));
+        stock_panel.add(stock_commit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 240, 110, 50));
 
         jLabel61.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel61.setText("เพิ่มข้อมูลสินค้าในสต๊อก");
@@ -1002,29 +960,29 @@ int order_list_price = -1;
         menu_panel.add(menu_price_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 130, 60, -1));
         menu_panel.add(menu_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 80, 90, -1));
 
-        jButton13.setText("ล้างข้อมูล");
-        jButton13.addActionListener(new java.awt.event.ActionListener() {
+        menu_clear_btn.setText("ล้างข้อมูล");
+        menu_clear_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton13ActionPerformed(evt);
+                menu_clear_btnActionPerformed(evt);
             }
         });
-        menu_panel.add(jButton13, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 410, -1, 30));
+        menu_panel.add(menu_clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 410, -1, 30));
 
-        jButton14.setText("ยืนยัน");
-        jButton14.addActionListener(new java.awt.event.ActionListener() {
+        menu_commit_btn.setText("ยืนยัน");
+        menu_commit_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton14ActionPerformed(evt);
+                menu_commit_btnActionPerformed(evt);
             }
         });
-        menu_panel.add(jButton14, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 410, 80, 30));
+        menu_panel.add(menu_commit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 410, 80, 30));
 
-        jButton15.setText("แก้ไขเมนู");
-        jButton15.addActionListener(new java.awt.event.ActionListener() {
+        edit_menu_btn.setText("แก้ไขเมนู");
+        edit_menu_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton15ActionPerformed(evt);
+                edit_menu_btnActionPerformed(evt);
             }
         });
-        menu_panel.add(jButton15, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 10, -1, 30));
+        menu_panel.add(edit_menu_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 10, -1, 30));
 
         menu_product_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1114,21 +1072,21 @@ int order_list_price = -1;
         });
         partner_panel.add(partner_province_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 230, 140, 20));
 
-        jButton7.setText("ล้างข้อมูล");
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
+        partner_clear_btn.setText("ล้างข้อมูล");
+        partner_clear_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7ActionPerformed(evt);
+                partner_clear_btnActionPerformed(evt);
             }
         });
-        partner_panel.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 320, 110, 50));
+        partner_panel.add(partner_clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 320, 110, 50));
 
-        jButton8.setText("บันทึก");
-        jButton8.addActionListener(new java.awt.event.ActionListener() {
+        partner_commit_btn.setText("บันทึก");
+        partner_commit_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton8ActionPerformed(evt);
+                partner_commit_btnActionPerformed(evt);
             }
         });
-        partner_panel.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 320, 110, 50));
+        partner_panel.add(partner_commit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 320, 110, 50));
 
         jLabel51.setText("บ้านเลขที่:");
         partner_panel.add(jLabel51, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 190, -1, -1));
@@ -1143,13 +1101,13 @@ int order_list_price = -1;
         partner_type_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "คู่ค้าส่วนประกอบเครื่องดื่ม", "คู่ค้าของหวานเบเกอรี่", "คู่ค้าส่วนประกอบของคาว" }));
         partner_panel.add(partner_type_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 260, 180, 30));
 
-        jButton18.setText("แก้ไขข้อมูลคู่ค้า");
-        jButton18.addActionListener(new java.awt.event.ActionListener() {
+        edit_partner_btn.setText("แก้ไขข้อมูลคู่ค้า");
+        edit_partner_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton18ActionPerformed(evt);
+                edit_partner_btnActionPerformed(evt);
             }
         });
-        partner_panel.add(jButton18, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, -1, -1));
+        partner_panel.add(edit_partner_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, -1, -1));
 
         main_panel.add(partner_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
@@ -1181,13 +1139,13 @@ int order_list_price = -1;
 
         order_panel.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 100, 380, 270));
 
-        jButton2.setText("เคลียร์");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        order_clear_btn.setText("เคลียร์");
+        order_clear_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                order_clear_btnActionPerformed(evt);
             }
         });
-        order_panel.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 420, 100, 30));
+        order_panel.add(order_clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 420, 100, 30));
 
         ordering_btn.setText("สั่ง");
         ordering_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -1247,13 +1205,13 @@ int order_list_price = -1;
         jLabel34.setText("ราคารวม");
         order_panel.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 380, -1, -1));
 
-        jButton16.setText(">>");
-        jButton16.addActionListener(new java.awt.event.ActionListener() {
+        adding_order_btn.setText(">>");
+        adding_order_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton16ActionPerformed(evt);
+                adding_order_btnActionPerformed(evt);
             }
         });
-        order_panel.add(jButton16, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 220, 60, -1));
+        order_panel.add(adding_order_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 220, 60, -1));
 
         main_panel.add(order_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
@@ -1267,21 +1225,21 @@ int order_list_price = -1;
         });
         employee_panel.add(confirm, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 370, -1, -1));
 
-        clear_btn.setText("ล้างข้อมูล");
-        clear_btn.addActionListener(new java.awt.event.ActionListener() {
+        employee_clear_btn.setText("ล้างข้อมูล");
+        employee_clear_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clear_btnActionPerformed(evt);
+                employee_clear_btnActionPerformed(evt);
             }
         });
-        employee_panel.add(clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 410, 110, 40));
+        employee_panel.add(employee_clear_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 410, 110, 40));
 
-        confirm_btn.setText("ยืนยัน");
-        confirm_btn.addActionListener(new java.awt.event.ActionListener() {
+        employee_commit_btn.setText("ยืนยัน");
+        employee_commit_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                confirm_btnActionPerformed(evt);
+                employee_commit_btnActionPerformed(evt);
             }
         });
-        employee_panel.add(confirm_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 410, 110, 40));
+        employee_panel.add(employee_commit_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 410, 110, 40));
 
         showpwd_check.setText("แสดงรหัสผ่าน");
         showpwd_check.addActionListener(new java.awt.event.ActionListener() {
@@ -1297,7 +1255,6 @@ int order_list_price = -1;
             }
         });
         employee_panel.add(employee_district_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 100, 50, 20));
-        employee_panel.add(employee_id_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 220, 210, 20));
 
         employee_age_combo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "เลือกอายุ" }));
         employee_panel.add(employee_age_combo, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 130, 80, 20));
@@ -1322,9 +1279,6 @@ int order_list_price = -1;
 
         employee_prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นางสาว" }));
         employee_panel.add(employee_prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, -1, -1));
-
-        jLabel8.setText("เลขบัตรประจำตัวประชาชน:");
-        employee_panel.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 220, -1, -1));
 
         jLabel9.setText("ชื่อ-สกุล:");
         employee_panel.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 90, -1, -1));
@@ -1420,13 +1374,13 @@ int order_list_price = -1;
         jLabel4.setText("หน้าต่างเพิ่มพนักงาน");
         employee_panel.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 20, -1, -1));
 
-        jButton3.setText("แก้ไขพนักงาน");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        edit_employee_btn.setText("แก้ไขพนักงาน");
+        edit_employee_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                edit_employee_btnActionPerformed(evt);
             }
         });
-        employee_panel.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, -1, -1));
+        employee_panel.add(edit_employee_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, -1, -1));
 
         main_panel.add(employee_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 900, 460));
 
@@ -1490,167 +1444,154 @@ int order_list_price = -1;
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-            Login g = new Login();
-            g.setVisible(true);
-            this.setVisible(false);
-            logout();
+            //เมื่อหน้าจอนี้ปิดลง
+            Login g = new Login(); //สร้าง Object ของหน้าต่าง login
+            g.setVisible(true); //แสดงหน้าต่าง login
+            this.setVisible(false); //ซ่อนหน้าจอนี้
+            logout(); //ใช้งานฟังก์ชั่นlogout
     }//GEN-LAST:event_formWindowClosing
 
     private void order_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_order_btnActionPerformed
-        disablepanel();
-        order_panel.setVisible(true);
-        clear_table((DefaultTableModel)menu_order_table.getModel());
-        clear_table((DefaultTableModel)order_table.getModel());
-        get_menu((DefaultTableModel)menu_order_table.getModel());
-        get_order_list((DefaultTableModel)order_table.getModel());
-        set_order_table((DefaultTableModel)menu_product_table.getModel());
-        if(check_order_list==true){
-            ordering_btn.setEnabled(true);
-        }else{
-            ordering_btn.setEnabled(false);
+        //หน้าต่างออเดอร์
+        disablepanel(); //ซ่อนทุกหน้าต่าง
+        order_panel.setVisible(true); //แสดงหน้าต่างออเดรอ์
+        clear_table((DefaultTableModel)menu_order_table.getModel()); //ลบข้อมูลทั้งหมดของตารางเมนู
+        clear_table((DefaultTableModel)order_table.getModel());//ลบข้อมูลทั้งหมดของตารางออเดอร์
+        get_menu((DefaultTableModel)menu_order_table.getModel()); //ใช้งานฟังก์ชั่นเรียกข้อมูลของเมนูใส่ในตาราง
+        get_order_list((DefaultTableModel)order_table.getModel());//ใช้งานฟังก์ชั่นเรียกข้อมูลของออเดอร์ใส่ในตาราง
+        set_order_table((DefaultTableModel)menu_product_table.getModel()); //ใช้งานฟังก์ชั่นเรียกข้อมูลของสินค้าใส่ในตาราง
+        if(check_order_list==true){//ถ้าหากว่ามีออเดอร์
+            ordering_btn.setEnabled(true); //เปิดการใช้งานปุ่มการสั่ง
+        }else{//ถ้าหากไม่มีออเดอร์
+            ordering_btn.setEnabled(false);//ปิดการใช้งานปุ่มการสั่ง
         }
-        this.setTitle("หน้าต่างการออเดอร์");
+        this.setTitle("หน้าต่างการออเดอร์");//เปลี่ยนชื่อหน้าต่าง
     }//GEN-LAST:event_order_btnActionPerformed
 
     private void employee_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_btnActionPerformed
-        disablepanel();
-        emp_age_combo();
-        employee_panel.setVisible(true);
-        this.setTitle("หน้าต่างการเพิ่มพนักงาน");
+        //หน้าต่างพนักงาน
+        disablepanel(); //ซ่อนทุกหน้าต่าง
+        emp_age_combo(); //ใช้งานฟังก์ชั่นเพิ่มอายุ
+        employee_panel.setVisible(true); //แสดงหน้าต่างพนักงาน
+        this.setTitle("หน้าต่างการเพิ่มพนักงาน");//เปลี่ยนชื่อหน้าต่าง
     }//GEN-LAST:event_employee_btnActionPerformed
 
     private void customer_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_btnActionPerformed
-        disablepanel();
-        customer_panel.setVisible(true);
-        this.setTitle("หน้าต่างเพิ่มลูกค้า");
+        disablepanel(); //ซ่อนทุกหน้าต่าง
+        customer_panel.setVisible(true); //แสดงหน้าต่างลูกค้า
+        this.setTitle("หน้าต่างเพิ่มลูกค้า");//เปลี่ยนชื่อหน้าต่าง
     }//GEN-LAST:event_customer_btnActionPerformed
 
     private void product_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_product_btnActionPerformed
-        disablepanel();
-        product_panel.setVisible(true);
-        this.setTitle("หน้าต่างเพิ่มสินค้า");
+        disablepanel();//ซ่อนทุกหน้าต่าง
+        product_panel.setVisible(true);//แสดงหน้าต่างสินค้า
+        this.setTitle("หน้าต่างเพิ่มสินค้า");//เปลี่ยนชื่อหน้าต่าง
     }//GEN-LAST:event_product_btnActionPerformed
 
     private void stock_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stock_btnActionPerformed
-        disablepanel();
-        stock_panel.setVisible(true);
-        this.setTitle("หน้าต่างเพิ่มสต๊อก");
-        set_stocking_product_combo();
+        disablepanel();//ซ่อนทุกหน้าต่าง
+        stock_panel.setVisible(true);//แสดงหน้าต่างเพิ่มจำนวนสินค้า
+        this.setTitle("หน้าต่างเพิ่มสต๊อก");//เปลี่ยนชื่อหน้าต่าง
+        set_stocking_product_combo();//ใช้งานฟังก์ชั่นเพิ่มจำนวน
     }//GEN-LAST:event_stock_btnActionPerformed
 
     private void menu_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_btnActionPerformed
-        disablepanel();
-        clear_table((DefaultTableModel)menu_product_table.getModel());
-        get_product((DefaultTableModel)menu_product_table.getModel());
-        menu_panel.setVisible(true);
-        this.setTitle("หน้าต่างการจัดการเมนู");
+        disablepanel();//ซ่อนทุกหน้าต่าง
+        clear_table((DefaultTableModel)menu_product_table.getModel()); //ลบข้อมูลในตารางของเมนู
+        get_product((DefaultTableModel)menu_product_table.getModel()); //ดึงข้อมูลจาก Database ลงในตาราง
+        menu_panel.setVisible(true);//แสดงหน้าต่างเมนู
+        this.setTitle("หน้าต่างการจัดการเมนู");//เปลี่ยนชื่อหน้าต่าง
     }//GEN-LAST:event_menu_btnActionPerformed
 
     private void partner_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_btnActionPerformed
-        disablepanel();
-        partner_panel.setVisible(true);
-        this.setTitle("หน้าต่างการเพิ่มคู่ค้า");
+        disablepanel();//ซ่อนทุกหน้าต่าง
+        partner_panel.setVisible(true);//แสดงหน้าต่างบริษัทคู่ค้า
+        this.setTitle("หน้าต่างการเพิ่มคู่ค้า");//เปลี่ยนชื่อหน้าต่าง
     }//GEN-LAST:event_partner_btnActionPerformed
 
-    private void customer_home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_home_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_customer_home_txtActionPerformed
+    private void customer_clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_clear_btnActionPerformed
+        clear_customer(); //เคลียร์ข้อมูลของลูกค้าทั้งหมด
+    }//GEN-LAST:event_customer_clear_btnActionPerformed
 
-    private void customer_locality_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_locality_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_customer_locality_txtActionPerformed
-
-    private void customer_district_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_district_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_customer_district_txtActionPerformed
-
-    private void customer_post_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_post_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_customer_post_txtActionPerformed
-
-    private void customer_province_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_province_txtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_customer_province_txtActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        clear_customer();
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลลูกค้าใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){
-        try{
-            try{
-                DBCollection table = db.getCollection("MS_CUSTOMER");
-                BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-                DBCursor cur = table.find().sort(sortObject);
-                //double n = (double)(cur.one().get("MS_CUSTOMER_ID"));
-                String id = null;
-                DBCursor find = table.find();
-                System.out.println(find.hasNext());
-                if(find.hasNext()==true){
-                    System.out.println("eiei");
-                    //int k = (int)cur.one().get("MS_CUSTOMER_ID");
-                    System.out.println("OWIOA"+Integer.valueOf(cur.one().get("MS_CUSTOMER_ID").toString().substring(1,cur.one().get("MS_CUSTOMER_ID").toString().length())));
+    private void customer_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_commit_btnActionPerformed
+        if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลลูกค้าใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){ //แสดงหน้าต่างยืนยันการเพิ่มข้อมูลลูกค้า
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+            try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                DBCollection table = db.getCollection("MS_CUSTOMER");//ดึงข้อมูลจาก Collection ของลูกค้ามาใส่ในตัวแปร
+                BasicDBObject sortObject = new BasicDBObject().append("_id", -1);//สร้างObject เพื่อค้นหาข้อมูลตัวสุดท้าย
+                DBCursor cur = table.find().sort(sortObject);//ค้นหาข้อมูลโดยจัดเรียงตาม sortObject
+                String cus_id = null; //สร้างตัวแปรเพื่อใช้เก็บรหัสของลูกค้า
+                DBCursor find = table.find(); //ค้นหาข้อมูลทั้งหมดของลูกค้า
+                //System.out.println(find.hasNext());
+                if(find.hasNext()==true){ //ถ้าหากว่ามีข้อมูลของลูกค้า
+                    //System.out.println("OWIOA"+Integer.valueOf(cur.one().get("MS_CUSTOMER_ID").toString().substring(1,cur.one().get("MS_CUSTOMER_ID").toString().length())));
                     int k = Integer.valueOf(cur.one().get("MS_CUSTOMER_ID").toString().substring(1,cur.one().get("MS_CUSTOMER_ID").toString().length()));
-                    k += 1;
+                    //สร้างตัวแปรมาเก็บข้อมูลรหัสลูกค้าเป็นตัวเลข
+                    k += 1; //เพิ่มจำนวนอีก 1
+                    /*
+                        เช็คจำนวนและปรับให้รหัสลูกค้ามีความถูกต้อง
+                    */
                     if(k>=10){
-                        id = "C0"+k;
+                        cus_id = "C0"+k;
                     }else if(k>100){
-                        id = "C"+k;
+                        cus_id = "C"+k;
                     }else if(k<10){
-                        id = "C00"+k;
+                        cus_id = "C00"+k;
                     }
                 }else{
-                    id = "C00"+1;
+                    cus_id = "C00"+1;
                 }
-                System.out.println(id);
-                //SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
-                //DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
-                //String month = v.month(Integer.parseInt(customer_birthdate_txt.getText().substring(4,6)));
-                //String year = customer_birthdate_txt.getText().substring(0,4);
-                //String date = customer_birthdate_txt.getText().substring(customer_birthdate_txt.getText().length()-2,customer_birthdate_txt.getText().length());
-                BasicDBObject document = new BasicDBObject();
-                String birthdate =customer_birthdate_txt.getText().toString();
-                document.put("MS_CUSTOMER_ID",id);
-                document.put("MS_CUSTOMER_NAME",customer_prefix.getSelectedItem().toString()+customer_name_txt.getText());
-                document.put("MS_CUSTOMER_PHONE",customer_phone_txt.getText());
-                document.put("MS_CUSTOMER_EMAIL",customer_email_txt.getText());
-                BasicDBObject address = new BasicDBObject();
+                //System.out.println(cus_id);
+                BasicDBObject document = new BasicDBObject();//สร้างObject เพื่อค้นหาข้อมูลที่จะเพิ่มเข้าไปใน database
+                String birthdate =customer_birthdate_txt.getText().toString(); //กำหนดตัวแปรเพื่อเก็บค่าวันเกิดของลูกค้า
+                document.put("MS_CUSTOMER_ID",cus_id);//รหัสของลูกค้า
+                document.put("MS_CUSTOMER_NAME",customer_prefix.getSelectedItem().toString()+customer_name_txt.getText()); //ชื่อของลูกค้า
+                document.put("MS_CUSTOMER_PHONE",customer_phone_txt.getText());//เบอร์โทรศัพท์ของลูกค้า
+                document.put("MS_CUSTOMER_EMAIL",customer_email_txt.getText());//อีเมลของลูกค้า
+                BasicDBObject address = new BasicDBObject();//สร้างObject เพื่อเก็บข้อมูลที่อยู่ของลูกค้า
+                /***************************ที่อยู่ของลูกค้า*****************************************/
                 address.put("บ้านเลขที่", customer_home_txt.getText());
                 address.put("ตำบล", customer_locality_txt.getText());
                 address.put("อำเภอ", customer_district_txt.getText());
                 address.put("จังหวัด", customer_province_txt.getText());
                 address.put("รหัสไปรษณีย์", customer_post_txt.getText());
-                document.put("MS_CUSTOMER_ADDRESS",address);
-                document.put("MS_CUSTOMER_BIRTHDATE",birthdate);
+                /******************************************************************************/
+                document.put("MS_CUSTOMER_ADDRESS",address); //ที่อยู่ของลูกค้่า
+                document.put("MS_CUSTOMER_BIRTHDATE",birthdate);//วันเกิดของลูกค้า
+                /*
+                    เช็คประเภทของลูกค้า
+                    0 - ลูกค้าใหม่
+                    1 - ลูกค้าเก่า
+                
+                */
                 if(customer_type_combo.getSelectedIndex()==0){
                     document.put("MS_CUSTOMER_TYPE","New Customer");
                 }else if(customer_type_combo.getSelectedIndex()==1){
                     document.put("MS_CUSTOMER_TYPE","Patron");
                 }
-                table.insert(document);
-                clear_customer();
-                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
-                //this.setVisible(false);
-            }catch(Exception e){
-                e.printStackTrace();
+                
+                table.insert(document);//เพิ่มข้อมูลลงใน database
+                clear_customer();//ล้างข้อมูลทั้งหมดของลูกค้า
+                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");//แสดงข้อความเมื่อเพิ่มประวัติการใช้งานสำเร็จ
+            }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace(); //แสดงออกการผิดพลาดทางหน้าจอ
             }
-        }catch(Exception e){
-
+        }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace(); //แสดงออกการผิดพลาดทางหน้าจอ
+            }
         }
-        }
-    }//GEN-LAST:event_jButton5ActionPerformed
+    }//GEN-LAST:event_customer_commit_btnActionPerformed
 
     private void ordering_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ordering_btnActionPerformed
-        Order_confirm o = new Order_confirm();
-        this.setVisible(false);
-        o.setVisible(true);
+        Order_confirm o = new Order_confirm(); //สร้างObject ของหน้าต่างยืนยันออเดอร์
+        this.setVisible(false);//ซ่อนหน้านี้
+        o.setVisible(true);//แสดงหน้าต่างยืนยันออเดอร์
     }//GEN-LAST:event_ordering_btnActionPerformed
 
     private void history_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_history_btnActionPerformed
-        disablepanel();
-        history_panel.setVisible(true);
-        this.setTitle("หน้าต่างประวัติการขาย");
+        disablepanel();//ซ่อนหน้าต่างทั้งหมด
+        history_panel.setVisible(true);//แสดงหน้าต่างประวัติการขาย
+        this.setTitle("หน้าต่างประวัติออเดอร์");//เปลี่ยนชื่อหน้าต่าง
     }//GEN-LAST:event_history_btnActionPerformed
 
     private void partner_home_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_home_txtActionPerformed
@@ -1673,11 +1614,11 @@ int order_list_price = -1;
         // TODO add your handling code here:
     }//GEN-LAST:event_partner_province_txtActionPerformed
 
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+    private void partner_clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_clear_btnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton7ActionPerformed
+    }//GEN-LAST:event_partner_clear_btnActionPerformed
 
-    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+    private void partner_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_commit_btnActionPerformed
     int partner_id = 0;
         if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลบริษัทคู่ค้าใหม่ใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){ //แสดงผลหน้าจอประเภท2คำตอบ
         try{//ดักจับข้อผิดพลาดโดยใช้ try-catch
@@ -1688,14 +1629,9 @@ int order_list_price = -1;
                 DBCursor find = table.find().sort(partnerobject); //ค้นหาข้อมูลทั้งหมดในcollection MS_PRODUCT
                 //System.out.println(find.hasNext());
                 if(find.hasNext()==true){ //ถ้าหากว่ามีข้อมูลอยู่แล้ว
-                    DBObject getdoc = find.next();
+                    DBObject getdoc = find.next();//นำข้อมูลของบริษัทคู่ค้าไปใส่ในตัวแปร getdoc
                     System.out.println((int)getdoc.get("MS_PARTNER_ID"));
-                    try{//ดักจับข้อผิดพลาดของตัวเลขโดยใช้ try-catch
                     partner_id = 1+(int)getdoc.get("MS_PARTNER_ID"); //นำค่าของPKมาบวกด้วย 1
-                    }catch(Exception e){
-                    double k = 1+(double)getdoc.get("MS_PARTNER_ID"); //นำค่าของPKมาบวกด้วย 1
-                    partner_id = (int)k ;
-                    }
                 }else{
                     partner_id = 1;//สร้างPKของ MS_PRODUCT
                 }
@@ -1735,21 +1671,21 @@ int order_list_price = -1;
                 clear_partner();
                 JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ"); //แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
                 //this.setVisible(false);
-            }catch(Exception e){
-                e.printStackTrace();
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
         }
-    }//GEN-LAST:event_jButton8ActionPerformed
+    }//GEN-LAST:event_partner_commit_btnActionPerformed
 
-    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+    private void product_clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_product_clear_btnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton9ActionPerformed
+    }//GEN-LAST:event_product_clear_btnActionPerformed
 
-    private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-    int productid = 0;
+    private void product_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_product_commit_btnActionPerformed
+    int productid = 0;//ตัวแปรที่ใช้เก็บรหัสของสินค้า
         if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลสินค้าใหม่ใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){ //แสดงผลหน้าจอประเภท2คำตอบ
         try{//ดักจับข้อผิดพลาดโดยใช้ try-catch
             try{ //ดักจับข้อผิดพลาดโดยใช้ try-catch
@@ -1758,17 +1694,11 @@ int order_list_price = -1;
                 DBCursor find = table.find().sort(productobject); //ค้นหาข้อมูลทั้งหมดในcollection MS_PRODUCT
                 //System.out.println(find.hasNext());
                 if(find.hasNext()==true){ //ถ้าหากว่ามีข้อมูลอยู่แล้ว
-                    DBObject data = find.next();
-                    try{//ดักจับข้อผิดพลาดของตัวเลขโดยใช้ try-catch
+                    DBObject data = find.next();//นำข้อมูลของสินค้าไปใส่ในตัวแปร data
                     productid = 1+(int)data.get("MS_PRODUCT_ID"); //นำค่าของPKมาบวกด้วย 1
-                    }catch(Exception e){
-                    double k = 1+(double)data.get("MS_PRODUCT_ID"); //นำค่าของPKมาบวกด้วย 1
-                    productid = (int)k ;
-                    }
                 }else{
                     productid = 1;//สร้างPKของ MS_PRODUCT
                 }
-                //System.out.println(productid);
                 BasicDBObject document = new BasicDBObject(); //สร้างการเก็บข้อมูลใหม่
                 document.put("MS_PRODUCT_ID",(int)productid); //เพิ่มข้อมูลรหัสของสินค้า
                 document.put("MS_PRODUCT_NAME",pro_name_txt.getText()); //เพิ่มข้อมูลชื่อ
@@ -1798,99 +1728,116 @@ int order_list_price = -1;
                 clear_product();
                 JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ"); //แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
                 //this.setVisible(false);
-            }catch(Exception e){
-                e.printStackTrace();
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
         }
-    }//GEN-LAST:event_jButton10ActionPerformed
+    }//GEN-LAST:event_product_commit_btnActionPerformed
 
-    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+    private void stock_clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stock_clear_btnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton11ActionPerformed
+    }//GEN-LAST:event_stock_clear_btnActionPerformed
 
-    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
-        if(stock_combo.getSelectedIndex()!=0){
-        try{
-            double amount = Double.parseDouble(stock_amount.getText());
-            String product_name = stock_combo.getSelectedItem().toString();
-            find_product_id(product_name);
-            DBCollection partner = db.getCollection("MS_PRODUCT");
-            DBObject partner_json = find_product_id(stock_combo.getSelectedItem().toString());
+    private void stock_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stock_commit_btnActionPerformed
+        if(stock_combo.getSelectedIndex()!=0){ //ถ้าหากว่ามีการเลือกเมนู
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+            double amount = Double.parseDouble(stock_amount.getText()); //ตัวแปรเก็บข้อมูลของจำนวนที่จะแก้ไข
+            String product_name = stock_combo.getSelectedItem().toString(); //ตัวแปรเก็บข้อมูลชื่อของสินค้า
+            DBCollection partner = db.getCollection("MS_PRODUCT");//ดึงข้อมูลจากCollectionของสินค้ามาใส่ในตัวแปร
+            DBObject product_json = find_product_id(product_name); //ใช้งานฟังก์ชั่นค้นหารหัสสินค้าจากชื่อสินค้า
             if(JOptionPane.showConfirmDialog(null,"ชื่อสินค้า : "+product_name+
-                                               "\nจำนวนที่มีอยู่  : "+(double)partner_json.get("MS_PRODUCT_AMOUNT")+
+                                               "\nจำนวนที่มีอยู่  : "+(double)product_json.get("MS_PRODUCT_AMOUNT")+
                                                "\nจำนวนที่จะเพิ่มเข้าไป : "+amount+
                                                "\n\nคุณยืนยันที่จะเพิ่มสินค้าตามจำนวนข้างต้นใช่หรือไม่","",YES_NO_OPTION)==YES_OPTION){
-            try{
-                BasicDBObject partner_id = new BasicDBObject("MS_PRODUCT_ID",partner_json.get("MS_PRODUCT_ID"));
-                BasicDBObject setQuery = new BasicDBObject();
-                BasicDBObject updateFields = new BasicDBObject();
-                updateFields.append("MS_PRODUCT_AMOUNT",(double)partner_json.get("MS_PRODUCT_AMOUNT")+amount);
-                setQuery.append("$set", updateFields);
-                partner.update(partner_id,setQuery);
-                partner_json = find_product_id(stock_combo.getSelectedItem().toString());
+                
+                /********************************************/
+                /*หน้าต่างยืนยันการเพิ่มสินค้า                       */
+                /*ชื่อสินค้า :                                  */
+                /*จำนวนที่มีอยู่ :                               */
+                /*จำนวนที่จะเพิ่มเข้าไป :                         */
+                /*                                          */
+                /*คุณยืนยันที่จะเพิ่มสินค้าตามจำนวนข้างต้นใช่หรือไม่      */
+                /*                                          */
+                /********************************************/
+                
+            try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                BasicDBObject product_id = new BasicDBObject("MS_PRODUCT_ID",product_json.get("MS_PRODUCT_ID")); //สร้างObjectชื่อ partner_id โดยใช้รหัสของสินค้าในการค้นหา
+                BasicDBObject updateFields = new BasicDBObject(); //สร้างObjectชื่อ updateFields เพื่อเก็บข้อมูลที่จะนำไปแก้ไขจากข้อมูลเดิม
+                BasicDBObject setQuery = new BasicDBObject();//สร้างObjectชื่อ setQuery เพื่อใช้ในการตั้งค่าเงื่อนไขในการแก้ไขข้อมูล
+                updateFields.append("MS_PRODUCT_AMOUNT",(double)product_json.get("MS_PRODUCT_AMOUNT")+amount);//แก้ไขข้อมูลจำนวนของ
+                setQuery.append("$set", updateFields); //ตั้งค่าฟังก์ชั่นที่จะใช้กับข้อมูล
+                partner.update(product_id,setQuery);//ทำการอัพเดทข้อมูลที่ตรวจพบใน database
+                product_json = find_product_id(stock_combo.getSelectedItem().toString());
                 JOptionPane.showMessageDialog(null, "ทำรายการเสร็จสิ้น!!\n"+
                                                     "\nชื่อสินค้า : "+product_name+""+
-                                                    "\nจำนวนที่มีอยู่ขณะนี้ : "+(double)partner_json.get("MS_PRODUCT_AMOUNT"));
-                clear_stock();
-            }catch(Exception e){
-                e.printStackTrace();
+                                                    "\nจำนวนที่มีอยู่ขณะนี้ : "+(double)product_json.get("MS_PRODUCT_AMOUNT"));
+                
+                /********************************************/
+                /*ทำรายการเสร็จสิ้น                             */
+                /*ชื่อสินค้า :                                  */
+                /*จำนวนที่มีอยู่ขณะนี้ :                          */
+                /********************************************/
+                
+                
+                clear_stock(); //เคลียร์ข้อมูลของหน้าต่างเพิ่มจำนวนของสินค้า
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
             }else{
-                clear_stock();
+                clear_stock();//เคลียร์ข้อมูลของหน้าต่างเพิ่มจำนวนของสินค้า
             }
         }catch(NumberFormatException e){
-                JOptionPane.showMessageDialog(null,"จำนวนไม่ถูกต้อง\nกรุณาทำรายการใหม่ด้วยครับ","",ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,"จำนวนไม่ถูกต้อง\nกรุณาทำรายการใหม่ด้วยครับ","",ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
                 clear_stock();
-        }catch(Exception e){
-                e.printStackTrace();
-                clear_stock();
+        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
         }else{
-            JOptionPane.showMessageDialog(null,"กรุณาใส่ชื่อให้ถูกต้อง","",ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null,"กรุณาเลือกสินค้าที่จะเพิ่มจำนวนด้วยค่ะ","",ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
         }
-    }//GEN-LAST:event_jButton12ActionPerformed
+    }//GEN-LAST:event_stock_commit_btnActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะออกจากระบบหรือไม่","System",YES_NO_OPTION)==YES_OPTION){
-        Login g = new Login();
-            g.setVisible(true);
-            this.setVisible(false);
-            logout();
+        if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะออกจากระบบหรือไม่","System",YES_NO_OPTION)==YES_OPTION){ //แสดงหน้าต่างตัวเลือกยืนยัน
+        Login g = new Login();  //สร้างObject ของหน้าต่าง Login
+            g.setVisible(true); //แสดงหน้า Login
+            this.setVisible(false); //ซ่อนหน้านี้
+            logout();//ใช้งานMethod Logout
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton18ActionPerformed
-        Edit_Partner g = new Edit_Partner();
-            g.setLocationRelativeTo(null);
-            g.setVisible(true);
-    }//GEN-LAST:event_jButton18ActionPerformed
+    private void edit_partner_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_partner_btnActionPerformed
+           Edit_Partner Partner_Panel = new Edit_Partner();//สร้างObject ของหน้าต่าง Partner
+           Partner_Panel.setLocationRelativeTo(null); //ตั้งค่าให้แสดงกลางหน้าจอ
+           Partner_Panel.setVisible(true); //แสดงหน้าต่างแก้ไข
+    }//GEN-LAST:event_edit_partner_btnActionPerformed
 
-    private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
-                Edit_Menu g = new Edit_Menu();
-                g.setLocationRelativeTo(null);
-                g.setVisible(true);
-    }//GEN-LAST:event_jButton15ActionPerformed
+    private void edit_menu_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_menu_btnActionPerformed
+                Edit_Menu Menu_Panel = new Edit_Menu();//สร้างObject ของหน้าต่าง Menu
+                Menu_Panel.setLocationRelativeTo(null);//ตั้งค่าให้แสดงกลางหน้าจอ
+                Menu_Panel.setVisible(true);//แสดงหน้าต่างแก้ไข
+    }//GEN-LAST:event_edit_menu_btnActionPerformed
 
-    private void jButton19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton19ActionPerformed
-                Edit_Product g = new Edit_Product();
-                g.setLocationRelativeTo(null);
-                g.setVisible(true);
-    }//GEN-LAST:event_jButton19ActionPerformed
+    private void edit_product_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_product_btnActionPerformed
+                Edit_Product Product_Panel = new Edit_Product();//สร้างObject ของหน้าต่าง Product
+                Product_Panel.setLocationRelativeTo(null);//ตั้งค่าให้แสดงกลางหน้าจอ
+                Product_Panel.setVisible(true);//แสดงหน้าต่างแก้ไข
+    }//GEN-LAST:event_edit_product_btnActionPerformed
 
-    private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
-        Edit_Customer g = new Edit_Customer();
-        g.setLocationRelativeTo(null);
-                g.setVisible(true);
-    }//GEN-LAST:event_jButton17ActionPerformed
+    private void edit_customer_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_customer_btnActionPerformed
+        Edit_Customer Customer_Panel = new Edit_Customer();//สร้างObject ของหน้าต่าง Customer
+        Customer_Panel.setLocationRelativeTo(null);//ตั้งค่าให้แสดงกลางหน้าจอ
+        Customer_Panel.setVisible(true);//แสดงหน้าต่างแก้ไข
+    }//GEN-LAST:event_edit_customer_btnActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        Edit_Employee g = new Edit_Employee();
-        g.setLocationRelativeTo(null);
-        g.setVisible(true);
-    }//GEN-LAST:event_jButton3ActionPerformed
+    private void edit_employee_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_employee_btnActionPerformed
+        Edit_Employee g = new Edit_Employee();//สร้างObject ของหน้าต่าง Employee
+        g.setLocationRelativeTo(null);//ตั้งค่าให้แสดงกลางหน้าจอ
+        g.setVisible(true);//แสดงหน้าต่างแก้ไข
+    }//GEN-LAST:event_edit_employee_btnActionPerformed
 
     private void employee_phone_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_phone_txtActionPerformed
         // TODO add your handling code here:
@@ -1925,255 +1872,253 @@ int order_list_price = -1;
     }//GEN-LAST:event_employee_district_txtActionPerformed
 
     private void showpwd_checkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showpwd_checkActionPerformed
-        showpwd = !showpwd;
-        if(showpwd ==true){
-            employee_pwd_txt.setEchoChar((char)0);
+        showpwd = !showpwd; //สลับตัวแปรแสดงรหัสผ่านเมื่อมีการกด
+        if(showpwd ==true){//ถ้าหากมีการกดใช้งานการแสดงรหัสผ่าน
+            employee_pwd_txt.setEchoChar((char)0); //แสดงรหัสผ่าน
         }else{
-            employee_pwd_txt.setEchoChar('*');
+            employee_pwd_txt.setEchoChar('*');//ซ่อนรหัสผ่าน
         }
     }//GEN-LAST:event_showpwd_checkActionPerformed
 
-    private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
-        if(confirm.isSelected()==false){
-            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้ยืนยันข้อมูล\nกรุณายืนยันด้วยครับ",null,ERROR_MESSAGE);
-        }else{
-            String year;
-            String month;
-            String date;
-            try{
-                DBCollection table = db.getCollection("MS_EMPLOYEE");
-                DBObject dbo = table.findOne(new BasicDBObject("_id",-1));
-                BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-                DBCursor cur = table.find().sort(sortObject);
-                int n;
-                try{
-                    n = (int)(cur.one().get("MS_EMPLOYEE_ID"));
-                }catch(Exception e){
-                    double k = (double)(cur.one().get("MS_EMPLOYEE_ID"));
-                    n = (int)k;
-
-                }
-                //System.out.println(employee_birthdate_txt.getText());
-                SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
-                DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
-                String formattedDate = formatter.format(LocalDate.now());
-                month = v.month(Integer.parseInt(formattedDate.substring(4,6)));
-                year = formattedDate.substring(0,4);
-                date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());
-                System.out.println(month+" "+date+", "+year);
-                String birthdate = format.format(employee_birthdate_txt.getSelectedDate().getTime());
-                //System.out.println(formattedDate);
-                System.out.println(birthdate);
-                /*format.parse(LocalDate.now().toString());
-                System.out.print(format.parse(LocalDate.now().toString()));*/
-                BasicDBObject document = new BasicDBObject();
-                document.put("MS_EMPLOYEE_ID",(int)n+1);
-                document.put("MS_EMPLOYEE_USERNAME",employee_user_txt.getText());
-                document.put("MS_EMPLOYEE_PWD",employee_pwd_txt.getText());
-                document.put("MS_EMPLOYEE_NAME",employee_prefix.getSelectedItem().toString()+" "+employee_name_txt.getText());
-                document.put("MS_EMPLOYEE_BIRTHDATE",employee_birthdate_txt.getText());
-                document.put("MS_EMPLOYEE_EMAIL",employee_email_txt.getText());
-                document.put("MS_EMPLOYEE_PHONE",employee_phone_txt.getText());
-                BasicDBObject address = new BasicDBObject();
+    private void employee_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_commit_btnActionPerformed
+        if(confirm.isSelected()==false){ //ถ้าหากว่ายังไม่ยืนยันการเพิ่มข้อมูล
+            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้ยืนยันข้อมูล\nกรุณายืนยันด้วยครับ",null,ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+        }else{ //ถ้าหากว่ายืนยันการเพิ่มข้อมูลแล้ว
+            String year; //ตัวแปรเก็บข้อมูลปี
+            String month; //ตัวแปรเก็บข้อมูลเดือน
+            String date; //ตัวแปรเก็บข้อมูลวัน
+            try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                DBCollection table = db.getCollection("MS_EMPLOYEE");//ดึงข้อมูลจากCollectionของพนักงานมาใส่ในตัวแปร
+                BasicDBObject sortObject = new BasicDBObject().append("_id", -1);//สร้างObject เพื่อค้นหาข้อมูลตัวสุดท้าย
+                DBCursor cur = table.find().sort(sortObject);//ค้นหาข้อมูลโดยจัดเรียงตาม sortObject
+                int emp_id = (int)(cur.one().get("MS_EMPLOYEE_ID")); //กำหนดตัวแปรเพื่อเก็บรหัสพนักงาน
+                DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE; //สร้างฟอร์แมตวันที่ปัจจุบัน
+                String formattedDate = formatter.format(LocalDate.now()); //ตัวแปรเก็บข้อมูลวันที่ปัจจุบันตามฟอร์แมต
+                month = v.month(Integer.parseInt(formattedDate.substring(4,6))); //เดือน
+                year = formattedDate.substring(0,4);//ปีปัจจุบัน
+                date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());//วันที่
+                BasicDBObject document = new BasicDBObject(); //สร้างObject เพื่อเก็บข้อมูลที่จะเพิ่มไปยัง database
+                document.put("MS_EMPLOYEE_ID",(int)emp_id+1); //รหัสพนักงาน
+                document.put("MS_EMPLOYEE_USERNAME",employee_user_txt.getText()); //รหัสผู้ใช้งานของพนักงาน
+                document.put("MS_EMPLOYEE_PWD",employee_pwd_txt.getText()); //รหัสของพนักงาน
+                document.put("MS_EMPLOYEE_NAME",employee_prefix.getSelectedItem().toString()+" "+employee_name_txt.getText()); //ชื่อของพนักงาน
+                document.put("MS_EMPLOYEE_BIRTHDATE",employee_birthdate_txt.getText()); //วันเกิดของพนักงาน
+                document.put("MS_EMPLOYEE_EMAIL",employee_email_txt.getText()); //อีเมลของพนักงาน
+                document.put("MS_EMPLOYEE_PHONE",employee_phone_txt.getText()); //เบอร์โทรศัพท์ของหนักงาน
+                BasicDBObject address = new BasicDBObject();//สร้างObject เพื่อเก็บข้อมูลของที่อยู่ของพนักงาน
+                /**********************ที่อยู่พนักงาน**********************************************/
                 address.put("บ้านเลขที่", employee_home_txt.getText());
                 address.put("ตำบล", employee_locality_txt.getText());
-                address.put("อำเภอ", employee_district_txt.getText());
-                address.put("จังหวัด", employee_province_txt.getText());
+                address.put("อำเภอ", employee_district_txt.getText());    
+                address.put("จังหวัด", employee_province_txt.getText()); 
                 address.put("รหัสไปรษณีย์", employee_post_txt.getText());
-                document.put("MS_EMPLOYEE_ADDRESS",address);
-                document.put("MS_EMPLOYEE_HIRED_DATE",month+" "+date+", "+year);
-                document.put("MS_EMPLOYEE_TYPE",employee_position_combo.getSelectedItem().toString());
-                table.insert(document);
-                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");
-                clear_emp();
-            }catch(Exception e){
-                e.printStackTrace();
+                /*************************************************************/
+                document.put("MS_EMPLOYEE_ADDRESS",address); //ที่อยู่พนักงาน
+                document.put("MS_EMPLOYEE_HIRED_DATE",month+" "+date+", "+year); //วันที่จ้างพนักงาน
+                document.put("MS_EMPLOYEE_TYPE",employee_position_combo.getSelectedItem().toString()); //ประเภทของพนักงาน
+                table.insert(document); //เพิ่มข้อมูลใน database
+                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+                clear_emp();//เคลียร์ข้อมูลทั้งหมดในหน้าต่างพนักงาน
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
         }
-    }//GEN-LAST:event_confirm_btnActionPerformed
+    }//GEN-LAST:event_employee_commit_btnActionPerformed
 
-    private void clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear_btnActionPerformed
-        clear_emp();
-    }//GEN-LAST:event_clear_btnActionPerformed
+    private void employee_clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_clear_btnActionPerformed
+        clear_emp(); //เคลียร์ข้อมูลทั้งหมดในหน้าต่างพนักงาน
+    }//GEN-LAST:event_employee_clear_btnActionPerformed
 
     private void confirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_confirmActionPerformed
 
     private void pro_type_comboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pro_type_comboActionPerformed
-        set_productcombo(pro_type_combo.getSelectedIndex());
+        set_parnter_combo(pro_type_combo.getSelectedIndex()); //เมื่อเลือกประเภทของสินค้าแล้ว จะเพิ่มบริษัทคู่ค้าตามประเภทของสินค้า
     }//GEN-LAST:event_pro_type_comboActionPerformed
 
-    private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
-        try{
-            String menu_name = menu_name_txt.getText();
-            double menu_price = Double.parseDouble(menu_price_txt.getText());
-            DBCollection get_menu = db.getCollection("MS_MENU");
-            BasicDBObject menu_json = new BasicDBObject();
-            BasicDBObject find_menu_condition = new BasicDBObject().append("_id", -1);
-            DBCursor finding_last_menu = get_menu.find().sort(find_menu_condition);
-                int menu_last_id;
-                try{
-                    menu_last_id = (int)(finding_last_menu.one().get("MS_MENU_ID"))+1;
-                }catch(Exception e){
-                    double k = (double)(finding_last_menu.one().get("MS_MENU_ID"));
-                    menu_last_id = (int)k+1;
-                }
-            menu_json.put("MS_MENU_ID",menu_last_id);    
-            menu_json.put("MS_MENU_NAME",menu_name);
-            menu_json.put("MS_MENU_PRICE",(int)menu_price);
-            menu_json.put("MS_PRODUCT",menu_component);
-            get_menu.insert(menu_json);
-            clear_table((DefaultTableModel)menu_product_table.getModel());
-            clear_table((DefaultTableModel)menu_table.getModel());
-            get_product((DefaultTableModel)menu_product_table.getModel());
-            clear_menu();
-            JOptionPane.showMessageDialog(null,"เพิ่มเมนูสำเร็จ");
-            menu_component.clear();
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(null,"เพิ่มเมนูไม่สำเร็จ","",ERROR_MESSAGE);
-            e.printStackTrace();
+    private void menu_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_commit_btnActionPerformed
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+            String menu_name = menu_name_txt.getText(); //กำหนดตัวแปรที่เก็บชื่อเมนู
+            double menu_price = Double.parseDouble(menu_price_txt.getText()); //กำหนดตัวแปรที่เก็บราคาของเมนู
+            DBCollection get_menu = db.getCollection("MS_MENU"); //ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
+            BasicDBObject menu_json = new BasicDBObject(); //สร้างObject เพื่อใช้เก็บข้อมูลเมนูที่จะเพิ่มลงไปใน database
+            BasicDBObject find_menu_condition = new BasicDBObject().append("_id", -1);//สร้างObject เพื่อค้นหาข้อมูลตัวสุดท้าย
+            DBCursor finding_last_menu = get_menu.find().sort(find_menu_condition);//ค้นหาข้อมูลโดยจัดเรียงตาม sortObject
+            int menu_last_id = (int)(finding_last_menu.one().get("MS_MENU_ID"))+1; //กำหนดตัวแปรของรหัสเมนูแล้วบวกด้วย 1
+            menu_json.put("MS_MENU_ID",menu_last_id);     //รหัสเมนู
+            menu_json.put("MS_MENU_NAME",menu_name);      //ชื่อเมนู
+            menu_json.put("MS_MENU_PRICE",(int)menu_price);//ราคาเมนู
+            menu_json.put("MS_PRODUCT",menu_component); //ส่วนประกอบเมนู
+            get_menu.insert(menu_json); //เพิ่มข้อมูลลงในdatabase
+            clear_table((DefaultTableModel)menu_product_table.getModel()); //ล้างข้อมูลในตารางสินค้า
+            clear_table((DefaultTableModel)menu_table.getModel());      //ล้างข้อมูลในตารางเมนู
+            get_product((DefaultTableModel)menu_product_table.getModel()); //ดึงข้อมูลจาก database ลงตารางสินค้า
+            clear_menu(); //เคลียร์ข้อมูลในหน้าต่างเมนูทั้งหมด
+            JOptionPane.showMessageDialog(null,"เพิ่มเมนูสำเร็จ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+            menu_component.clear();//เคลียร์Listของส่วนประกอบของเมนู
+        }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+            JOptionPane.showMessageDialog(null,"เพิ่มเมนูไม่สำเร็จ","",ERROR_MESSAGE);//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+            e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
-    }//GEN-LAST:event_jButton14ActionPerformed
+    }//GEN-LAST:event_menu_commit_btnActionPerformed
 
-    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
-        clear_menu();
-        clear_table((DefaultTableModel)menu_product_table.getModel());
-        clear_table((DefaultTableModel)menu_table.getModel());
-        get_product((DefaultTableModel)menu_product_table.getModel());
-        menu_component.clear();
-    }//GEN-LAST:event_jButton13ActionPerformed
+    private void menu_clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_clear_btnActionPerformed
+            clear_menu();//เคลียร์ข้อมูลในหน้าต่างเมนูทั้งหมด
+            clear_table((DefaultTableModel)menu_product_table.getModel()); //ล้างข้อมูลในตารางสินค้า
+            clear_table((DefaultTableModel)menu_table.getModel());      //ล้างข้อมูลในตารางเมนู
+            get_product((DefaultTableModel)menu_product_table.getModel()); //ดึงข้อมูลจาก database ลงตารางสินค้า
+            menu_component.clear();//เคลียร์Listของส่วนประกอบของเมนู
+    }//GEN-LAST:event_menu_clear_btnActionPerformed
 
     private void menu_product_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menu_product_tableMouseClicked
-        String productid = menu_product_table.getModel().getValueAt(menu_product_table.getSelectedRow(),0).toString();
-        String productname = menu_product_table.getModel().getValueAt(menu_product_table.getSelectedRow(),1).toString();
-        try{
-        DBCollection get_product = db.getCollection("MS_PRODUCT");
-        if(menu_table_doubleclick.equals(productid)){
-        try{
+        String productid = menu_product_table.getModel().getValueAt(menu_product_table.getSelectedRow(),0).toString(); //กำหนดตัวแปรเก็บรหัสสินค้า
+        String productname = menu_product_table.getModel().getValueAt(menu_product_table.getSelectedRow(),1).toString(); //กำหนดตัวแปรเก็บชื่อสินค้า
+        try{//เพื่อใช้ในการตั้งค่าเงื่อนไขในการแก้ไขข้อมูล
+        DBCollection get_product = db.getCollection("MS_PRODUCT");//ดึงข้อมูลจากCollectionของสินค้ามาใส่ในตัวแปร
+        if(menu_table_doubleclick.equals(productid)){ 
+            /*
+                    ใช้วิธีเทียบความเหมือนของสองตัวแปร ถ้าหากมีการคลิ๊กที่ตาราง 1 ครั้ง จะทำการตั้งค่าให้ตัวแปรมีค่าเดียวกันกับค่าที่คลิ๊กเพื่อใช้ในการคลิ๊กอีกครั้ง
+                    เมื่อคลิ๊กอีกครั้งแล้วเปรียบเทียบกันว่าตัวแปรทั้งสองมีค่าเหมือนกันหรือไม่ จะทำให้ตัวแปรทั้งสองมีค่าเหมือนกัน จึงreturnกลับมาเป็น true
+          */
+        try{//เพื่อใช้ในการตั้งค่าเงื่อนไขในการแก้ไขข้อมูล
         double menu_per_amount = Double.parseDouble(JOptionPane.showInputDialog(null,"จำนวนที่คุณต้องการจะใช้ต่อเมนู 1 รายการ\nRange ของจำนวนจะอยู่ตั้งแต่ 0.01-9.99 หน่วย"));
-        if(menu_per_amount<=0||menu_per_amount>=10){
-            JOptionPane.showMessageDialog(null,"คุณใส่ตัวเลขไม่ถูกต้อง\nกรุณาทำรายการใหม่",null,ERROR_MESSAGE);
+        //สร้างหน้าต่างป้อนข้อมูลขึ้นมา
+        if(menu_per_amount<=0||menu_per_amount>=10){ //ถ้าหากว่าจำนวนน้อยกว่า 0 หรือมากกว่า10
+            JOptionPane.showMessageDialog(null,"คุณใส่ตัวเลขไม่ถูกต้อง\nกรุณาทำรายการใหม่",null,ERROR_MESSAGE);//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
             menu_table_doubleclick = "";
-        }else{
+        }else{//ถ้าอยู่นอกเงื่อนไข
         if(JOptionPane.showConfirmDialog(null,"ชื่อสินค้า: "+productname+" \n"+
                                               "จำนวนที่จะใช้ต่อเมนู: "+ menu_per_amount+" \n"+
                                               "\n ยืนยืนการเพิ่มสินค้าของเมนูนี้","",YES_NO_OPTION)==YES_OPTION){
-        BasicDBObject product_condition = new BasicDBObject("MS_PRODUCT_ID",Integer.parseInt(productid));
-        DBCursor find_product = get_product.find(product_condition);
-        if(find_product.hasNext()==true){
-            DBObject product_json = find_product.next();
-            product_json.put("MS_PRODUCT_AMOUNT", menu_per_amount);
-            product_json.removeField("_id");
-            product_json.removeField("MS_PRODUCT_PRICE");
-            menu_component.add(product_json);
-            System.out.println("***************************************");
-            for(DBObject d:menu_component){
+                /********************************************/
+                /*ชื่อสินค้า :                                  */
+                /*จำนวนที่จะใช้ต่อเมนู :                          */
+                /*ยืนยันการเพิ่มสินค้าของเมนูนี้                      */
+                /*                                          */
+                /********************************************/
+
+        BasicDBObject product_condition = new BasicDBObject("MS_PRODUCT_ID",Integer.parseInt(productid)); //สร้างObject เพื่อใช้ค้นหาจากรหัสของสินค้า
+        DBCursor find_product = get_product.find(product_condition); //ค้นหาข้อมูลทั้งหมดจาก MS_PRODUCT โดยใช้รหัสสินค้า
+        if(find_product.hasNext()==true){ //ถ้าหามีข้อมูล
+            DBObject product_json = find_product.next(); //ดึงข้อมูลนั้นๆของวัตถุดิบมาเก็บใส่ตัวแปรใหม่เพื่อป้องกันข้อผิดพลาด
+            product_json.put("MS_PRODUCT_AMOUNT", menu_per_amount); //แก้ไขข้อมูลจำนวนที่ใช้ต่อเมนู
+            product_json.removeField("_id"); //ลบObject id
+            product_json.removeField("MS_PRODUCT_PRICE"); //ลบราคาของสินค้า
+            menu_component.add(product_json); //เพิ่มข้อมูลไปยัง List ของส่วนประกอบ
+            /*System.out.println("***************************************");
+            for(DBObject d:menu_component){ //foreach ส่วนประกอบของเมนู
                 System.out.println(d);
             }
-            System.out.println("***************************************");
-            DefaultTableModel product_model = (DefaultTableModel) menu_product_table.getModel();
-            DefaultTableModel menu_model = (DefaultTableModel) menu_table.getModel();
-            product_model.removeRow(menu_product_table.getSelectedRow());
-            set_menu_table(menu_model);
+            System.out.println("***************************************");*/
+            DefaultTableModel product_model = (DefaultTableModel) menu_product_table.getModel(); //กำหนดตัวแปรจากตารางสินค้า
+            DefaultTableModel menu_model = (DefaultTableModel) menu_table.getModel(); //กำหนดตัวแปรจากตารางเมนู
+            product_model.removeRow(menu_product_table.getSelectedRow()); //ลบแถวที่เลือกในตารางสินค้า
+            set_menu_table(menu_model); //ใช้ฟังก์ชั่นดึงข้อมูลเมนู
         }
-        menu_table_doubleclick = "";
+        menu_table_doubleclick = ""; //เคลียร์ฟังก์ชั่นดับเบิ้ลคลิ๊ก
         }
         }
-        }catch(NumberFormatException e){
+        }catch(NumberFormatException e){ //เกิดข้อผิดพลาดเกี่ยวกับประเภทของตัวเลข
             JOptionPane.showMessageDialog(null,"คุณใส่ตัวเลขไม่ถูกต้อง\nกรุณาทำรายการใหม่",null,ERROR_MESSAGE);
-            menu_table_doubleclick = "";
-        }catch(NullPointerException e){
-            menu_table_doubleclick = ""; 
-        }catch(Exception e){
-            e.printStackTrace();
+            menu_table_doubleclick = "";//เคลียร์ฟังก์ชั่นดับเบิ้ลคลิ๊ก
+        }catch(NullPointerException e){//เกิดข้อผิดพลาดเกี่ยวกับการไม่พบข้อมูล
+            menu_table_doubleclick = ""; //เคลียร์ฟังก์ชั่นดับเบิ้ลคลิ๊ก
+        }catch(Exception e){ //ถ้าหากเกิดข้อผิดพลาดนอกเหนือจากนั้นทั้งหมด 
+              e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ 
         }
-        }else{
-            menu_table_doubleclick = productid;
+        }else{//ถ้าหากว่าตัวแปรที่กำหนดไว้มีค่าไม่ตรงกับตัวแปรในตาราง
+            menu_table_doubleclick = productid; //ตั้งค่าตัวแปรที่กำหนดไว้ให้มีค่าตรงกับตัวแปรในตารางแถวที่เลือกช่องที่1
         }
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(Exception e){ //ถ้าหากเกิดข้อผิดพลาดนอกเหนือจากนั้นทั้งหมด 
+              e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ 
         }
     }//GEN-LAST:event_menu_product_tableMouseClicked
 
-    private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
-        if(add_order){
-         int menu_id = (int)menu_order_table.getModel().getValueAt(menu_order_table.getSelectedRow(),0);
+    private void adding_order_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adding_order_btnActionPerformed
+        if(add_order){ //ถ้าหากว่ามีการเพิ่มเมนูในออเดอร์
+         int menu_id = (int)menu_order_table.getModel().getValueAt(menu_order_table.getSelectedRow(),0); //ตั้งตัวแปรเพื่อเก็บข้อมูลรหัสเมนู
          //System.out.println(menu_id);
-            try{
-              DBCollection get_order = db.getCollection("TRAN_ORDER");
-              DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");
-              DBCollection get_menu = db.getCollection("MS_MENU");
-              BasicDBObject find_menu = new BasicDBObject("MS_MENU_ID",menu_id);
-              DBCursor finding_menu = get_menu.find(find_menu);
-              DBObject menu_json = null;
-              System.out.println(">>"+get_order_list_id(menu_id));
-              if(finding_menu.hasNext()){
-                  menu_json = finding_menu.next();
-                  menu_json.removeField("_id");
-            try{
+            try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+              DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");//ดึงข้อมูลจากCollectionของรายการออเดอร์
+              DBCollection get_menu = db.getCollection("MS_MENU");//ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
+              BasicDBObject find_menu = new BasicDBObject("MS_MENU_ID",menu_id);//สร้างObjectชื่อ find_menu เพื่อเก็บข้อมูลที่จะนำไปค้นหาจากรหัสเมนู
+              DBCursor finding_menu = get_menu.find(find_menu); //ค้นหาข้อมูลจากรหัสเมนู
+              DBObject menu_json = null; //สร้างตัวแปรเปล่าเพื่อใช้เก็บข้อมูลของเมนู
+              //System.out.println(">>"+get_order_list_id(menu_id));
+              if(finding_menu.hasNext()){ //ถ้าหากว่ามีข้อมูล
+                  menu_json = finding_menu.next(); //นำข้อมูลไปเก็บไว้ในตัวแปร menu_json
+                  menu_json.removeField("_id");//ลบ Objectid ของเมนู
+            try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
                 int menu_amount = Integer.parseInt(JOptionPane.showInputDialog(null,""
                      + "รายการเมนู\n"
                      + "ชื่อเมนู: "+menu_json.get("MS_MENU_NAME")+"\n"
                      + "ราคาต่อเมนู: "+menu_json.get("MS_MENU_PRICE")+"\n"
                      + "\nกรุณากรอกจำนวนเมนูที่ต้องการค่ะ"
                      + "\n(กรุณากรอกเป็นตัวเลขจำนวนเต็ม)"));
-                if(menu_amount<=0){
-                    throw new NumberFormatException();
-                }else{
-                  order_list_price = ((int)menu_json.get("MS_MENU_PRICE")*menu_amount);
-                  BasicDBObject insert_order_list = new BasicDBObject();
-                  insert_order_list.put("TRAN_ORDER_LIST_ID",get_order_list_id(menu_id));
-                  insert_order_list.put("TRAN_ORDER_LIST_AMOUNT",menu_amount);
-                  insert_order_list.put("TRAN_ORDER_LIST_TOTAL_PRICE",order_list_price);
-                  insert_order_list.put("MS_MENU_ID",(int)menu_json.get("MS_MENU_ID"));
-                  get_order_list.insert(insert_order_list);
-                  clear_table((DefaultTableModel)order_table.getModel());
-                  get_order_list((DefaultTableModel)order_table.getModel());
-                  System.out.println(menu_json.get("MS_MENU_ID"));
-                  System.err.println(order_list_price);
-                  if(check_order_list==true){
-                    ordering_btn.setEnabled(true);
-                  }else{
-                    ordering_btn.setEnabled(false);
+                /*************************************************/
+                /*รายการเมนู :                                     */
+                /*ชื่อเมนู :                                        */
+                /*ราคาต่อเมนู :                                     */
+                /*กรุณากรอกจำนวนเมนูที่ต้องการค่ะ                       */
+                /*(กรุณากรอกเป็นตัวเลขจำนวนเต็ม)                       */
+                /*************************************************/
+                if(menu_amount<=0){ //ถ้าหากว่าจำนวนของเมนูน้อยกว่า 0
+                    throw new NumberFormatException(); //ส่งการทำงานผิดพลาดของประเภทของตัวเลข
+                }else{//ถ้าหากว่านอกเหนือจากนั้น
+                  order_list_price = ((int)menu_json.get("MS_MENU_PRICE")*menu_amount); //ราคาของรายการเมนู
+                  BasicDBObject insert_order_list = new BasicDBObject(); //สร้างObject เพื่อใช้เก็บข้อมูลรายการออเดอร์ที่จะเพิ่มใน database
+                  insert_order_list.put("TRAN_ORDER_LIST_ID",get_order_list_id(menu_id)); //รหัสรายการออเดอร์
+                  insert_order_list.put("TRAN_ORDER_LIST_AMOUNT",menu_amount); //จำนวนรายการออเดอร์
+                  insert_order_list.put("TRAN_ORDER_LIST_TOTAL_PRICE",order_list_price); //ราคารายการออเดอร์
+                  insert_order_list.put("MS_MENU_ID",(int)menu_json.get("MS_MENU_ID")); //รหัสเมนู
+                  get_order_list.insert(insert_order_list); //เพิ่มข้อมูลรายการออเดอร์ใส่ database
+                  clear_table((DefaultTableModel)order_table.getModel()); //ลบข้อมูลในตารางออเดอร์
+                  get_order_list((DefaultTableModel)order_table.getModel()); //ดึงข้อมูลของตารางออเดอร์
+                  //System.out.println(menu_json.get("MS_MENU_ID"));
+                  //System.err.println(order_list_price);
+                  if(check_order_list==true){ //ถ้าหากว่ามีข้อมูลรายการออเดอร์อยู่แล้ว
+                    ordering_btn.setEnabled(true); //เปิดการใช้งานปุ่มการสั่งออเดอรื
+                  }else{//ถ้าไม่ใช่
+                    ordering_btn.setEnabled(false);//ปิดการทำงานปุ่มการสั่งออเดอร์
                   }
                 }
-            }catch(NumberFormatException e){
-                JOptionPane.showMessageDialog(null,"คุณกรอกจำนวนไม่ถูกต้อง\nกรุณาทำรายการใหม่","",ERROR_MESSAGE);
-                e.printStackTrace();
-            }catch(Exception e){
-                e.printStackTrace();
+            }catch(NumberFormatException e){ //ถ้าหากมีการทำงานผิดพลาดประเภทของจำนวน
+                JOptionPane.showMessageDialog(null,"คุณกรอกจำนวนไม่ถูกต้อง\nกรุณาทำรายการใหม่","",ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
-              }else{
-                  throw new NullPointerException();
+              }else{//ถ้าหากว่าไม่มีข้อมูล
+                  throw new NullPointerException(); //ส่งการทำงานผิดพลาดเกี่ยวกับประเภทของจำนวน
               }
-            }catch(NullPointerException e){
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูล\nกรุณาทำรายการใหม่","",ERROR_MESSAGE);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-        }else{
-            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้เลือกเมนูในรายการ\nกรุณาทำรายการใหม่ครับ","",ERROR_MESSAGE);
+            }catch(NullPointerException e){//ถ้าหากมีการทำงานผิดพลาดประเภทของจำนวน
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูล\nกรุณาทำรายการใหม่","",ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
-    }//GEN-LAST:event_jButton16ActionPerformed
+        }else{//ถ้าหากไม่มีการเลือกออเดอร์
+            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้เลือกเมนูในรายการ\nกรุณาทำรายการใหม่ครับ","",ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+        }
+    }//GEN-LAST:event_adding_order_btnActionPerformed
 
     private void menu_order_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menu_order_tableMouseClicked
       add_order = true;
     }//GEN-LAST:event_menu_order_tableMouseClicked
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        menu_order_table.clearSelection();
-        add_order = false;
-        clearing_order();
-        clear_table((DefaultTableModel)order_table.getModel());
-        get_order_list((DefaultTableModel)order_table.getModel());
-        ordering_btn.setEnabled(false);
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void order_clear_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_order_clear_btnActionPerformed
+        menu_order_table.clearSelection(); //เคลียร์การเลือกของตาราง
+        add_order = false; //ส่งค่าตัวแปรการเพิ่มข้อมูลเป็น false
+        clearing_order(); //เคลียร์ข้อมูลในหน้าต่างออเดอร์ทั้งหมด
+        clear_table((DefaultTableModel)order_table.getModel()); //เคลียร์ข้อมูลในตารางออเดอร์
+        get_order_list((DefaultTableModel)order_table.getModel()); //ดึงข้อมูลของออเดอร์จาก database
+        ordering_btn.setEnabled(false); //ตั้งค่าปุ่มการสั่งออเดอรืให้ใช้การไม่ได้
+    }//GEN-LAST:event_order_clear_btnActionPerformed
 
     private void history_comboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_history_comboActionPerformed
-        clear_table((DefaultTableModel)history_table.getModel());
-        switch(history_combo.getSelectedIndex()){
+        clear_table((DefaultTableModel)history_table.getModel()); //เคลียร์ข้อมูลในตารางประวัติการขาย
+        switch(history_combo.getSelectedIndex()){ //switch case ของประวัติการขาย ตั้งค่าเกี่ยวกับจำนวนเงิน และ เดือน
             case 1:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("January"));break;
             case 2:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("February"));break;
             case 3:total_price_txt.setText("0.0");total_price_txt.setText(""+get_history("March"));break;
@@ -2192,25 +2137,29 @@ int order_list_price = -1;
 
     private void history_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_history_tableMouseClicked
         String order_id = history_table.getModel().getValueAt(history_table.getSelectedRow(),0).toString();
+        
         if(history_table_doubleclick.equals(order_id)){
-            try{
-            String findpart = "./invoice/";
-            File file=new File(findpart);
-            File files[] = file.listFiles();
-            for(File f:files){
-                if(f.getName().contains(order_id)){
-                findpart = (f.getName());
+        /*
+               ใช้วิธีเทียบความเหมือนของสองตัวแปร ถ้าหากมีการคลิ๊กที่ตาราง 1 ครั้ง จะทำการตั้งค่าให้ตัวแปรมีค่าเดียวกันกับค่าที่คลิ๊กเพื่อใช้ในการคลิ๊กอีกครั้ง
+               เมื่อคลิ๊กอีกครั้งแล้วเปรียบเทียบกันว่าตัวแปรทั้งสองมีค่าเหมือนกันหรือไม่ จะทำให้ตัวแปรทั้งสองมีค่าเหมือนกัน จึงreturnกลับมาเป็น true
+        */
+            try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+            String findpart = "./invoice/"; //ตั้งค่า path ของใบเสร็จ
+            File file=new File(findpart); //ดึงข้อมูลไฟล์ตาม path
+            File files[] = file.listFiles(); //ดึงข้อมูลทั้งหมดในpath (folder) มาเก็บใส list
+            for(File f:files){ //สร้าง loop foreach ของไฟล์ 
+                if(f.getName().contains(order_id)){ //ถ้าหากชื่อของไฟล์มีส่วนประกอบของรหัสออเดอร์
+                findpart = (f.getName()); //ตั้งค่า path ใหม่
             }
             }
-            Desktop.getDesktop().open(new File("./invoice/"+findpart));
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            history_table_doubleclick = "";
-        }else{
-            history_table_doubleclick = order_id;
+            Desktop.getDesktop().open(new File("./invoice/"+findpart)); //เปิดไฟล์ตาม path ที่ตั้งไว้
+            }catch(Exception e){ //ถ้าหากเกิดข้อผิดพลาดนอกเหนือจากนั้นทั้งหมด 
+              e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ 
+          }
+            history_table_doubleclick = ""; //เคลียร์ฟังก์ชั่นดับเบิ้ลคลิ๊ก
+        }else{//ถ้าหากว่าตัวแปรที่กำหนดไว้มีค่าไม่ตรงกับตัวแปรในตาราง
+            history_table_doubleclick = order_id;//ตั้งค่าตัวแปรที่กำหนดไว้ให้มีค่าตรงกับตัวแปรในตารางแถวที่เลือกช่องที่1
         }
-        System.out.println(order_id);
     }//GEN-LAST:event_history_tableMouseClicked
 
     /**
@@ -2249,12 +2198,13 @@ int order_list_price = -1;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton adding_order_btn;
     private javax.swing.JPanel btn_panel;
-    private javax.swing.JButton clear_btn;
     private javax.swing.JCheckBox confirm;
-    private javax.swing.JButton confirm_btn;
     private datechooser.beans.DateChooserCombo customer_birthdate_txt;
     private javax.swing.JButton customer_btn;
+    private javax.swing.JButton customer_clear_btn;
+    private javax.swing.JButton customer_commit_btn;
     private javax.swing.JTextField customer_district_txt;
     private javax.swing.JTextField customer_email_txt;
     private javax.swing.JTextField customer_home_txt;
@@ -2266,13 +2216,19 @@ int order_list_price = -1;
     private javax.swing.JComboBox<String> customer_prefix;
     private javax.swing.JTextField customer_province_txt;
     private javax.swing.JComboBox<String> customer_type_combo;
+    private javax.swing.JButton edit_customer_btn;
+    private javax.swing.JButton edit_employee_btn;
+    private javax.swing.JButton edit_menu_btn;
+    private javax.swing.JButton edit_partner_btn;
+    private javax.swing.JButton edit_product_btn;
     private javax.swing.JComboBox<String> employee_age_combo;
     private datechooser.beans.DateChooserCombo employee_birthdate_txt;
     private javax.swing.JButton employee_btn;
+    private javax.swing.JButton employee_clear_btn;
+    private javax.swing.JButton employee_commit_btn;
     private javax.swing.JTextField employee_district_txt;
     private javax.swing.JTextField employee_email_txt;
     private javax.swing.JTextField employee_home_txt;
-    private javax.swing.JTextField employee_id_txt;
     private javax.swing.JTextField employee_locality_txt;
     private javax.swing.JTextField employee_name_txt;
     private javax.swing.JPanel employee_panel;
@@ -2289,23 +2245,6 @@ int order_list_price = -1;
     private javax.swing.JPanel history_panel;
     private javax.swing.JTable history_table;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton11;
-    private javax.swing.JButton jButton12;
-    private javax.swing.JButton jButton13;
-    private javax.swing.JButton jButton14;
-    private javax.swing.JButton jButton15;
-    private javax.swing.JButton jButton16;
-    private javax.swing.JButton jButton17;
-    private javax.swing.JButton jButton18;
-    private javax.swing.JButton jButton19;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -2364,7 +2303,6 @@ int order_list_price = -1;
     private javax.swing.JLabel jLabel62;
     private javax.swing.JLabel jLabel63;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -2374,6 +2312,8 @@ int order_list_price = -1;
     private javax.swing.JPanel main_panel;
     private javax.swing.JRadioButton man_radio;
     private javax.swing.JButton menu_btn;
+    private javax.swing.JButton menu_clear_btn;
+    private javax.swing.JButton menu_commit_btn;
     private javax.swing.JTextField menu_name_txt;
     private javax.swing.JTable menu_order_table;
     private javax.swing.JPanel menu_panel;
@@ -2381,12 +2321,15 @@ int order_list_price = -1;
     private javax.swing.JTable menu_product_table;
     private javax.swing.JTable menu_table;
     private javax.swing.JButton order_btn;
+    private javax.swing.JButton order_clear_btn;
     private javax.swing.JPanel order_panel;
     private javax.swing.JTable order_table;
     private javax.swing.JTextField order_total_txt;
     private javax.swing.JButton ordering_btn;
     private javax.swing.JButton partner_btn;
+    private javax.swing.JButton partner_clear_btn;
     private javax.swing.JComboBox<String> partner_combo;
+    private javax.swing.JButton partner_commit_btn;
     private javax.swing.JTextField partner_distict_txt;
     private javax.swing.JTextField partner_email_txt;
     private javax.swing.JTextField partner_home_txt;
@@ -2402,11 +2345,15 @@ int order_list_price = -1;
     private javax.swing.JTextField pro_price_txt;
     private javax.swing.JComboBox<String> pro_type_combo;
     private javax.swing.JButton product_btn;
+    private javax.swing.JButton product_clear_btn;
+    private javax.swing.JButton product_commit_btn;
     private javax.swing.JPanel product_panel;
     private javax.swing.JCheckBox showpwd_check;
     private javax.swing.JTextField stock_amount;
     private javax.swing.JButton stock_btn;
+    private javax.swing.JButton stock_clear_btn;
     private javax.swing.JComboBox<String> stock_combo;
+    private javax.swing.JButton stock_commit_btn;
     private javax.swing.JPanel stock_panel;
     private javax.swing.JLabel title_name_txt;
     private javax.swing.JPanel title_panel;

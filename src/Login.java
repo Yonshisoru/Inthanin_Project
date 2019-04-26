@@ -126,7 +126,7 @@ public boolean checklogin(String user,String pwd){ //ฟังก์ชั่น
         BasicDBObject sortObject = new BasicDBObject().append("_id", -1); //สร้างObject เพื่อค้นหาข้อมูลตัวสุดท้าย
         DBCursor cur = table.find().sort(sortObject); //ค้นหาข้อมูลโดยจัดเรียงตาม sortObject
         int id = 0; //สร้างตัวแปรเพื่อใช้เก็บรหัสลำดับของประวัติการใช้งาน
-        DBCursor find = table.find(); //ค้นหาข้อมูลทั้งหมดของประวิตการใช้งาน
+        DBCursor find = table.find(); //ค้นหาข้อมูลทั้งหมดของประวัติการใช้งาน
        // System.out.println(find.hasNext());
         if(find.hasNext()==true){//ถ้าหากเจอให้ดึงข้อมูลรหัสลำดับตัวสุดท้ายแล้วบวกด้วย 1
             int n = (int)cur.one().get("TRAN_LOG_ID");
@@ -140,7 +140,7 @@ public boolean checklogin(String user,String pwd){ //ฟังก์ชั่น
              String year = formattedDate.substring(0,4); //ปีปัจจุบัน
              String date = formattedDate.substring(formattedDate.length()-2,formattedDate.length()); //วันที่ปัจจุบัน
             //-----------------------------------------------
-            ฺasicDBObject document = new BasicDBObject(); //สร้างObject เพื่อค้นหาข้อมูลของประวัติการใช้งาน
+            BasicDBObject document = new BasicDBObject(); //สร้างObject เพื่อค้นหาข้อมูลของประวัติการใช้งาน
             document.put("TRAN_LOG_ID",id); //รหัสลำดับประวัติการใช้งาน
             document.put("TRAN_LOG_DATE",month+" "+date+", "+year); //วันที่ใช้งาน
             document.put("TRAN_LOG_TIME",LocalTime.now().toString().substring(0,8)); //เวลาที่ใช้งาน
@@ -150,9 +150,9 @@ public boolean checklogin(String user,String pwd){ //ฟังก์ชั่น
             table.insert(document); //เพิ่มข้อมูลของประวัติการใช้งานลง Database
             v.setid(employeeid); //ตั้งค่าประเภทของผู้ใช้เป็น static
             System.out.println("เพิ่มประวัติการเข้าใช้เรียบร้อยแล้ว");//แสดงข้อความเมื่อเพิ่มประวัติการใช้งานสำเร็จ
-    }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
-}
+            }
     return output; //คืนค่าผลการ login
 }
 public void Mainpanel(){ //ฟังก์ชั่นหน้าจอหลัก
