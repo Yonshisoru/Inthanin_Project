@@ -64,7 +64,6 @@ public class Order_confirm extends javax.swing.JFrame {
     
     public void printInvoice(String id,double income){
         int count = 0;
-        //String time = LocalTime.now().toString().substring(0,2)+"-"+LocalTime.now().toString().substring(3,5)+"-"+LocalTime.now().toString().substring(6,8);
         String filename = "$"+LocalDate.now()+"$"+time+"$"+/*t.getorderid()*/id+".pdf";
         try{
         Document doc = new Document(new Rectangle(218,400),20f, 0f, 0f, 0f);
@@ -190,7 +189,7 @@ try{
         return product_json;
     }
         
-         public DBObject find_customer(String id){ //ค้นหารหัสของสินค้าจากชื่อ
+         public DBObject find_customer(String id){ //ค้นหาข้อมูลจากรหัสลูกค้า
             DBCollection customer = db.getCollection("MS_CUSTOMER");
             BasicDBObject data = new BasicDBObject("MS_CUSTOMER_ID",id);
             DBCursor find = customer.find(data);
@@ -533,7 +532,6 @@ try{
         }catch(Exception e){
             e.printStackTrace();
         }
-        //printInvoice();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
