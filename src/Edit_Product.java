@@ -352,23 +352,22 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
     }// </editor-fold>//GEN-END:initComponents
 
     private void confirm_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirm_btnActionPerformed
-        try{
-           DBCollection get_product = db.getCollection("MS_PRODUCT");
-        if(edit==true){  
-            if(product_name_txt.getText().isEmpty()){
-                throw new NullPointerException();
+        try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+           DBCollection get_product = db.getCollection("MS_PRODUCT"); //ดึงข้อมูลจากCollectionของสินค้ามาใส่ในตัวแปร
+        if(edit==true){  //ถ้าหากว่าอยู่ในโหมดแก้ไข
+            if(product_name_txt.getText().isEmpty()){ //ถ้าหากว่าตารางสินค้าไม่ถูกเลือก
+                throw new NullPointerException(); //คืนค่าข้อผิดพลาด
             }
-           BasicDBObject searchFields = new BasicDBObject("MS_PRODUCT_ID",product_id);
-           BasicDBObject updateFields = new BasicDBObject();
-           BasicDBObject partner_address = new BasicDBObject();
-           BasicDBObject setQuery = new BasicDBObject();
+           BasicDBObject searchFields = new BasicDBObject("MS_PRODUCT_ID",product_id); //ค้นหาข้อมูลจากรหัสสินค้า
+           BasicDBObject updateFields = new BasicDBObject();//ข้อมูลที่จะแก้ไขของสินค้า
+           BasicDBObject product_type = new BasicDBObject();//ประเภทของสินค้า
+           BasicDBObject setQuery = new BasicDBObject();//ตั้งค่าregexเมื่อส่งข้อมูลเข้าสู่ Database
            String type = null;
         try{
-           updateFields.append("MS_PRODUCT_NAME",product_name_txt.getText());
-           updateFields.append("MS_PRODUCT_PRICE",Double.parseDouble(product_price_txt.getText()));
-           updateFields.append("MS_PRODUCT_AMOUNT",Double.parseDouble(product_amount_txt.getText()));
-           updateFields.append("MS_PRODUCT_TYPE",partner_address);
-           updateFields.append("MS_PARTNER_ID",find_partner(product_partner_combo.getSelectedItem().toString()));
+           updateFields.append("MS_PRODUCT_NAME",product_name_txt.getText()); //ชื่อของสินค้า
+           updateFields.append("MS_PRODUCT_PRICE",Double.parseDouble(product_price_txt.getText())); //ราคาของสินค้าต่อหน่วย
+           updateFields.append("MS_PRODUCT_AMOUNT",Double.parseDouble(product_amount_txt.getText())); //จำนวนของสินค้า
+           updateFields.append("MS_PARTNER_ID",find_partner(product_partner_combo.getSelectedItem().toString())); //รหัสของบริษัทคู่ค้า
                 /*
 
                   index 0 = เครื่องดื่ม
@@ -377,55 +376,55 @@ public void clear_table(DefaultTableModel table){ //ลบข้อมูลท�
 
                 */
 
-                if(product_type_combo.getSelectedIndex()==1){
+                if(product_type_combo.getSelectedIndex()==1){ 
                    type = "Drink";
                 }else if(product_type_combo.getSelectedIndex()==2){
                     type = "Bakery";
                 }else if(product_type_combo.getSelectedIndex()==3){
                     type = "Meal";
                 }
-           setQuery.append("$set", updateFields);
-           updateFields.append("MS_PRODUCT_TYPE",type);
-           get_product.update(searchFields,setQuery);
-           System.out.println("Success");
-           clear_table((DefaultTableModel)product_table.getModel());
-           get_collection_in_to_table();
-           JOptionPane.showMessageDialog(null,"แก้ไขข้อมูลของสินค้าเรียบร้อยแล้วค่ะ");
-            }catch(Exception e){
-                e.printStackTrace();
+           setQuery.append("$set", updateFields);//ตั้งค่าให้queryให้เป็นการแก้ไขจากข้อมูลเดิม
+           updateFields.append("MS_PRODUCT_TYPE",type);//ประเภทของสินค้า
+           get_product.update(searchFields,setQuery);//อัพเดทข้อมูลใหม่ในฐานข้อมูล
+           //System.out.println("Success");
+           clear_table((DefaultTableModel)product_table.getModel());//ลบข้อมูลในตารางลูกค้า
+           get_collection_in_to_table();//เรียกข้อมูลในตารางลูกค้าจากฐานข้อมูล
+           JOptionPane.showMessageDialog(null,"แก้ไขข้อมูลของสินค้าเรียบร้อยแล้วค่ะ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+            }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                     e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
-        }else if(delete==true){
-            get_product.remove(new BasicDBObject("MS_PRODUCT_ID",product_id));
-            clear_table((DefaultTableModel)product_table.getModel());
-            get_collection_in_to_table();
-            JOptionPane.showMessageDialog(null,"ลบข้อมูลของสินค้าเรียบร้อยแล้วค่ะ");
+        }else if(delete==true){ //ถ้าหากว่าอยู่ในโหมดการลบข้อมูล
+            get_product.remove(new BasicDBObject("MS_PRODUCT_ID",product_id)); //ลบข้อมูลของสินค้าจากรหัสของสินค้า
+            clear_table((DefaultTableModel)product_table.getModel());//ลบข้อมูลในตารางลูกค้า
+           get_collection_in_to_table();//เรียกข้อมูลในตารางลูกค้าจากฐานข้อมูล
+            JOptionPane.showMessageDialog(null,"ลบข้อมูลของสินค้าเรียบร้อยแล้วค่ะ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
         }
-        }catch(NullPointerException e){
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบ\nกรุณากรอกข้อมูลใหม่ด้วยค่ะ");
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+        }catch(NullPointerException e){ //ถ้าหากว่ามีข้อผิดพลาดของข้อมูล
+            e.printStackTrace();e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบ\nกรุณากรอกข้อมูลใหม่ด้วยค่ะ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+        }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                     e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
     }//GEN-LAST:event_confirm_btnActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-            this.setVisible(false);
+            this.setVisible(false); //ซ่อนหน้าต่างแก้ไขนี้
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void product_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_product_tableMouseClicked
-        get_data_from_table();
+        get_data_from_table(); //ดึงข้อมูลของสินค้าในตารางมาใส่ในหน้าต่าง
     }//GEN-LAST:event_product_tableMouseClicked
 
     private void product_type_comboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_product_type_comboActionPerformed
-            set_parnter_combo(product_type_combo.getSelectedIndex());
+            set_parnter_combo(product_type_combo.getSelectedIndex()); //เพิ่มข้อมูลในปุ่มแถบเลือกบริษัทคู่ค้าตามประเภทของสินค้า
     }//GEN-LAST:event_product_type_comboActionPerformed
 
     private void delete_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_radioActionPerformed
-        check_function();
+        check_function();//เช็คการทำงานในปัจจุบัน(ลบ/แก้ไขข้อมูล)
     }//GEN-LAST:event_delete_radioActionPerformed
 
     private void edit_radioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edit_radioActionPerformed
-        check_function();
+        check_function();//เช็คการทำงานในปัจจุบัน(ลบ/แก้ไขข้อมูล)
     }//GEN-LAST:event_edit_radioActionPerformed
 
     /**
