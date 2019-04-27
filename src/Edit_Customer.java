@@ -427,7 +427,7 @@ public void getconnect(){ //เชื่อมต่อ Database
             JOptionPane.showMessageDialog(null,"ลบข้อมูลของลูกค้าเรียบร้อยแล้วค่ะ");
         }
        }catch(NullPointerException e){
-           JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบถ้วน\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);
+           JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่ครบถ้วน\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);;//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
        }
