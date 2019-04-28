@@ -50,35 +50,40 @@ import javax.swing.table.DefaultTableModel;
  * @author Yonshisoru
  */
 public class Order_confirm extends javax.swing.JFrame {
-    Variable v = new Variable();
-    boolean first_notification = false;
-    MongoClient mongo;
-    DB db;
-    DBCollection DBC;
-    DBObject dbo;
-    double sum_order_price = 0;
-    double total_order_price = 0;
-    int discount_price = 0;
-    String time = LocalTime.now().toString().substring(0,2)+"-"+LocalTime.now().toString().substring(3,5)+"-"+LocalTime.now().toString().substring(6,8);
-    List<DBObject> order_list = new ArrayList<>();
+Variable v = new Variable();//สร้าง Object ใหม่จาก Variable Class เพื่อดึง Method มาใช้
+//--------------------------MongoDB variable-------------------------------
+    MongoClient mongo; //กำหนดตัวแปรประเภท MongoClient
+    DB db; //กำหนดตัวแปรประเภท DB
+    DBCollection DBC; //กำหนดตัวแปรประเภท DBCollection
+//---------------------Boolean------------------------------
+    boolean first_notification = false; //กำหนดให้มีการแจ้งเตือนเมื่อเข้าหน้าจอ
+//---------------------Double------------------------------
+    double sum_order_price = 0; //ราคารวมทั้งหมด(ยังไม่ได้หักส่วนลด)
+    double total_order_price = 0; //ราคารวมทั้งหมด (รวมส่วนลด)
+//---------------------Integer------------------------------
+    int discount_price = 0; //จำนวนส่วนลด(เปอร์เซตน์ 1-100)
+//---------------------String------------------------------
+    String time = LocalTime.now().toString().substring(0,2)+"-"+LocalTime.now().toString().substring(3,5)+"-"+LocalTime.now().toString().substring(6,8); //กำหนดตัวแปรเพื่อใช้เก็บเวลา
+//---------------------List------------------------------    
+    List<DBObject> order_list = new ArrayList<>(); //สร้างListเพื่อเก็บข้อมูลของ
     
-    public void printInvoice(String id,double income){
-        int count = 0;
-        String filename = "$"+LocalDate.now()+"$"+time+"$"+/*t.getorderid()*/id+".pdf";
-        try{
-        Document doc = new Document(new Rectangle(218,400),20f, 0f, 0f, 0f);
-        BaseFont baseFont = BaseFont.createFont("fonts/fontsgod.ttf", BaseFont.IDENTITY_H,true);
-        Font font = new Font(baseFont,7);
-        Font topicfont = new Font(baseFont,6);
-        Font bigfont = new Font(baseFont,10);
-        PdfWriter.getInstance(doc,new FileOutputStream("invoice/"+filename));
-        doc.open();
-        doc.add(new Paragraph(String.format("Inthanin Coffee"),bigfont));
+    public void printInvoice(String id,double income){ //ฟังก์ชั่นการสร้างใบเสร็
+        int count = 0; //ตัวแปรเก็บจำนวนรายการทั้งหมด
+        String filename = "$"+LocalDate.now()+"$"+time+"$"+/*t.getorderid()*/id+".pdf"; //เก็บชื่อไฟล์ของใบเสร็จ (วันที่+เวลา+รหัสออเดอร์)
+        try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+        Document doc = new Document(new Rectangle(218,400),20f, 0f, 0f, 0f); //สร้างเอกสารเปล่าขึ้นมาขนาด 218x400
+        BaseFont baseFont = BaseFont.createFont("fonts/fontsgod.ttf", BaseFont.IDENTITY_H,true); //เรียกใช้งานฟอนต์พื้นฐาน
+        Font font = new Font(baseFont,7); //สร้างฟอนต๊ใหม่ขนาด 7
+        Font topicfont = new Font(baseFont,6); //สร้างฟอนต์ใหม่ขนาด 6
+        Font bigfont = new Font(baseFont,10); //สร้างฟอนต์หัวเรื่องขนาด 10
+        PdfWriter.getInstance(doc,new FileOutputStream("invoice/"+filename));//สร้างไฟล์ของบิลใบเสร็จตามชื่อที่ตั้งไว้
+        doc.open(); //เปิดเอกสารเปล่าขึ้นมา
+        doc.add(new Paragraph(String.format("Inthanin Coffee"),bigfont)); //เพิ่มบรรทัดใหม่พร้อมทั้งตัวหนังสือ
         String date = LocalDate.now().toString().substring(LocalDate.now().toString().length()-2,LocalDate.now().toString().length());
         String month= LocalDate.now().toString().substring(5,7);
         String year = LocalDate.now().toString().substring(0,4);
         doc.add(new Paragraph(String.format("%s\n","วันที่: "+date+"/"+month+"/"+year),font));
-        doc.add(new Phrase(String.format("%s\n","เวลา: "+LocalTime.now().toString().substring(0,8)+" น."),font));
+        doc.add(new Phrase(String.format("%s\n","เวลา: "+LocalTime.now().toString().substring(0,8)+" น."),font)); //เพิ่มวรรคของตัวหนังสือ
         doc.add(new Paragraph(String.format("%s","-----------------------------------------------------------------------------------------------------"),font));
         doc.add(new Paragraph(String.format("%s\n","ใบเสร็จรับเงิน"),bigfont));
                 for(DBObject ol:order_list){
@@ -101,17 +106,17 @@ public class Order_confirm extends javax.swing.JFrame {
         doc.add(new Paragraph(String.format("%s","\n\n\n"),font)); 
         doc.add(new Paragraph(String.format("%s"," -------------------------------------------@powered by SAM---------------------------------------"),font));  
         doc.close();
-}catch (DocumentException ex){
+}catch (DocumentException ex){ //ดักจับการทำงานผิดพลาดเกี่ยวกับเอกสาร
     Logger.getLogger(Order_confirm.class.getName()).log(Level.SEVERE,null,ex);
 }      catch (FileNotFoundException ex) {
            Logger.getLogger(Order_confirm.class.getName()).log(Level.SEVERE, null, ex);
        }catch(IOException ex){
           Logger.getLogger(Order_confirm.class.getName()).log(Level.SEVERE, null, ex); 
        }
-try{
-        Desktop.getDesktop().open(new File("./invoice/"+filename));
-                }catch(Exception e){
-                    System.out.println(e);
+try{ //ดักจับการทำงานผิดพลาดโดยใช้
+        Desktop.getDesktop().open(new File("./invoice/"+filename)); //เปิดไฟล์ใบเสร็จขึ้นมา
+                }catch(Exception e){//ดักจับการทำงานผิดพลาดทั้งหมด
+                    System.out.println(e); //แสดงการทำงานผิดพลาด
                 }
     }
     /**
@@ -120,194 +125,179 @@ try{
    
     public Order_confirm() {
         initComponents();
-        get_order_list((DefaultTableModel)order_table.getModel());
-        set_total_text();
+        get_order_list((DefaultTableModel)order_table.getModel()); //ดึงข้อมูลของรายการออเดอร์จาก Database
+        set_total_text(); //ตั้งค่าราคารวมทั้งหมด
     }
-    public void set_total_text(){
-        order_sum_txt.setText(""+sum_order_price);
-        order_total_txt.setText(""+total_order_price);
+    public void set_total_text(){ //ฟังก์ชั่นการตั้งราคารวมทั้งหมดขึ้นหน้าจอ
+        order_sum_txt.setText(""+sum_order_price); //ราคารวม(ยังไม่หักส่วนลด)
+        order_total_txt.setText(""+total_order_price); //ราคารวม(หักส่วนลดแล้ว)
     }
-    public void clear_customer(){
+    public void clear_customer(){ //ฟังก์ชั่นการเคลียร์ข้อมูลลูกค้า
                 customer_id_txt.setText("");
                 customer_name_txt.setText("");
                 customer_email_txt.setText("");
                 customer_phone_txt.setText("");
     }
-    public void get_order_list(DefaultTableModel table){
-        db = v.getConnect();
-        DefaultTableModel model = table;
-        Object[] row = new Object[4];
-        DBCollection product_collection  = db.getCollection("TRAN_ORDER_LIST");
-        DBCursor product_finding = product_collection.find();
-        if(product_finding.hasNext()==true){
-        while(product_finding.hasNext()){
-            DBObject menu_json = product_finding.next();
-            int menu_id = (int)menu_json.get("MS_MENU_ID");
-            row[0] = (int)menu_json.get("TRAN_ORDER_LIST_ID");
-            row[1] = find_product_name(menu_id).get("MS_MENU_NAME");
+    public void get_order_list(DefaultTableModel table){ //ฟังก์ชั่นดึงข้อมูลของรายการออเดอร์ไปใส่ในตาราง
+        db = v.getConnect(); //เชื่อมต่อDatabase 
+        DefaultTableModel model = table; //ดึงตารางของparameterมาใช้
+        Object[] row = new Object[4]; //สร้างอาเรย์ของ Object ขนาด 4
+        DBCollection product_collection  = db.getCollection("TRAN_ORDER_LIST");//ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
+        DBCursor product_finding = product_collection.find(); //ค้นหาข้อมูลของรายการออเดอร์ทั้งหมด
+        if(product_finding.hasNext()==true){ //ถ้าหากมีข้อมูล
+        while(product_finding.hasNext()){ //สร้างลูป while โดยจะหยุดทำงานต่อเมื่อไม่มีข้อมูลตัวถัดไปแล้ว
+            DBObject menu_json = product_finding.next(); //ดึงข้อมูลของเมนูมาเก็บไว้
+            int menu_id = (int)menu_json.get("MS_MENU_ID"); //กำหนดตัวแปรเก็บรหัสเมนู
+            row[0] = (int)menu_json.get("TRAN_ORDER_LIST_ID"); //รหัสรายการออเดอร์
+            row[1] = find_product_name(menu_id).get("MS_MENU_NAME"); //ชื่อเมนู
             //System.out.println(">>>>"+menu_json.get("TRAN_ORDER_LIST_PRICE"));
-            row[2] = menu_json.get("TRAN_ORDER_LIST_AMOUNT");
-            row[3] = menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");
-            sum_order_price += (int)menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE");
-            model.addRow(row);
+            row[2] = menu_json.get("TRAN_ORDER_LIST_AMOUNT"); //จำนวน
+            row[3] = menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE"); //ราคารวม
+            sum_order_price += (int)menu_json.get("TRAN_ORDER_LIST_TOTAL_PRICE"); //ราคาสุทธิ
+            model.addRow(row); //เพิ่มแถว
         }
-        total_order_price = sum_order_price;
-        }else{
-            throw new NullPointerException();
+        total_order_price = sum_order_price; //ราคารวมเท่ากับราคารวมสุทธิ
+        }else{ //ถ้าหากไม่พบข้อมูล
+            throw new NullPointerException(); //คืนค่าความผิดพลาดเกี่ยวกับค่าว่างของข้อมูล
         }
     } 
         public DBObject find_product_id(String name){ //ค้นหารหัสของสินค้าจากชื่อ
-            DBCollection product = db.getCollection("MS_PRODUCT");
-            BasicDBObject data = new BasicDBObject("MS_PRODUCT_NAME",name);
-            DBCursor find = product.find(data);
-            DBObject product_json = null;
-            //int productid = -1; //-1 = null
-            try{
-                product_json = find.next();
-                //System.out.println(product_json);
-                //productid = (int)product_json.get("MS_PRODUCT_ID");
-                //System.out.println(productid);
-            }catch(Exception e){
-                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");
+            DBCollection product = db.getCollection("MS_PRODUCT"); ////ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
+            BasicDBObject data = new BasicDBObject("MS_PRODUCT_NAME",name); //สร้างObject ในการค้นหาโดยใช้ชื่อของสินค้า
+            DBCursor find = product.find(data); //ค้นหาข้อมูลที่ตรงกับเงื่อนไข
+            DBObject product_json = null; //สร้างตัวแปรเพี่อใช้เก็บข้อมูลของสินค้า
+            try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+                product_json = find.next(); //เก็บข้อมูลของสินค้าลงตัวแปร
+            }catch(Exception e){ //ถ้าหากมีการทำงานผิดพลาดทุกชนิด
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ"); //แสดงกล่องข้อความพร้อมตัวหนังสือ
             }
-        return product_json;
+        return product_json; //คืนค่าข้อมูลสินค้า
     }
-        public DBObject find_product_name(int id){ //ค้นหารหัสของสินค้าจากชื่อ
-            DBCollection product = db.getCollection("MS_MENU");
-            BasicDBObject data = new BasicDBObject("MS_MENU_ID",id);
-            DBCursor find = product.find(data);
-            DBObject product_json = null;
-            //int productid = -1; //-1 = null
+        public DBObject find_product_name(int id){ //ค้นหาข้อมูลสินค้าจากรหัสเมนู
+            DBCollection product = db.getCollection("MS_MENU"); //ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
+            BasicDBObject data = new BasicDBObject("MS_MENU_ID",id); //สร้างObjectเพื่อใช้หาข้อมูลสินค้าโดยใช้รหัสเมนู
+            DBCursor find = product.find(data); //ค้นหาข้อมูลทั้งหมดที่ตรงกับเงื่อนไข
+            DBObject product_json = null; //สร้างตัวแปรเพี่อใช้เก็บข้อมูลของสินค้า
             try{
-                product_json = find.next();
-                //System.out.println(product_json);
-                //productid = (int)product_json.get("MS_PRODUCT_ID");
-                //System.out.println(productid);
-            }catch(Exception e){
-                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");
+                product_json = find.next();//เก็บข้อมูลของสินค้าลงตัวแปร
+            }catch(Exception e){//ถ้าหากมีการทำงานผิดพลาดทุกชนิด
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูลในฐานข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ");//แสดงกล่องข้อความพร้อมตัวหนังสือ
             }
-        return product_json;
+        return product_json;//คืนค่าข้อมูลสินค้า
     }
         
          public DBObject find_customer(String id){ //ค้นหาข้อมูลจากรหัสลูกค้า
-            DBCollection customer = db.getCollection("MS_CUSTOMER");
-            BasicDBObject data = new BasicDBObject("MS_CUSTOMER_ID",id);
-            DBCursor find = customer.find(data);
-            DBObject customer_json = null;
-            //int productid = -1; //-1 = null
+            DBCollection customer = db.getCollection("MS_CUSTOMER");//ดึงข้อมูลจากCollectionของลูกค้ามาใส่ในตัวแปร
+            BasicDBObject data = new BasicDBObject("MS_CUSTOMER_ID",id);//สร้างObjectเพื่อใช้หาข้อมูลลูกค้าโดยใช้รหัสลูกค้า
+            DBCursor find = customer.find(data); //ค้นหาข้อมูลทั้งหมดที่ตรงกับเงื่อนไข
+            DBObject customer_json = null;//สร้างตัวแปรเพี่อใช้เก็บข้อมูลของลูกค้า
             try{
-                customer_json = find.next();
-                //System.out.println(product_json);
-                //productid = (int)product_json.get("MS_PRODUCT_ID");
-                //System.out.println(productid);
-            }catch(Exception e){
-                throw new NullPointerException();
+                customer_json = find.next();//เก็บข้อมูลของลูกค้าลงตัวแปร
+            }catch(Exception e){//ถ้าหากมีการทำงานผิดพลาดทุกชนิด
+                throw new NullPointerException();//แสดงกล่องข้อความพร้อมตัวหนังสือ
             }
-        return customer_json;
+        return customer_json;//คืนค่าข้อมูลลูกค้า
     }
-        public int get_invoice_id(){
-            DBCollection get_order_list = db.getCollection("TRAN_INVOICE");
-            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-            DBCursor finding_order_list_id = get_order_list.find().sort(sortObject);
-              int order_list_id = -1;
+        public int get_invoice_id(){//ฟังก์ชั่นการค้นหารหัสใบเสร็จ
+            DBCollection get_order_list = db.getCollection("TRAN_INVOICE");//ดึงข้อมูลจากCollectionของใบเสร็จมาใส่ในตัวแปร
+            BasicDBObject sortObject = new BasicDBObject().append("_id", -1); //สร้างObjectเพื่อใช้หาข้อมูลลำดับสุดท้าย
+            DBCursor finding_order_list_id = get_order_list.find().sort(sortObject); //ค้นหาข้อมูลโดยจัดเรียงจากล่างขึ้นบน
+              int invoice_id = -1; //ตัวแปรเก็บรหัสใบเสร็จ
                 if(finding_order_list_id.hasNext()==true){ //ถ้าหากว่ามีข้อมูลอยู่แล้ว
-                    DBObject data = finding_order_list_id.next();
-                    order_list_id = 1+(int)data.get("TRAN_INVOICE_ID"); //นำค่าของPKมาบวกด้วย 1
+                    DBObject data = finding_order_list_id.next(); //เก็บข้อมูลของใบเสร็จลงตัวแปร
+                    invoice_id = 1+(int)data.get("TRAN_INVOICE_ID"); //นำค่าของPKมาบวกด้วย 1
                 }else{
-                    order_list_id = 1;//สร้างPKของ MS_PRODUCT
+                    invoice_id = 1;//สร้างPKของ TRAN_INVOICE
                 }
-                return order_list_id;
+                return invoice_id; //คืนค่าข้อมูลรหัสใบเสร็จ
         }
-        public String get_order_id(){
-            DBCollection get_order = db.getCollection("TRAN_ORDER");
-            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-            DBCursor finding_order_id = get_order.find().sort(sortObject);
-              String order_list_id = null;
+        public String get_order_id(){ //ฟังก์ชั่นการค้นหารหัสออเดอร์
+            DBCollection get_order = db.getCollection("TRAN_ORDER");//ดึงข้อมูลจากCollectionของออเดอร์มาใส่ในตัวแปร
+            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);//สร้างObjectเพื่อใช้หาข้อมูลลำดับสุดท้าย
+            DBCursor finding_order_id = get_order.find().sort(sortObject);//ค้นหาข้อมูลโดยจัดเรียงจากล่างขึ้นบน
+              String order_id = null;//ตัวแปรเก็บรหัสออเดอร์
               int id = 0;
                 if(finding_order_id.hasNext()==true){ //ถ้าหากว่ามีข้อมูลอยู่แล้ว
-                    DBObject data = finding_order_id.next();
+                    DBObject data = finding_order_id.next();//เก็บข้อมูลของออเดอร์ตัวแปร
                     id = 1+Integer.parseInt(data.get("TRAN_ORDER_ID").toString().substring(1,data.get("TRAN_ORDER_ID").toString().length())); //นำค่าของPKมาบวกด้วย 1
                     if(id>=10){
-                        order_list_id = "O0"+id;
+                        order_id = "O0"+id;
                     }else if(id>100){
-                        order_list_id = "O"+id;
+                        order_id = "O"+id;
                     }else if(id<10){
-                        order_list_id = "O00"+id;
+                        order_id = "O00"+id;
                     }
                 }else{
-                    order_list_id = "O00"+1;
+                    order_id = "O00"+1;
                 }
-                return order_list_id;
+                return order_id;//คืนค่าข้อมูลรหัสออเดอร์
         }
-        public DBObject get_menu(int id){
-           try{
-           DBCollection get_order = db.getCollection("MS_MENU"); 
-           BasicDBObject sortObject = new BasicDBObject("MS_MENU_ID",id);
-           DBCursor finding_menu = get_order.find(sortObject);
-           DBObject menu_json = null;
-           if(finding_menu.hasNext()==true){
-               menu_json = finding_menu.next();
-           }
-           return menu_json;
-           }catch(Exception e){
-               e.printStackTrace();
-               throw new NullPointerException();
+        public DBObject get_menu(int id){ //ฟังก์ชั่นการค้นหาข้อมูลเมนู
+           try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+           DBCollection get_order = db.getCollection("MS_MENU"); //ดึงข้อมูลจากCollectionของเมนูมาใส่ในตัวแปร
+           BasicDBObject sortObject = new BasicDBObject("MS_MENU_ID",id);//สร้างObjectเพื่อใช้หาข้อมูลเมนูโดยใช้รหัสเมนู
+           DBCursor finding_menu = get_order.find(sortObject); //ค้นหาข้อมูลทั้งหมดที่ตรงกับเงื่อนไข
+           DBObject menu_json = null; //กำหนดตัวแปรเพื่อใช้ในการเก็บข้อมูล
+           if(finding_menu.hasNext()==true){ //ถ้าหากว่ามีข้อมูล
+               menu_json = finding_menu.next(); //นำข้อมูลไปเก็บไว้ในตัวแปร
+           } 
+           return menu_json; //คืนค่าข้อมูลเมนู
+           }catch(Exception e){ //ถ้าหากการทำงานผิดพลาดทุกชนิด
+               e.printStackTrace(); //แสดงผลทางหน้าจอ
+               throw new NullPointerException(); //คืนค่าการทำงานผิดพลาดเกี่ยวกับค่าว่างของตัวแปร
            }
         }
         
-        public void edit_product(int id,double amount_using){
-           try{
-           DBCollection get_product = db.getCollection("MS_PRODUCT"); 
-           BasicDBObject sortObject = new BasicDBObject("MS_PRODUCT_ID",id);
-           BasicDBObject updateFields = new BasicDBObject();
-           BasicDBObject setQuery = new BasicDBObject();
-           DBCursor finding_product = get_product.find(sortObject);
-           DBObject product_json = null;
-               while(finding_product.hasNext()){
-               product_json = finding_product.next();
+        public void edit_product(int id,double amount_using){ //ฟังก์ชั่นการลบสินค้าที่ใช้
+           try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
+           DBCollection get_product = db.getCollection("MS_PRODUCT"); //ดึงข้อมูลจากCollectionของสินค้ามาใส่ในตัวแปร
+           BasicDBObject sortObject = new BasicDBObject("MS_PRODUCT_ID",id); //สร้างObjectในการค้นหาข้อมูลของสินค้าจากรหัสสินค้า
+           BasicDBObject updateFields = new BasicDBObject(); //สร้างObjectในการเก็บข้อมูลที่จะแก้ไข
+           BasicDBObject setQuery = new BasicDBObject();//สร้างObjectในการตั้งค่าการแทนข้อมูลใหม่
+           DBCursor finding_product = get_product.find(sortObject); //ค้นหาข้อมูลทั้งหมดที่ตรงกับเงื่อนไข
+           DBObject product_json = null; //สร้างตัวแปรเพื่อใช้เก็บจ้อมูลสินค้า
+               while(finding_product.hasNext()){ //สร้างloop while จะหยุดทำงานต่อเมื่อไม่มีข้อมูลตัวถัดไป
+               product_json = finding_product.next(); //นำข้อมูลของสินค้าไปเก็บไว้ในตัวแปร
                //System.out.println(product_json);
-               double product_amount = (double)product_json.get("MS_PRODUCT_AMOUNT");
-               System.out.println(product_amount-amount_using);
-               if(product_amount-amount_using>=0){
-                   DecimalFormat f = new DecimalFormat("##.00");
-                   double output = product_amount-amount_using;
-                   updateFields.put("MS_PRODUCT_AMOUNT",Double.parseDouble(f.format(output)));
-               }else{
-                   throw new Exception();
+               double product_amount = (double)product_json.get("MS_PRODUCT_AMOUNT"); //ดึงจำนวนของสินค้าที่มี
+               //System.out.println(product_amount-amount_using);
+               if(product_amount-amount_using>=0){ //ถ้าหากว่าจำนวนสามารถหักลบแล้วมากกว่า 0
+                   DecimalFormat f = new DecimalFormat("##.00"); //ทศนิยมของจำนวนจะต้องไม่เกิน 2 ตำแหน่ง
+                   double output = product_amount-amount_using; //ลบจำนวนที่ใช้ในจำนวนของสินค้า
+                   updateFields.put("MS_PRODUCT_AMOUNT",Double.parseDouble(f.format(output))); //เพิ่มข้อมูลจำนวนที่จะอัพเดท
+               }else{ //ถ้าหากว่าไม่สามารถลบได้
+                   throw new Exception(); //คืนค่าการทำงานผิดพลาด
                }
-           setQuery.append("$set", updateFields);
-           //updateFields.append("MS_PARTNER_TYPE",type);
-           get_product.update(product_json,setQuery);
+           setQuery.append("$set", updateFields); //ตั้งค่าการอัพเดทข้อมูล
+           get_product.update(product_json,setQuery);//อัพเดทข้อมูลในdatabase
            }
-           }catch(Exception e){
-               e.printStackTrace();
-               throw new ArithmeticException();
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+               e.printStackTrace(); //แสดงออกการผิดพลาดทางหน้าจอ
+               throw new ArithmeticException(); //คืนค่าความผิดพลาดทางคณิตศาสตร์
            }
            
         }
-          public int sessionnow(){
-            db = v.getConnect();
-            DBCollection log = db.getCollection("TRAN_LOG");
-            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);
-            DBCursor cur = log.find().sort(sortObject);
-            int emp_id = (int)cur.one().get("MS_EMPLOYEE_ID");
-            BasicDBObject search = new BasicDBObject();
-            search.put("MS_EMPLOYEE_ID",emp_id);
+          public int sessionnow(){ 
+            db = v.getConnect(); //ใช้งาน Method การเชื่อมต่อ
+            DBCollection log = db.getCollection("TRAN_LOG"); //ดึงข้อมูลจาก Collection ของประวัติการใช้งานมาใส่ในตัวแปร
+            BasicDBObject sortObject = new BasicDBObject().append("_id", -1);//สร้างObjectชื่อ search เพื่อใช้เก็บข้อมูลที่ใช้ค้นหาตัวสุดท้าย
+            DBCursor cur = log.find().sort(sortObject);//ค้นหาข้อมูลทั้งหมดของประวัติการใช้งาน (TRAN_LOG)ตัวสุดท้าย
+            int emp_id = (int)cur.one().get("MS_EMPLOYEE_ID"); //กำหนดตัวแปรเพื่อเก็บข้อมูลรหัสของพนักงาน
             return emp_id;
     }
-          public String get_date(){
-                 DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
-                String formattedDate = formatter.format(LocalDate.now());
-                String month = v.month(Integer.parseInt(formattedDate.substring(4,6)));
-                String year = formattedDate.substring(0,4);
-                String date = formattedDate.substring(formattedDate.length()-2,formattedDate.length());
-                return month+" "+date+", "+year;
+          public String get_date(){ //ฟังก์ชั่นการเรียกวันปัจจุบัน
+                DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+                String formattedDate = formatter.format(LocalDate.now()); //ดึงค่าวันที่ปัจจุบัน
+                 String month = v.month(Integer.parseInt(formattedDate.substring(4,6))); //ใช้งานฟังก์ชั่นแปลงลำดับของเดือนเป็นชื่อเดือน
+                String year = formattedDate.substring(0,4); //ปีปัจจุบัน
+                String date = formattedDate.substring(formattedDate.length()-2,formattedDate.length()); //วันที่ปัจจุบัน
+                return month+" "+date+", "+year; //คืนค่าวันที่
           }
-         public void clearing_order(){
-            DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");
-            DBCursor finding_order_list = get_order_list.find();
-            while (finding_order_list.hasNext()) {
-                get_order_list.remove(finding_order_list.next());
+         public void clearing_order(){ //ฟังก์ชั่นเคลียร์ข้อมูลรายการออเดอร์
+            DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST"); //ดึงข้อมูลจากCollectionของรายการออเดอร์ามาใส่ในตัวแปร
+            DBCursor finding_order_list = get_order_list.find(); //ค้นหาข้อมูลทั้งหมดของรายการออเดอร์
+            while (finding_order_list.hasNext()) { //ถ้าหากว่ามีข้อมูลตัวถัดไป
+                get_order_list.remove(finding_order_list.next()); //ลบข้อมูลรายการออเดอร์
             }
         }   
           
@@ -472,9 +462,9 @@ try{
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        try{
-        double income = 0;
-        do{
+        try{ //ดักจับข้อผิดพลาดโดยใช้ try-catch
+        double income = 0; //เงินที่รับจากลูกค้า
+        do{ //ทำซ้ำจนกว่าเงินที่ได้รับจากลูกค้าจะมากกว่าราคารวม
         income = Double.parseDouble(JOptionPane.showInputDialog(null,"ได้รับเงินจากลูกค้าจำนวน(บาท)"));
         if(income>=Double.parseDouble(order_total_txt.getText())){
             break;
@@ -482,68 +472,68 @@ try{
             JOptionPane.showMessageDialog(null,"คุณกรอกจำนวนเงินไม่ถูกต้อง\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);
         }
         }while(income<Double.parseDouble(order_total_txt.getText()));
-        DBCollection get_order = db.getCollection("TRAN_ORDER");
-        DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");
-        DBCollection get_invoice = db.getCollection("TRAN_INVOICE");
-        int menu_amount = 0;
-        DBCursor find_order_list = get_order_list.find();
-        DBObject order_list_json = null;
-        while(find_order_list.hasNext()){
-            order_list_json = find_order_list.next();
-            order_list.add(order_list_json);
-            int menu_id = (int)order_list_json.get("MS_MENU_ID");
-            menu_amount = (int)order_list_json.get("TRAN_ORDER_LIST_AMOUNT");
-            for(int i =0;i<menu_amount;i++){
-            BasicDBList list = (BasicDBList)(get_menu(menu_id).get("MS_MENU_PRODUCT"));
-            for(Object el: list) {
-                DBObject product = (DBObject)el;
-                edit_product((int)product.get("MS_PRODUCT_ID"),(double)product.get("MS_PRODUCT_AMOUNT"));
+        DBCollection get_order = db.getCollection("TRAN_ORDER");//ดึงข้อมูลจากCollectionของออเดอร์มาใส่ในตัวแปร
+        DBCollection get_order_list = db.getCollection("TRAN_ORDER_LIST");//ดึงข้อมูลจากCollectionของรายการออเดอร์ามาใส่ในตัวแปร
+        DBCollection get_invoice = db.getCollection("TRAN_INVOICE");//ดึงข้อมูลจากCollectionของใบเสร็จมาใส่ในตัวแปร
+        int menu_amount = 0;//จำนวนเมนู
+        DBCursor find_order_list = get_order_list.find(); //ค้นหาข้อมูลของรายการออเดอร์ทั้งหมด
+        DBObject order_list_json = null; //ตัวแปรเก็บข้อมูลของรายการออเดอร์
+        while(find_order_list.hasNext()){ //ถ้าหากมีรายการออเดอรตัวถัดไปอยู่
+            order_list_json = find_order_list.next(); //ดึงข้อมูลรายการออเดอร์เก็บใส่ตัวแปร
+            order_list.add(order_list_json); //เพิ่มข้อมูลรายการออเดอร์ใส่ใน List
+            int menu_id = (int)order_list_json.get("MS_MENU_ID"); //รหัสเมนู
+            menu_amount = (int)order_list_json.get("TRAN_ORDER_LIST_AMOUNT"); //จำนวนเมนูที่สั่ง
+            for(int i =0;i<menu_amount;i++){ //ทำซ้ำตามจำนวนเมนูที่สั่ง
+            BasicDBList list = (BasicDBList)(get_menu(menu_id).get("MS_MENU_PRODUCT")); //ดึงวัตถุดิบที่ใช้ออกมาเป็นList
+            for(Object el: list) { //ดึงข้อมูลในListเพิ่อวนซ้ำ
+                DBObject product = (DBObject)el; //ดึงข้อมูลของสินค้าที่ใช้
+                edit_product((int)product.get("MS_PRODUCT_ID"),(double)product.get("MS_PRODUCT_AMOUNT")); //ฟังก์ชั่นการลบจำนวนสินค้าที่ใช้
             }
             }
         }
-        BasicDBObject order_doc = new BasicDBObject();
-        order_doc.put("TRAN_ORDER_ID",get_order_id());
-        if(!customer_id_txt.getText().isEmpty()){
+        BasicDBObject order_doc = new BasicDBObject(); //สร้างตัวแปรเพื่อเก็บข้อมูลของออเดอร์
+        order_doc.put("TRAN_ORDER_ID",get_order_id()); //รหัสออเดอร์
+        if(!customer_id_txt.getText().isEmpty()){ //ถ้าใส่รหัสลูกค้าจะดึงข้อมูลลูกค้า
             order_doc.put("MS_CUSTOMER_ID",customer_id_txt.getText());
         }
-        order_doc.put("MS_EMPLOYEE", sessionnow());
-        order_doc.put("TRAN_ORDER_TOTAL_PRICE",order_total_txt.getText());
-        order_doc.put("TRAN_ORDER_DATE",get_date());
-        order_doc.put("TRAN_ORDER_TIME",LocalTime.now().toString().substring(0, 8));
-        order_doc.put("TRAN_ORDER_LIST",order_list);
-        BasicDBObject invoice_doc = new BasicDBObject();
-        invoice_doc.put("TRAN_INVOICE_ID",get_invoice_id());
-        invoice_doc.put("TRAN_ORDER_ID",get_order_id());
-        invoice_doc.put("TRAN_INVOICE_DATE",get_date());
-        invoice_doc.put("TRAN_INVOICE_TIME",LocalTime.now().toString().substring(0, 8));;
-        printInvoice(get_order_id(),income);
-        get_invoice.insert(invoice_doc);
-        get_order.insert(order_doc);
-        clearing_order();
-        order_list.clear();
-        this.setVisible(false);
+        order_doc.put("MS_EMPLOYEE", sessionnow()); //รหัสพนักงาน
+        order_doc.put("TRAN_ORDER_TOTAL_PRICE",order_total_txt.getText()); //ราคารวม
+        order_doc.put("TRAN_ORDER_DATE",get_date()); //วันที่
+        order_doc.put("TRAN_ORDER_TIME",LocalTime.now().toString().substring(0, 8)); //เวลา
+        order_doc.put("TRAN_ORDER_LIST",order_list); //รายการออเดอร์
+        BasicDBObject invoice_doc = new BasicDBObject(); //สร้างตัวแปรเพื่อเก็บข้อมูลของใบเสร็จ
+        invoice_doc.put("TRAN_INVOICE_ID",get_invoice_id()); //รหัสใบเสร็จ
+        invoice_doc.put("TRAN_ORDER_ID",get_order_id()); //รหัสออเดอร์
+        invoice_doc.put("TRAN_INVOICE_DATE",get_date()); //วันที่
+        invoice_doc.put("TRAN_INVOICE_TIME",LocalTime.now().toString().substring(0, 8));; //เวลา
+        printInvoice(get_order_id(),income); //ฟังก์ชั่นพิมพ์ใบเสร็จ
+        get_invoice.insert(invoice_doc); //เพิ่มใบเสร็จในDatabase
+        get_order.insert(order_doc); //เพิ่มออเดอร์ในDatabase
+        clearing_order();//เคลียร์ข้อมูลทั้งหมด
+        order_list.clear(); //ลบข้อมูลในListของรายการออเดอร์
+        this.setVisible(false); //ซ่อนหน้านี้
         Main m = new Main();
         m.setVisible(false);
-        m.setVisible(true);
-        }catch(ArithmeticException e){
-            JOptionPane.showMessageDialog(null,"ไม่สามารถดำเนินการได้\nเนื่องจากวัตถุดิบไม่เพียงพอ","",ERROR_MESSAGE);
-        }catch(NullPointerException e){
-            order_list.clear();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+        m.setVisible(true);//แสดงหน้าจอหลัก
+        }catch(ArithmeticException e){ //ถ้าหากมีจำนวนไม่เพียงพอ
+            JOptionPane.showMessageDialog(null,"ไม่สามารถดำเนินการได้\nเนื่องจากวัตถุดิบไม่เพียงพอ","",ERROR_MESSAGE); //แสดงข้อความทางหน้าจอ
+        }catch(NullPointerException e){ //ถ้าหากไม่มีข้อมูล
+            order_list.clear(); //ลบข้อมูลในListของรายการออเดอร์
+        }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        try{
-        int discount = Integer.parseInt(order_discount_txt.getText());
-        total_order_price = (double)sum_order_price-(((double)sum_order_price*(double)discount)/(double)100);
-        set_total_text();
+        try{//ดักจับข้อผิดพลาดโดยใช้ try-catch
+        int discount = Integer.parseInt(order_discount_txt.getText()); //ดึงส่วนลดมาใสในตัวแปร
+        total_order_price = (double)sum_order_price-(((double)sum_order_price*(double)discount)/(double)100); //คำนวณส่วนลด
+        set_total_text();//ใช้งานฟังก์ชั่นตั้งค่าราคาสุทธิ
         //order_discount_txt.setEnabled(false);
-        }catch(Exception e){
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null,"คุณใส่จำนวนส่วนลดไม่ถูกต้อง\nกรุณากรอกเป็นจำนวนเต็มด้วยค่ะ","",ERROR_MESSAGE);
-            order_discount_txt.setText("");
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+            e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            JOptionPane.showMessageDialog(null,"คุณใส่จำนวนส่วนลดไม่ถูกต้อง\nกรุณากรอกเป็นจำนวนเต็มด้วยค่ะ","",ERROR_MESSAGE); //แสดงข้อความทางหน้าจอ
+            order_discount_txt.setText(""); //เคลียร์ส่วนลด
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
@@ -552,7 +542,8 @@ try{
     }//GEN-LAST:event_order_discount_txtMouseClicked
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-       if(first_notification==false){
+       //ให้แสดงข้อความเพียงครั้งเดียวเมื่อเข้าสู่หน้าจอ
+        if(first_notification==false){
         JOptionPane.showMessageDialog(null,"กรุณากรอกส่วนลดเป็นจำนวนเต็มด้วยค่ะ\nถ้าหากไม่มีส่วนลด กรุณากรอกเลข 0 หรือ ปล่อยช่องให้เว้นว่างไว้ค่ะ\nRange(1-100) หน่วย:เปอร์เซนต์");
         first_notification = true;
        }else{
@@ -560,26 +551,26 @@ try{
     }//GEN-LAST:event_formWindowActivated
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if(customer_id_txt.getText().isEmpty()){
+        if(customer_id_txt.getText().isEmpty()){ //ตรวจสอบการกรอกรหัสลูกค้า
             JOptionPane.showMessageDialog(null,"คุณยังไม่ได้กรอกรหัสลูกค้า\nกรุณาลองใหม่ค่ะ","",ERROR_MESSAGE);
-            clear_customer();
+            clear_customer();//เคลียร์ข้อมูลลูกค้า
         }else{
-            try{
-                DBObject customer_json = find_customer(customer_id_txt.getText());
-                String customer_id = customer_json.get("MS_CUSTOMER_ID").toString();
-                String customer_name = customer_json.get("MS_CUSTOMER_NAME").toString();
-                String customer_phone = customer_json.get("MS_CUSTOMER_PHONE").toString();
-                String customer_email = customer_json.get("MS_CUSTOMER_EMAIL").toString();
+            try{ //ดักจับข้อผิดพลาดโดยใช้ try-catch
+                DBObject customer_json = find_customer(customer_id_txt.getText()); //ค้นหาข้อมูลของลูกค้า
+                String customer_name = customer_json.get("MS_CUSTOMER_NAME").toString(); //ชื่อลูกค้า
+                String customer_phone = customer_json.get("MS_CUSTOMER_PHONE").toString(); //เบอร์โทรศัพท์
+                String customer_email = customer_json.get("MS_CUSTOMER_EMAIL").toString(); //อีเมล
                 JOptionPane.showMessageDialog(null,"ยืนยันรหัสลูกค้า "+customer_json.get("MS_CUSTOMER_ID")+"\n"
-                                                 + "ชื่อลูกค้า "+customer_json.get("MS_CUSTOMER_NAME"));
-                customer_name_txt.setText(customer_name);
-                customer_email_txt.setText(customer_email);
-                customer_phone_txt.setText(customer_phone);
+                                                 + "ชื่อลูกค้า "+customer_json.get("MS_CUSTOMER_NAME")); //แสดงหน้าต่างข้อความรายละเอียดลูกค้า
+                //ตั้งหน้าในกล่องข้อความ
+                customer_name_txt.setText(customer_name);//ชื่อลูกค้า
+                customer_email_txt.setText(customer_email);//เบอร์โทรศัพท์
+                customer_phone_txt.setText(customer_phone);//อีเมล
                 
-            }catch(Exception e){
-                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ","",ERROR_MESSAGE);
-                clear_customer();
-                e.printStackTrace();
+            }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
+                e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+                JOptionPane.showMessageDialog(null,"ไม่พบข้อมูล\nกรุณาลองใหม่อีกครั้งค่ะ","",ERROR_MESSAGE); //แสดงหน้าต่างข้อความ
+                clear_customer();//เคลียร์ข้อมูลลูกค้า
             }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
