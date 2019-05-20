@@ -219,6 +219,7 @@ public void getconnect(){ //เชื่อมต่อ Database
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("หน้าต่างแก้ไขข้อมูลลูกค้า");
         setMinimumSize(new java.awt.Dimension(713, 408));
+        setPreferredSize(new java.awt.Dimension(915, 640));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));

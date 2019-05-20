@@ -50,7 +50,7 @@ import javax.swing.table.DefaultTableModel;
 
 /**
  *
- * @author Yonshisoru
+ * @author Yonshisoru (The sadly man)!
  */
 public class Main extends javax.swing.JFrame {
 Variable v = new Variable();//สร้าง Object ใหม่จาก Variable Class เพื่อดึง Method มาใช้
@@ -108,7 +108,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
             employee_panel.setVisible(false);//หน้าต่างพนักงาน
             history_panel.setVisible(false);//หน้าต่างประวัติออเดอร์
 }
-//--------clear partner data--------------------------
+//--------customer--------------------------
     public void clear_customer(){ //ฟังก์ชั่นการเคลียร์ข้อมูลของลูกค้า
         customer_name_txt.setText(""); //ชื่อของลูกค้า
         customer_phone_txt.setText(""); //เบอร์โทรศัพท์ลูกค้า
@@ -122,6 +122,17 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
         customer_prefix.setSelectedIndex(0); //คำนำหน้าลูกค้า
         customer_birthdate_txt.setSelectedDate(calendar); //ปุ่มเลือกวันที่
     }
+  public boolean check_null_customer(){
+      if(customer_name_txt.getText().isEmpty()||customer_phone_txt.getText().isEmpty()||
+              customer_email_txt.getText().isEmpty()||customer_home_txt.getText().isEmpty()||
+              customer_locality_txt.getText().isEmpty()||customer_district_txt.getText().isEmpty()||
+              customer_province_txt.getText().isEmpty()||customer_post_txt.getText().isEmpty()){
+          return false;
+      }else{
+          return true;
+      }
+  }
+  
 //--------clear partner data--------------------------
     public void clear_partner(){ //ฟังก์ชั่นการเคลียร์ข้อมูลของบริษัทคู่ค้า
         partner_name_txt.setText(""); //ชื่อคู่ค้า
@@ -158,6 +169,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
     employee_locality_txt.setText("");//ตำบล
     employee_district_txt.setText("");//อำเภอ
     employee_province_txt.setText("");//จังหวัด
+    employee_post_txt.setText(""); //รหัสไปรษณีย์
     employee_email_txt.setText("");//อีเมลของพนักงาน
     employee_position_combo.setSelectedIndex(0);//ปุ่มตัวเลือกตำแหน่งของพนักงาน
     employee_user_txt.setText("");//รหัสผู้ใช้งานของพนักงาน
@@ -166,6 +178,17 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
     showpwd = false;//ตัวแปรแสดงรหัสผ่านให้มีค่าเป็น false
     confirm.setSelected(false); //ยกเลิกการยืนยันข้อมูล
     employee_prefix.setSelectedIndex(0); //ปุ่มตัวเลือกคำนำหน้า
+}
+        public boolean check_null_employee(){ //ฟังก์ชั่นการเคลียร์ข้อมูลของพนักงาน
+    if(employee_name_txt.getText().isEmpty()||employee_phone_txt.getText().isEmpty()||
+       employee_home_txt.getText().isEmpty()||employee_locality_txt.getText().isEmpty()||
+       employee_province_txt.getText().isEmpty()||employee_post_txt.getText().isEmpty()||
+       employee_email_txt.getText().isEmpty()||employee_user_txt.getText().isEmpty()||
+       employee_pwd_txt.getText().isEmpty()){ //ชื่อของพนักงาน
+        return false;
+    }else{
+        return true;
+    }
 }
     
     public void clear_table(DefaultTableModel table){ //ฟังก์ชั่นการลบข้อมูลในตาราง
@@ -214,8 +237,26 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
     }
-
-
+//---------------------Product-------------------------------
+      public boolean check_null_product(){
+      if(pro_name_txt.getText().isEmpty()||pro_price_txt.getText().isEmpty()||
+         pro_type_combo.getSelectedItem().toString().isEmpty()||partner_combo.getSelectedItem().toString().isEmpty()){
+          return false;
+      }else{
+          return true;
+      }
+  }
+//---------------------Partner-------------------------------
+      public boolean check_null_partner(){
+      if(partner_name_txt.getText().isEmpty()||partner_phone_txt.getText().isEmpty()||
+              partner_email_txt.getText().isEmpty()||partner_home_txt.getText().isEmpty()||
+              partner_locality_txt.getText().isEmpty()||partner_distict_txt.getText().isEmpty()||
+              partner_province_txt.getText().isEmpty()||partner_post_txt.getText().isEmpty()){
+          return false;
+      }else{
+          return true;
+      }
+  }
 //----------------------Employee---------------------------
     public void emp_age_combo(){ //ฟังก์ชั่นเพิ่มอายุในปุ่มเลือกอายุ
         for(int i =15;i<60;i++){ //สร้างลูป for เพิ่มอายุตั้งแต่ 15-60ในปุ่มเลือกอายุ
@@ -662,8 +703,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
         title_panel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         title_name_txt.setText(" ");
-        title_name_txt.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        title_panel.add(title_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 18, 250, 20));
+        title_panel.add(title_name_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 17, 250, 20));
 
         jLabel2.setText("ยินดีต้อนรับคุณ:");
         title_panel.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 20, -1, -1));
@@ -680,8 +720,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
         title_panel.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 50, -1, -1));
 
         title_position_txt.setText(" ");
-        title_position_txt.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        title_panel.add(title_position_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 48, 170, 20));
+        title_panel.add(title_position_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 47, 170, 20));
         title_panel.add(picture_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, -1, -1));
 
         getContentPane().add(title_panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 100));
@@ -780,8 +819,8 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
         customer_panel.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 150, -1, -1));
         customer_panel.add(customer_phone_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 150, 120, -1));
 
-        jLabel27.setText("อีเมลล์:");
-        customer_panel.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 150, -1, -1));
+        jLabel27.setText("อีเมล:");
+        customer_panel.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 150, -1, -1));
         customer_panel.add(customer_email_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 150, 150, -1));
 
         jLabel28.setText("วันเกิด:");
@@ -1288,7 +1327,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
         employee_panel.add(employee_birthdate_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 170, -1, -1));
 
         jLabel7.setText("เพศ:");
-        employee_panel.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 130, -1, -1));
+        employee_panel.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 135, -1, -1));
 
         employee_prefix.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "นาย", "นางสาว" }));
         employee_panel.add(employee_prefix, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, -1, -1));
@@ -1340,7 +1379,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
         });
         employee_panel.add(employee_post_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 140, 50, 20));
 
-        jLabel16.setText("อีเมลล์:");
+        jLabel16.setText("อีเมล:");
         employee_panel.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 180, -1, -1));
 
         employee_province_txt.addActionListener(new java.awt.event.ActionListener() {
@@ -1528,6 +1567,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
 
     private void customer_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_commit_btnActionPerformed
         if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลลูกค้าใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){ //แสดงหน้าต่างยืนยันการเพิ่มข้อมูลลูกค้า
+        if(check_null_customer()){
         try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
             try{//ดักจับการทำงานผิดพลาดโดยใช้ try-catch
                 DBCollection table = db.getCollection("MS_CUSTOMER");//ดึงข้อมูลจาก Collection ของลูกค้ามาใส่ในตัวแปร
@@ -1592,6 +1632,10 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
         }catch(Exception e){//ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace(); //แสดงออกการผิดพลาดทางหน้าจอ
             }
+        }else{
+            JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่สมบูรณ์\nกรุณาลองใหม่ค่ะ","",ERROR_MESSAGE);//แสดงข้อความเมื่อเพิ่มประวัติการใช้งานสำเร็จ
+            clear_customer();//ล้างข้อมูลทั้งหมดของลูกค้า
+        }
         }
     }//GEN-LAST:event_customer_commit_btnActionPerformed
 
@@ -1634,6 +1678,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
     private void partner_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partner_commit_btnActionPerformed
     int partner_id = 0;
         if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลบริษัทคู่ค้าใหม่ใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){ //แสดงผลหน้าจอประเภท2คำตอบ
+        if(check_null_partner()){
         try{//ดักจับข้อผิดพลาดโดยใช้ try-catch
             try{ //ดักจับข้อผิดพลาดโดยใช้ try-catch
                 DBCollection table = db.getCollection("MS_PARTNER"); //ดึงข้อมูลของcollection MS_PRODUCT มาใส่ในตัวแปรที่ชื่อว่า table
@@ -1681,14 +1726,18 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
                 }
                 document.put("MS_PARTNER_TYPE",type);//เพิ่มข้อมูลประเภท
                 table.insert(document); //เพิ่มชุดข้อมูลในcollection
-                clear_partner();
-                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ"); //แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
+                clear_partner();//เคลียร์ข้อมูลคู่ค้า
+                JOptionPane.showMessageDialog(null,"เพิ่มข้อมูลสินค้าเรียบร้อยแล้วค่ะ"); //แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
                 //this.setVisible(false);
             }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
         }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+        }
+        }else{
+             clear_partner();//เคลียร์ข้อมูลคู่ค้า
+             JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่สมบูรณ์\nกรุณาลองใหม่ค่ะ","",ERROR_MESSAGE);//แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ 
         }
         }
     }//GEN-LAST:event_partner_commit_btnActionPerformed
@@ -1700,6 +1749,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
     private void product_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_product_commit_btnActionPerformed
     int productid = 0;//ตัวแปรที่ใช้เก็บรหัสของสินค้า
         if(JOptionPane.showConfirmDialog(null,"คุณต้องการที่จะเพิ่มข้อมูลสินค้าใหม่ใช่หรือไม่","System",YES_NO_OPTION)==YES_OPTION){ //แสดงผลหน้าจอประเภท2คำตอบ
+        if(check_null_product()){
         try{//ดักจับข้อผิดพลาดโดยใช้ try-catch
             try{ //ดักจับข้อผิดพลาดโดยใช้ try-catch
                 DBCollection table = db.getCollection("MS_PRODUCT"); //ดึงข้อมูลของcollection MS_PRODUCT มาใส่ในตัวแปรที่ชื่อว่า table
@@ -1738,14 +1788,18 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
 
                 document.put("MS_PARTNER_ID", find_partner(partner_combo.getSelectedItem().toString()));//เพิ่มข้อมูลประเภท
                 table.insert(document); //เพิ่มชุดข้อมูลในcollection
-                clear_product();
-                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ"); //แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
+                clear_product();//ล้างข้อมูลสินค้า
+                JOptionPane.showMessageDialog(null,"เพิ่มข้อมูลสินค้าเรียบร้อยแล้วค่ะ"); //แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
                 //this.setVisible(false);
             }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
             }
         }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+        }
+        }else{
+            clear_product();//ล้างข้อมูลสินค้า
+            JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่สมบูรณ์\nกรุณาลองใหม่ค่ะ","",ERROR_MESSAGE);//แสดงผลทางหน้าจอว่าเพิ่มข้อมูลสำเร็จ
         }
         }
     }//GEN-LAST:event_product_commit_btnActionPerformed
@@ -1803,7 +1857,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
                 clear_stock();//เคลียร์ข้อมูลของหน้าต่างเพิ่มจำนวนของสินค้า
             }
         }catch(NumberFormatException e){
-                JOptionPane.showMessageDialog(null,"จำนวนไม่ถูกต้อง\nกรุณาทำรายการใหม่ด้วยครับ","",ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+                JOptionPane.showMessageDialog(null,"จำนวนไม่ถูกต้อง\nกรุณาทำรายการใหม่ด้วยค่ะ","",ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
                 clear_stock();
         }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
@@ -1895,8 +1949,9 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
 
     private void employee_commit_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_employee_commit_btnActionPerformed
         if(confirm.isSelected()==false){ //ถ้าหากว่ายังไม่ยืนยันการเพิ่มข้อมูล
-            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้ยืนยันข้อมูล\nกรุณายืนยันด้วยครับ",null,ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้ยืนยันข้อมูล\nกรุณายืนยันด้วยค่ะ",null,ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
         }else{ //ถ้าหากว่ายืนยันการเพิ่มข้อมูลแล้ว
+            if(check_null_employee()){
             String year; //ตัวแปรเก็บข้อมูลปี
             String month; //ตัวแปรเก็บข้อมูลเดือน
             String date; //ตัวแปรเก็บข้อมูลวัน
@@ -1930,10 +1985,13 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
                 document.put("MS_EMPLOYEE_HIRED_DATE",month+" "+date+", "+year); //วันที่จ้างพนักงาน
                 document.put("MS_EMPLOYEE_TYPE",employee_position_combo.getSelectedItem().toString()); //ประเภทของพนักงาน
                 table.insert(document); //เพิ่มข้อมูลใน database
-                JOptionPane.showMessageDialog(null,"ทำการลงทะเบียนสำเร็จ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+                JOptionPane.showMessageDialog(null,"เพิ่มข้อมูลพนักงานเรียบร้อยแล้วค่ะ");//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
                 clear_emp();//เคลียร์ข้อมูลทั้งหมดในหน้าต่างพนักงาน
             }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
+            }
+            }else{
+                JOptionPane.showMessageDialog(null,"คุณกรอกข้อมูลไม่สมบูรณ์\nกรุณาลองใหม่ค่ะ","",ERROR_MESSAGE);//แสดงหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
             }
         }
     }//GEN-LAST:event_employee_commit_btnActionPerformed
@@ -2112,7 +2170,7 @@ int order_list_price = -1; //ราคาของแต่ละรายกา
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
         }
         }else{//ถ้าหากไม่มีการเลือกออเดอร์
-            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้เลือกเมนูในรายการ\nกรุณาทำรายการใหม่ครับ","",ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
+            JOptionPane.showMessageDialog(null,"คุณยังไม่ได้เลือกเมนูในรายการ\nกรุณาทำรายการใหม่ค่ะ","",ERROR_MESSAGE);//แสดงผลหน้าต่างขึ้นมาทางหน้าจอพร้อมตัวหนังสือ
         }
     }//GEN-LAST:event_adding_order_btnActionPerformed
 

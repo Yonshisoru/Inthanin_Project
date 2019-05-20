@@ -203,7 +203,7 @@ DBCollection DBC; //กำหนดตัวแปรประเภท DBCollec
         jLabel1.setText("หน้าต่างแก้ไขข้อมูลบริษัทคู่ค้า");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 0, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 15, 900, 30));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 920, 30));
 
         exit_btn.setText("ยกเลิก");
         exit_btn.addActionListener(new java.awt.event.ActionListener() {

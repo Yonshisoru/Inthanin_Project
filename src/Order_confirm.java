@@ -72,11 +72,11 @@ Variable v = new Variable();//สร้าง Object ใหม่จาก Varia
         String filename = "$"+LocalDate.now()+"$"+time+"$"+/*t.getorderid()*/id+".pdf"; //เก็บชื่อไฟล์ของใบเสร็จ (วันที่+เวลา+รหัสออเดอร์)
         try{ //ดักจับการทำงานผิดพลาดโดยใช้ try-catch
         Document doc = new Document(new Rectangle(218,400),20f, 0f, 0f, 0f); //สร้างเอกสารเปล่าขึ้นมาขนาด 218x400
-        BaseFont baseFont = BaseFont.createFont("fonts/fontsgod.ttf", BaseFont.IDENTITY_H,true); //เรียกใช้งานฟอนต์พื้นฐาน
+        BaseFont baseFont = BaseFont.createFont("./fonts/fontsgod.ttf", BaseFont.IDENTITY_H,true); //เรียกใช้งานฟอนต์พื้นฐาน
         Font font = new Font(baseFont,7); //สร้างฟอนต๊ใหม่ขนาด 7
         Font topicfont = new Font(baseFont,6); //สร้างฟอนต์ใหม่ขนาด 6
         Font bigfont = new Font(baseFont,10); //สร้างฟอนต์หัวเรื่องขนาด 10
-        PdfWriter.getInstance(doc,new FileOutputStream("invoice/"+filename));//สร้างไฟล์ของบิลใบเสร็จตามชื่อที่ตั้งไว้
+        PdfWriter.getInstance(doc,new FileOutputStream("./invoice/"+filename));//สร้างไฟล์ของบิลใบเสร็จตามชื่อที่ตั้งไว้
         doc.open(); //เปิดเอกสารเปล่าขึ้นมา
         doc.add(new Paragraph(String.format("Inthanin Coffee"),bigfont)); //เพิ่มบรรทัดใหม่พร้อมทั้งตัวหนังสือ
         String date = LocalDate.now().toString().substring(LocalDate.now().toString().length()-2,LocalDate.now().toString().length());
@@ -125,6 +125,7 @@ try{ //ดักจับการทำงานผิดพลาดโดย�
    
     public Order_confirm() {
         initComponents();
+        this.setLocationRelativeTo(null); //ตั้งค่าการแสดงผลให้อยู่กลางหน้าจอ
         get_order_list((DefaultTableModel)order_table.getModel()); //ดึงข้อมูลของรายการออเดอร์จาก Database
         set_total_text(); //ตั้งค่าราคารวมทั้งหมด
     }
@@ -415,6 +416,11 @@ try{ //ดักจับการทำงานผิดพลาดโดย�
 
         jButton2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jButton2.setText("ยกเลิก");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
         getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 460, 120, 40));
 
         jButton3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -553,7 +559,10 @@ try{ //ดักจับการทำงานผิดพลาดโดย�
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         if(customer_id_txt.getText().isEmpty()){ //ตรวจสอบการกรอกรหัสลูกค้า
             JOptionPane.showMessageDialog(null,"คุณยังไม่ได้กรอกรหัสลูกค้า\nกรุณาลองใหม่ค่ะ","",ERROR_MESSAGE);
-            clear_customer();//เคลียร์ข้อมูลลูกค้า
+                total_order_price = sum_order_price; //คำนวณส่วนลด
+                set_total_text();//ใช้งานฟังก์ชั่นตั้งค่าราคาสุทธิ
+                order_discount_txt.setText("");
+                clear_customer();//เคลียร์ข้อมูลลูกค้า
         }else{
             try{ //ดักจับข้อผิดพลาดโดยใช้ try-catch
                 DBObject customer_json = find_customer(customer_id_txt.getText()); //ค้นหาข้อมูลของลูกค้า
@@ -561,11 +570,16 @@ try{ //ดักจับการทำงานผิดพลาดโดย�
                 String customer_phone = customer_json.get("MS_CUSTOMER_PHONE").toString(); //เบอร์โทรศัพท์
                 String customer_email = customer_json.get("MS_CUSTOMER_EMAIL").toString(); //อีเมล
                 JOptionPane.showMessageDialog(null,"ยืนยันรหัสลูกค้า "+customer_json.get("MS_CUSTOMER_ID")+"\n"
-                                                 + "ชื่อลูกค้า "+customer_json.get("MS_CUSTOMER_NAME")); //แสดงหน้าต่างข้อความรายละเอียดลูกค้า
+                                                 + "ชื่อลูกค้า "+customer_json.get("MS_CUSTOMER_NAME")+"\n\n"
+                                                         + "ได้รับส่วนลด 5% จากราคาทั้งหมด"); //แสดงหน้าต่างข้อความรายละเอียดลูกค้า
                 //ตั้งหน้าในกล่องข้อความ
                 customer_name_txt.setText(customer_name);//ชื่อลูกค้า
                 customer_email_txt.setText(customer_email);//เบอร์โทรศัพท์
                 customer_phone_txt.setText(customer_phone);//อีเมล
+                order_discount_txt.setText("5");
+                int discount = Integer.parseInt(order_discount_txt.getText()); //ดึงส่วนลดมาใสในตัวแปร
+                total_order_price = (double)sum_order_price-(((double)sum_order_price*(double)discount)/(double)100); //คำนวณส่วนลด
+                set_total_text();//ใช้งานฟังก์ชั่นตั้งค่าราคาสุทธิ
                 
             }catch(Exception e){ //ดักจับการทำงานผิดพลาดทุกอย่างโดยให้ชื่อว่า e
                 e.printStackTrace();//แสดงออกการผิดพลาดทางหน้าจอ
@@ -574,6 +588,12 @@ try{ //ดักจับการทำงานผิดพลาดโดย�
             }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        this.setVisible(false);
+        Main m = new Main();
+        m.setVisible(true);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
